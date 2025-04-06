@@ -1,4 +1,4 @@
-from vocsDBconnect import VocabularyDB
+from modules import VocabularyDB
 
 db = VocabularyDB()
 

@@ -1,7 +1,7 @@
 import sqlite3
 
 class VocabularyDB:
-    def __init__(self, db_path="vocs.db"):
+    def __init__(self, db_path="../vocs_data/vocs.db"):
         self.db_path = db_path
 
     def _connect(self):
