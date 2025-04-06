@@ -1,7 +1,7 @@
 import sqlite3
 
 class VocabularyDB:
-    def __init__(self, db_path="../vocs_data/vocs.db"):
+    def __init__(self, db_path="vocs_data/vocs.db"):
         self.db_path = db_path
 
     def _connect(self):
@@ -77,6 +77,15 @@ class VocabularyDB:
             "part_of_speech": ['adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'],
             "level": list(range(1, 7))
         }
+    
+    def get_example_sentences(self, voc_id):
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT sentence FROM example_sentences
+                WHERE voc_id = ?
+            ''', (voc_id,))
+            return [row[0] for row in cursor.fetchall()]
 
         
     

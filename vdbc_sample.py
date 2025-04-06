@@ -1,4 +1,4 @@
-from modules import VocabularyDB
+from modules.vocsDBconnect import VocabularyDB
 
 db = VocabularyDB()
 
@@ -20,4 +20,7 @@ db = VocabularyDB()
 # 查詢特定欄位有哪些值(distinct)
 # print(db.list_column_values('part_of_speech'))
 
-print(db.get_valid_conditions())
+# print(db.get_valid_conditions())
+
+# 查詢例句
+print(db.get_example_sentences('0_able'))
