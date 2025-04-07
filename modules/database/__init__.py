@@ -1,0 +1,1 @@
+from .vocsDBconnect import VocabularyDB
