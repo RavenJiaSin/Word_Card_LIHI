@@ -18,59 +18,60 @@ class VocabularyDB:
             print(f"[ERROR] Failed to fetch all records: {e}")
             return []
 
-    # 查詢單字
-    def find_vocabulary(self, voc, column=None):
-        try:
-            with self._connect() as conn:
-                cursor = conn.cursor()
-                if column is not None:
-                    # 僅允許合法欄位
-                    valid_columns = {"ID", "Vocabulary", "Part_of_speech", "Translation", "Level"}
-                    if column not in valid_columns:
-                        raise ValueError(f"Invalid column name: {column}")
-
-                    query = f"SELECT {column} FROM vocs_raw WHERE Vocabulary = ?"
-                    cursor.execute(query, (voc,))
-                else:
-                    cursor.execute("SELECT * FROM vocs_raw WHERE Vocabulary = ?", (voc,))
-                return cursor.fetchall()
-        except (sqlite3.Error, ValueError) as e:
-            print(f"[ERROR] Failed to find vocabulary '{voc}': {e}")
-            return []
-
-
-    # 查詢pos或level
-    def find_by_conditions(self, part_of_speech=None, level=None):
+    def find_vocabulary(self, voc=None, column=None, part_of_speech=None, level=None):
+        # 定義有效的欄位、詞性和等級
+        valid_columns = {"ID", "Vocabulary", "Part_of_speech", "Translation", "Level"}
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}
         valid_levels = {1, 2, 3, 4, 5, 6}
 
         try:
+            # 檢查傳入的欄位是否有效
+            if column is not None and column not in valid_columns:
+                raise ValueError(f"Invalid column name: {column} in {str(valid_columns)}")
+
+            # 檢查詞性和等級是否有效
             if part_of_speech is not None and part_of_speech not in valid_pos:
-                raise ValueError(f"Invalid part_of_speech: {part_of_speech}")
+                raise ValueError(f"Invalid part_of_speech: {part_of_speech} in {str(valid_pos)}")
 
             if level is not None and level not in valid_levels:
-                raise ValueError(f"Invalid level: {level}")
+                raise ValueError(f"Invalid level: {level} in {str(valid_levels)}")
 
+            # 建立查詢語句和參數
+            query = "SELECT * FROM vocs_raw WHERE 1=1"
+            params = []
+
+            # 如果有提供voc，則添加條件
+            if voc is not None:
+                query += " AND Vocabulary = ?"
+                params.append(voc)
+
+            # 如果有提供column，則選擇指定的欄位
+            if column is not None:
+                query = f"SELECT {column} FROM vocs_raw WHERE Vocabulary = ?"
+                params = [voc]  # 重設參數，只查詢指定的欄位
+
+            # 如果有提供詞性，則添加條件
+            if part_of_speech is not None:
+                query += " AND Part_of_speech = ?"
+                params.append(part_of_speech)
+
+            # 如果有提供等級，則添加條件
+            if level is not None:
+                query += " AND Level = ?"
+                params.append(level)
+
+            # 執行查詢
             with self._connect() as conn:
                 cursor = conn.cursor()
-                query = "SELECT * FROM vocs_raw WHERE 1=1"
-                params = []
-
-                if part_of_speech is not None:
-                    query += " AND Part_of_speech = ?"
-                    params.append(part_of_speech)
-
-                if level is not None:
-                    query += " AND Level = ?"
-                    params.append(level)
-
                 cursor.execute(query, tuple(params))
                 return cursor.fetchall()
+
         except (sqlite3.Error, ValueError) as e:
-            print(f"[ERROR] Failed to search with conditions: {e}")
-            return []
+            print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
+            return None
+
         
-    # 查詢特定欄位有哪些值(distinct)
+    # 查詢欄位合法值
     def get_valid_conditions(self):
         return {
             "database_columns": ["ID", "Vocabulary", "Part_of_speech", "Translation", "Level"],
@@ -78,6 +79,7 @@ class VocabularyDB:
             "level": list(range(1, 7))
         }
     
+    # 查詢例句(use ID)
     def get_example_sentences(self, voc_id):
         with self._connect() as conn:
             cursor = conn.cursor()

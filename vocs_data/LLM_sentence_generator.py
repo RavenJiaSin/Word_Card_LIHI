@@ -1,10 +1,8 @@
+# 執行一次本程式就會新增一個例句到vocs.db裡的example_sentence table
+
 import sys
 import os
-
-base_dir = os.path.dirname(os.path.dirname(__file__))
-modules_path = os.path.join(base_dir, "modules")
-sys.path.append(modules_path)
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'modules')))
 from vocsDBconnect import VocabularyDB
 #from modules.vocsDBconnect import VocabularyDB
 import ollama
@@ -45,6 +43,9 @@ def write_example_sentence_to_db(voc_id, sentence):
         print(f"[ERROR] Failed to insert example sentence for {voc_id}: {e}")
 
 if __name__ == '__main__':
+    check = input('執行一次本程式就會新增一個例句到vocs.db裡的example_sentence table, 是否要繼續執行(y/n)').lower()
+    if check != 'y':exit()
+    
     with db._connect() as conn:
         cursor = conn.cursor()
         cursor.execute('''
@@ -57,7 +58,7 @@ if __name__ == '__main__':
         ''')
         conn.commit()
 
-    for row in tqdm(db.get_all(), desc="Processing", dynamic_ncols=True):
+    for row in tqdm(db.get_all(), desc="Processing...", dynamic_ncols=True):
         voc_id = row[0]
         vocabulary = row[1]
         part_of_speech = row[2]
