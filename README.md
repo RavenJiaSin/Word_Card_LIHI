@@ -6,14 +6,19 @@
 
 terminal執行:`$ conda create --name <env-name> --file requirements.txt`
 
+---
+
 ### 2. vocs_data
 除非有需要更動Database,不然不建議執行或改動其中程式
+
+---
 
 ### 3. modules
 若在目錄`\Word_Card_LIHI` 可直接使用
 ```python
 from modules.<module_name> import <module_class>
 ```
+
 ---
 
 #### modules\vocsDBconnect.py
