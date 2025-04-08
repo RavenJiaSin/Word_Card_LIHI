@@ -53,6 +53,7 @@ if __name__ == '__main__':
             example_id INTEGER PRIMARY KEY AUTOINCREMENT,
             voc_id TEXT,
             sentence TEXT,
+            translation TEXT,
             FOREIGN KEY (voc_id) REFERENCES vocs_raw(ID)
         )
         ''')
