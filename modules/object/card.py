@@ -16,11 +16,11 @@ class Card(Button):
         self.setClick(lambda:print('Clicked Card'))
         self.setWiggle()
         self.__name = "Card"
-        self.description = "This is a description."
+        self.__description = "This is a description."
 
     def setName(self, name:str):
         self.__name = name
 
     def setDescription(self, description:str):
-        self.description = description
+        self.__description = description
             

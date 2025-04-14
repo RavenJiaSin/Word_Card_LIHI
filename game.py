@@ -1,6 +1,5 @@
 import pygame as pg
-from modules.state import State
-from modules.state import Menu_State
+from modules.state import State, Menu_State
 from modules.manager import font_map
 
 FPS = 60
