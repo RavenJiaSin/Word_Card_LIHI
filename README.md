@@ -40,11 +40,18 @@ method:
         part_of_speech: Any | None = None,
         level: Any | None = None
     ) -> Any
+    valid_columns = {"ID", "Vocabulary", "Part_of_speech", "Translation", "Level"}
+    valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}
+    valid_levels = {1, 2, 3, 4, 5, 6}
     ```
 2. `.get_example_sentences()`
     
     return type: list
     ```python
-    (method) def get_example_sentences(voc_id: Any) -> list[Any]
+    (method) def get_example_sentences(
+        voc_id: Any | None = None,
+        column: Any | None = None
+    ) -> (list[Any] | None)
+    valid_columns = {"example_id", "voc_id", "sentence", "translation"}
     ```
 ---

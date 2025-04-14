@@ -19,6 +19,11 @@ class VocabularyDB:
             return []
 
     def find_vocabulary(self, voc=None, column=None, part_of_speech=None, level=None):
+        """
+        valid_columns = {"ID", "Vocabulary", "Part_of_speech", "Translation", "Level"}\n
+        valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}\n
+        valid_levels = {1, 2, 3, 4, 5, 6}
+        """
         # 定義有效的欄位、詞性和等級
         valid_columns = {"ID", "Vocabulary", "Part_of_speech", "Translation", "Level"}
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}
@@ -80,14 +85,40 @@ class VocabularyDB:
         }
     
     # 查詢例句(use ID)
-    def get_example_sentences(self, voc_id):
-        with self._connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute('''
-                SELECT sentence FROM example_sentences
-                WHERE voc_id = ?
-            ''', (voc_id,))
-            return [row[0] for row in cursor.fetchall()]
+    def get_example_sentences(self, voc_id=None, column=None):
+        """
+        valid_columns = {"example_id", "voc_id", "sentence", "translation"}
+        """
+        # 定義有效的欄位、詞性和等級
+        valid_columns = {"example_id", "voc_id", "sentence", "translation"}
+        
+        try:
+            # 檢查傳入的欄位是否有效
+            if column is not None and column not in valid_columns:
+                raise ValueError(f"Invalid column name: {column} in {str(valid_columns)}")
+            
+            # 建立查詢語句和參數
+            query = "SELECT * FROM example_sentences WHERE 1=1"
+            params = []
+
+            # 如果有提供voc_id，則添加條件
+            if voc_id is not None:
+                query += " AND voc_id = ?"
+                params.append(voc_id)
+
+            # 如果有提供column，則選擇指定的欄位
+            if column is not None:
+                query = f"SELECT {column} FROM example_sentences WHERE voc_id = ?"
+                params = [voc_id]  # 重設參數，只查詢指定的欄位
+
+            # 執行查詢
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, tuple(params))
+                return cursor.fetchall()
+        except (sqlite3.Error, ValueError) as e:
+            print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
+            return None
 
         
     

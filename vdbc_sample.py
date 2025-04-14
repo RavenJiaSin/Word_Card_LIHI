@@ -25,4 +25,4 @@ print(db.find_vocabulary(voc='apple',column='ID'))
 # print(db.get_valid_conditions())
 
 # 查詢例句(use ID)
-print(db.get_example_sentences('0_able'))
+print(db.get_example_sentences(voc_id='0_able', column='translation' ))
