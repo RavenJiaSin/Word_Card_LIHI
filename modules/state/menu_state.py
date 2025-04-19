@@ -4,6 +4,7 @@ from modules.object.card import Card
 from .state import State
 from ..object import Button
 from ..object import Text_Button
+from ..object import Carousel
 
 class Menu_State(State):
     """首頁狀態。繼承自`State`。
@@ -54,15 +55,21 @@ class Menu_State(State):
             self.card_packet_button.setClick(self.open_card_pack)
             self.all_sprites.add(self.card_packet_button)
 
+        self.daily_card = Carousel(center=card_pack_pos, card_size=200, zoom_factor=0.3, speed=1)
+
     def open_card_pack(self):
         self.card_pack = False
         self.all_sprites.remove(self.card_packet_button)
         
     # override
-    def update(self):
-        self.all_sprites.update()
+    def update(self, event_list):
+        self.all_sprites.update(event_list)
+        if (not self.card_pack):
+            self.daily_card.update(event_list)
 
     # override
     def render(self):
         game.draw_text(game.window, "Menu", 50, game.WINDOW_WIDTH/2, 50)
         self.all_sprites.draw(game.window)
+        if (not self.card_pack):
+            self.daily_card.draw(game.window)

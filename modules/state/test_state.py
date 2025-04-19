@@ -18,8 +18,8 @@ class Test_State(State):
         self.all_sprites.add(card)
 
     # override
-    def update(self):
-        self.all_sprites.update()
+    def update(self, event_list):
+        self.all_sprites.update(event_list)
 
     # override
     def render(self):

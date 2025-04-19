@@ -30,9 +30,10 @@ class Button(Object):
                 if(self.rect.collidepoint(e.pos)):
                     self.__click()
    # override
-    def update(self):
-        self.__handle_event(game.event_list)
+    def update(self, event_list):
+        self.__handle_event(event_list)
         self.__wiggle()
+        super().update(event_list)
 
     def setWiggle(self):
         """開始物件抖動,呼叫stopWiggle()停止
@@ -63,7 +64,6 @@ class Button(Object):
             self.y -= (wiggleSpeed * game.deltaTick / 1000)
         else:
             self.__goDown = True
-        self.rect.centery = int(self.y)
 
 
     def setClick(self,func:Callable[[], None] = lambda: None):

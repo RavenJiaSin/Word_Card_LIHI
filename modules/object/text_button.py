@@ -1,4 +1,3 @@
-from typing import Callable
 import pygame as pg
 from .button import Button
 import game
@@ -29,13 +28,4 @@ class Text_Button(Button):
         text_rect.centerx = self.width / 2
         text_rect.centery = self.height / 2
         self.image.blit(text_surface, text_rect)
-
-    #override
-    def draw(
-        self, surface, bgsurf=None, special_flags=0
-    ):
-        print('eeeee')
-        super().draw(surface, bgsurf, special_flags)
-        game.draw_text(surface, self.__text, self.__font_size, self.x + self.width / 2, self.y + self.height / 2, self.__font)
-
         
