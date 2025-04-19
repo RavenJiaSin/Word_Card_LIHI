@@ -1,5 +1,6 @@
 from .button import Button
-    
+from ..manager import img_map
+
 class Card(Button):
     """卡片物件。繼承自Button。
 
@@ -10,9 +11,9 @@ class Card(Button):
         __description (str): 卡片描述。透過`setDescription`更改
     
     """
-    def __init__(self, pos=(0,0), size:int=50, img=None):
+    def __init__(self, pos=(0,0), size:int=50, name:str='test_poker'):
         size = (size,size*1.5)
-        super().__init__(pos, size, img)
+        super().__init__(pos, size, img_map[name])
         self.setClick(lambda:print('Clicked Card'))
         self.setWiggle()
         self.__name = "Card"

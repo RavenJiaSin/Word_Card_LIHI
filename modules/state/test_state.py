@@ -3,7 +3,6 @@ import game
 from .state import State
 from ..object import Button
 from ..object import Card
-from ..manager import img_map
 
 class Test_State(State):
 
@@ -15,7 +14,7 @@ class Test_State(State):
         menu_button.setClick(lambda:game.chage_state(Menu_State()))
         self.all_sprites.add(menu_button)
 
-        card = Card(pos=(game.WINDOW_WIDTH/2, 200), size=100, img=img_map['test_poker'])
+        card = Card(pos=(game.WINDOW_WIDTH/2, 200), size=100, name='test_poker')
         self.all_sprites.add(card)
 
     # override
