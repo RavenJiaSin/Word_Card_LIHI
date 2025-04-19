@@ -18,13 +18,18 @@ class Menu_State(State):
     """
     def __init__(self):
         from ..state import Test_State # 在這邊import是為了避免circular import
-
+        from ..state import Practice_State
         self.all_sprites = pg.sprite.Group()
 
         test_button = Button(pos=(game.WINDOW_WIDTH/2,game.WINDOW_HEIGHT/2), size=(80,60))
 
         test_button.setClick(lambda:game.chage_state(Test_State()))
         self.all_sprites.add(test_button)
+        
+        quiz_button = Button(pos=(game.WINDOW_WIDTH/3,game.WINDOW_HEIGHT/2), size=(80,60))
+        
+        quiz_button.setClick(lambda:game.chage_state(Practice_State()))
+        self.all_sprites.add(quiz_button)
 
         exit_button = Button(pos=(game.WINDOW_WIDTH/2,game.WINDOW_HEIGHT/2+100), size=(80,60))
         exit_button.setClick(lambda:pg.event.post(pg.event.Event(pg.QUIT)))
