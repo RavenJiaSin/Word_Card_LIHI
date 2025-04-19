@@ -23,6 +23,8 @@ class Menu_State(State):
 
     def __init__(self):
 
+        from ..state import Card_Collection_State
+
         self.all_sprites = pg.sprite.Group()
 
         button_x = 150
@@ -37,7 +39,7 @@ class Menu_State(State):
         self.all_sprites.add(match_button)
 
         card_collection_button = Text_Button(pos=(button_x, game.WINDOW_HEIGHT / 6 * 3.5), size=button_wh, text='卡牌庫')
-        # tcard_collection_button.setClick(lambda:game.chage_state(Test_State()))
+        card_collection_button.setClick(lambda:game.chage_state(Card_Collection_State()))
         self.all_sprites.add(card_collection_button)
 
         statistic_button = Text_Button(pos=(button_x, game.WINDOW_HEIGHT / 6 * 4.5), size=button_wh, text='統計資料')
