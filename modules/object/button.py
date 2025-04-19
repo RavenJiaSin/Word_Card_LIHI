@@ -24,15 +24,16 @@ class Button(Object):
         self.__goDown = True
 
     # override
-    def __handle_event(self, event_list):
-        for e in event_list:
+    def __handle_event(self):
+        for e in game.event_list:
             if e.type == pg.MOUSEBUTTONDOWN:
                 if(self.rect.collidepoint(e.pos)):
                     self.__click()
    # override
     def update(self):
-        self.__handle_event(game.event_list)
+        self.__handle_event()
         self.__wiggle()
+        super().update()
 
     def setWiggle(self):
         """開始物件抖動,呼叫stopWiggle()停止
@@ -63,7 +64,6 @@ class Button(Object):
             self.y -= (wiggleSpeed * game.deltaTick / 1000)
         else:
             self.__goDown = True
-        self.rect.centery = int(self.y)
 
 
     def setClick(self,func:Callable[[], None] = lambda: None):
