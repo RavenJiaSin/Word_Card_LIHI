@@ -34,20 +34,20 @@ class Carousel():
         if self.angle_offset >= 2 * math.pi:
             self.angle_offset %= 2 * math.pi
 
-    def __handle_event(self, event_list):
-        for e in event_list:
+    def __handle_event(self):
+        for e in game.event_list:
             if e.type == pg.MOUSEWHEEL:
                 self.rotate(e.y * self.speed)
 
-    def update(self, event_list):
-        self.__handle_event(event_list)
+    def update(self):
+        self.__handle_event()
         angle_step = 2 * math.pi / len(self.cards.sprites())
         for i, card in enumerate(self.cards.sprites()):
             angle = self.angle_offset + i * angle_step
             scale = 1 + self.zoom_factor * math.cos(angle)
             x = self.center_x + self.radius * math.sin(angle)
             card.transform(x=x, scale=scale)
-            card.update(event_list)
+            card.update()
 
     def draw(self, surface):
         # 根據 scale (depth) 排序後再畫

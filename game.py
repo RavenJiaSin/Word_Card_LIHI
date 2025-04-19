@@ -42,12 +42,12 @@ class Game:
                 if e.type == EVENT_CHANGE_STATE:
                     self.__state = e.dict["state"]
                     break
-            self.__update(event_list)
+            self.__update()
             self.__render()
             
 
-    def __update(self, event_list):
-        self.__state.update(event_list)
+    def __update(self):
+        self.__state.update()
 
     def __render(self):
         global window

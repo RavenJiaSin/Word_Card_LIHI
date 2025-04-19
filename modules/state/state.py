@@ -8,7 +8,7 @@ class State(ABC):
     範例參考`Menu_State`和`Test_State`。
     """
     @abstractmethod
-    def update(self, event_list):
+    def update(self):
         ...
 
     @abstractmethod
