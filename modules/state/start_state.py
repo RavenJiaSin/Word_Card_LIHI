@@ -10,13 +10,13 @@ class Start_State(State):
     
     """
     def __init__(self):
-        from ..state import Main_State # 在這邊import是為了避免circular import
+        from ..state import Menu_State # 在這邊import是為了避免circular import
 
         self.all_sprites = pg.sprite.Group()
 
-        enter_button = Text_Button(pos=(game.WINDOW_WIDTH/2,game.WINDOW_HEIGHT/2), size=(80,40), text='ENTER', font_size=20)
+        enter_button = Text_Button(pos=(game.WINDOW_WIDTH/2,game.WINDOW_HEIGHT/2 + 20), size=(80,40), text='ENTER', font_size=20)
 
-        enter_button.setClick(lambda:game.chage_state(Main_State()))
+        enter_button.setClick(lambda:game.chage_state(Menu_State()))
         self.all_sprites.add(enter_button)
         
     # override
@@ -25,5 +25,5 @@ class Start_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.window, "WORD卡厲害", 50, game.WINDOW_WIDTH/2, 60)
+        game.draw_text(game.window, "WORD卡厲害", 50, game.WINDOW_WIDTH/2, game.WINDOW_HEIGHT/2 - 50)
         self.all_sprites.draw(game.window)
