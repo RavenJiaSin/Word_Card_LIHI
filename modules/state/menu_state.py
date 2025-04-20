@@ -2,9 +2,9 @@ import pygame as pg
 import game
 from modules.object.card import Card
 from .state import State
-from ..object import Button
 from ..object import Text_Button
 from ..object import Carousel
+
 
 class Menu_State(State):
     """首頁狀態。繼承自`State`。
@@ -34,7 +34,7 @@ class Menu_State(State):
         self.all_sprites.add(train_button)
 
         match_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 2.5), size=button_wh, text='連連看', font_size=button_fs)
-        # match_button.setClick(lambda:game.chage_state(Test_State()))
+        match_button.setClick(lambda:game.chage_state(Test_State()))
         self.all_sprites.add(match_button)
 
         card_collection_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 3.5), size=button_wh, text='卡牌庫', font_size=button_fs)
