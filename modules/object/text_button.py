@@ -1,4 +1,3 @@
-from typing import Callable
 import pygame as pg
 from .button import Button
 import game
@@ -17,7 +16,7 @@ class Text_Button(Button):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None, text='', font='test_font', font_size=16, font_color = (200,200,200)):
+    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None, text='text', font='SWEISANSCJKTC-REGULAR', font_size=16, font_color = (200,200,200)):
         super().__init__(pos=pos, size=size, img=img)
         self.__text = text
         self.__font = font
@@ -32,13 +31,3 @@ class Text_Button(Button):
 
         self.image.blit(text_surface, text_rect)
         self.oriImage = self.image.copy()
-
-    #override
-    def draw(
-        self, surface, bgsurf=None, special_flags=0
-    ):
-        print('eeeee')
-        super().draw(surface, bgsurf, special_flags)
-        game.draw_text(surface, self.__text, self.__font_size, self.x + self.width / 2, self.y + self.height / 2, self.__font)
-
-        
