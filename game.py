@@ -50,6 +50,9 @@ class Game:
                     self.__state = e.dict["state"]
                     break
 
+                if hasattr(self.__state, 'handle_event'):
+                    self.__state.handle_event(e)  #各自state的handle_event
+
             self.__update()
             self.__render()
             
