@@ -20,7 +20,7 @@ class Train_State(State):
         #參數初始化
         self.score = 0
         self.result_shown = False
-        self.question_num = 10
+        self.question_num = 4
         self.question_count = 0
         self.IsAnswering= False
 
@@ -97,7 +97,6 @@ class Train_State(State):
             self.answer = self.choice[self.answer_index][1]    
             # 將答案所對應的例句挖空作為題目
             self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index][0]) 
-            #尚未完成挖空
             
             #print("Vocabulary List: ", self.choice) 
             print("Answer: ", self.answer)   
