@@ -37,11 +37,16 @@ class Button(Object):
     def __handle_event(self):
         for e in game.event_list:
             if e.type == pg.MOUSEBUTTONDOWN:
-                if self.rect.collidepoint(e.pos):
+                mx, my = e.pos
+                scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
+                print(scaled_pos)
+                if self.rect.collidepoint(scaled_pos):
                     self.__isClicking = True
             if e.type == pg.MOUSEBUTTONUP:
+                mx, my = e.pos
+                scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
                 self.__isClicking = False
-                if self.rect.collidepoint(e.pos):
+                if self.rect.collidepoint(scaled_pos):
                     self.__click()
 
     # override
@@ -74,7 +79,7 @@ class Button(Object):
         self.__goDown = True
 
     def stopWiggle(self):
-        """停止物件抖動
+        """停止物件抖動(預設即為停止抖動，初始化不需要呼叫)
         """
         self.__isWiggle = False
 

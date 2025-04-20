@@ -4,18 +4,18 @@ from modules.manager import font_map
 
 FPS = 60
 
-FULLSCREEN = True
-WINDOW_WIDTH = 1920 if FULLSCREEN else 1280
-WINDOW_HEIGHT = 1080 if FULLSCREEN else 720
-WINDOW_FLAG = (pg.FULLSCREEN | pg.SCALED) if FULLSCREEN else 0
+FULLSCREEN = False
+MOUSE_SCALE = 1 if FULLSCREEN else 1.5
+CANVAS_WIDTH = 1920
+CANVAS_HEIGHT = 1080
 
 EVENT_CHANGE_STATE = pg.event.custom_type()
 deltaTick = 0
 window = None
-canvas =  pg.Surface((1920, 1080))
+canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
 
-def chage_state(state:State):
+def change_state(state:State):
     pg.event.post(pg.event.Event(EVENT_CHANGE_STATE, {"state":state}))
 
 def draw_text(surf, text, size, x, y, font='SWEISANSCJKTC-REGULAR'):
@@ -32,8 +32,11 @@ class Game:
         self.__isRunning = True
         self.__clock = pg.time.Clock()
         self.__state = Start_State()
+        self.__window_width = 1920 if FULLSCREEN else 1280
+        self.__window_height = 1080 if FULLSCREEN else 720
+        self.__window_flag = (pg.FULLSCREEN | pg.SCALED) if FULLSCREEN else 0
         global window
-        window = pg.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT),WINDOW_FLAG)
+        window = pg.display.set_mode((self.__window_width,self.__window_height),self.__window_flag)
     def run(self):
         global deltaTick, event_list
         while self.__isRunning:

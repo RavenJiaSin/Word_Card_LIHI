@@ -10,11 +10,11 @@ class Test_State(State):
         from ..state import Main_State  # 在這邊import是為了避免circular import
         self.all_sprites = pg.sprite.Group()
 
-        menu_button = Text_Button(pos=(game.WINDOW_WIDTH/2,game.WINDOW_HEIGHT/2+100), size=(80,40), text='Main', font_size=20)
-        menu_button.setClick(lambda:game.chage_state(Main_State()))
+        menu_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+100), size=(80,40), text='Main', font_size=20)
+        menu_button.setClick(lambda:game.change_state(Main_State()))
         self.all_sprites.add(menu_button)
 
-        card = Card(pos=(game.WINDOW_WIDTH/2, 200), size=100, name='test_poker')
+        card = Card(pos=(game.CANVAS_WIDTH/2, 200), size=100, name='test_poker')
         self.all_sprites.add(card)
 
     # override
@@ -23,5 +23,5 @@ class Test_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.canvas, "Test", 50, game.WINDOW_WIDTH/2, 50)
+        game.draw_text(game.canvas, "Test", 50, game.CANVAS_WIDTH/2, 50)
         self.all_sprites.draw(game.canvas)

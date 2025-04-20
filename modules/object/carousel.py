@@ -25,7 +25,6 @@ class Carousel():
 
         for i in range(card_count):
             card = Card(pos=center, size=card_size / (1 + zoom_factor), name='test_poker')
-            card.stopWiggle()
             self.cards.add(card)
 
     def rotate(self, delta_angle):
@@ -49,7 +48,7 @@ class Carousel():
             card.transform(x=x, scale=scale)
             card.update()
 
-    def draw(self, surface):
+    def draw(self, surface:pg.Surface):
         # 根據 scale (depth) 排序後再畫
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.scale)
         for card in sorted_cards:
