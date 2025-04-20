@@ -40,7 +40,7 @@ class Menu_State(State):
         self.all_sprites.add(match_button)
 
         card_collection_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 3.5), size=button_wh, text='卡牌庫', font_size=button_fs)
-        card_collection_button.setClick(lambda:game.chage_state(Card_Collection_State()))
+        card_collection_button.setClick(lambda:game.change_state(Card_Collection_State()))
         self.all_sprites.add(card_collection_button)
 
         statistic_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 4.5), size=button_wh, text='統計', font_size=button_fs)
