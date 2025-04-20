@@ -53,3 +53,4 @@ class Carousel():
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.scale)
         for card in sorted_cards:
             surface.blit(card.image, card.rect)
+            

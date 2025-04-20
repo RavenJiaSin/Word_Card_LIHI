@@ -15,6 +15,7 @@ window = None
 canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
 
+
 def change_state(state:State):
     pg.event.post(pg.event.Event(EVENT_CHANGE_STATE, {"state":state}))
 
@@ -50,6 +51,7 @@ class Game:
                 if e.type == EVENT_CHANGE_STATE:
                     self.__state = e.dict["state"]
                     break
+
             self.__update()
             self.__render()
             
