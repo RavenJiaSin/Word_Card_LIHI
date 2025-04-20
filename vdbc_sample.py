@@ -10,7 +10,7 @@ db = VocabularyDB()
 # print(db.find_vocabulary(voc='apple'))
 
 # 查詢特定單字的特定欄位
-print(db.find_vocabulary(voc='apple',column='ID'))
+# print(db.find_vocabulary(voc='apple',column='ID'))
 
 # 查詢詞性為動詞，等級為2的單字
 # print(db.find_vocabulary(part_of_speech="v.", level=2))

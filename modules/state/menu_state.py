@@ -27,9 +27,10 @@ class Menu_State(State):
 
         button_x = 150
         button_wh = (80, 60)
-
+        
+        from ..state import Train_State
         train_button = Text_Button(pos=(button_x, game.WINDOW_HEIGHT / 6 * 1.5), size=button_wh, text='練功坊')
-        # test_button.setClick(lambda:game.chage_state(Test_State()))
+        train_button.setClick(lambda:game.chage_state(Train_State()))
         self.all_sprites.add(train_button)
 
         match_button = Text_Button(pos=(button_x, game.WINDOW_HEIGHT / 6 * 2.5), size=button_wh, text='連連看')
