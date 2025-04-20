@@ -47,10 +47,12 @@ class Carousel():
             scale = 1 + self.zoom_factor * math.cos(angle)
             x = self.center_x + self.radius * math.sin(angle)
             card.transform(x=x, scale=scale)
+            card.ori_scale = scale  # 作為按鈕動畫的縮放基準
             card.update()
 
     def draw(self, surface:pg.Surface):
         # 根據 scale (depth) 排序後再畫
-        sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.scale)
+        sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale)
         for card in sorted_cards:
+            pg.draw.rect(surface, (255,100,0), card.rect)
             surface.blit(card.image, card.rect)

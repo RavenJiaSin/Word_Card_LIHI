@@ -16,20 +16,24 @@ class Button(Object):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None):
+    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None, scale:float=1.0):
         super().__init__(pos=pos, size=size, img=img)
         self.__click = lambda:None
         self.__isWiggle = False
         self.__ori_y = self.y
         self.__goDown = True
-        self.__isClicking = False
-        self.__center = self.rect.center
+        self.__isPressed = False
 
-        self.__ori_image = None
+        self.__ori_w = self.width
+        self.__ori_h = self.height
+        self.width *= scale
+        self.height *= scale
 
-        self.__scale = 1.0           # 當前縮放倍率
-        self.__target_scale = 1.0    # 目標縮放倍率(按下會變0.85)
-        self.__scale_speed = 0.25    # 每幀縮放變化的速度
+        self.__ori_image = self.image
+        self.ori_scale = scale             # Card會用到，不加底線
+        self.scale = scale               # 當前縮放倍率
+        self.__delta_press_scale = 0.15    # 點擊時的縮放倍率變化量
+        self.__press_scale_speed = 0.25    # 點擊時每幀縮放變化的速度
 
 
 
@@ -40,22 +44,19 @@ class Button(Object):
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
                 if self.rect.collidepoint(scaled_pos):
-                    self.__isClicking = True
+                    self.__isPressed = True
             if e.type == pg.MOUSEBUTTONUP:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
-                self.__isClicking = False
+                self.__isPressed = False
                 if self.rect.collidepoint(scaled_pos):
                     self.__click()
 
     # override
     def update(self):
-        if self.__ori_image == None:
-            self.__ori_image = self.image
-
         self.__handle_event()
         self.__wiggle()
-        self.__shrink()
+        self.__pressed_effect()
         super().update()
 
     def setWiggle(self):
@@ -94,17 +95,25 @@ class Button(Object):
         """
         self.__click = func
 
-    def __shrink(self):
-        # 決定目標縮放倍率
-        self.__target_scale = 0.85 if self.__isClicking else 1.0
+    def __pressed_effect(self):
+        if ((not self.__isPressed and self.scale >= self.ori_scale) or                            # 未按下且已回復原尺寸 (多數情況所以放條件判斷前面)
+                (self.__isPressed and self.scale <= self.ori_scale * (1 - self.__delta_press_scale))):  # 已按下且已縮放到位
+            return
 
-        # 靠近目標縮放倍率
-        self.__scale += (self.__target_scale - self.__scale) * self.__scale_speed
+        # 按下縮小、放開放大
+        self.transform(scale=self.scale + self.__delta_press_scale * self.__press_scale_speed * -1 if self.__isPressed else 1)
 
-        # 根據目前scale縮放圖片和rect
-        w, h = self.__ori_image.get_size()
-        scaled_size = (int(w * self.__scale), int(h * self.__scale))
-        self.image = pg.transform.smoothscale(self.__ori_image, scaled_size)
-
-        self.rect.size = self.image.get_size()
-        self.rect.center = self.__center
+    def transform(self, x=None, y=None, scale=None):
+        if scale != None:
+            self.scale = scale
+            self.width = self.__ori_w * scale
+            self.height = self.__ori_h * scale
+            self.image = pg.transform.smoothscale(self.__ori_image, (self.width, self.height))
+            self.rect.size = self.image.get_size()
+        if x != None:
+            self.x = x
+        if y != None:
+            self.y = y
+    
+    def rotate(self, angle):
+        self.image = pg.transform.rotate(self.image, angle)
