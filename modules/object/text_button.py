@@ -18,10 +18,7 @@ class Text_Button(Button):
     """
     def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None, text='text', font='SWEISANSCJKTC-REGULAR', font_size=16, font_color = (200,200,200)):
         super().__init__(pos=pos, size=size, img=img)
-        self.__text = text
-        self.__font = font
-        self.__font_size = font_size
-        
+                
         font = pg.font.Font(font_map[font], font_size)
         text_surface = font.render(text, True, font_color)
         text_rect = text_surface.get_rect()
@@ -30,4 +27,3 @@ class Text_Button(Button):
         text_rect.centery = self.height / 2
 
         self.image.blit(text_surface, text_rect)
-        self.oriImage = self.image.copy()

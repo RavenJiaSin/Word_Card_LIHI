@@ -34,8 +34,8 @@ class Menu_State(State):
         self.all_sprites.add(train_button)
 
         match_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 2.5), size=button_wh, text='連連看', font_size=button_fs)
-        from .minigame_state import Minigame_State
-        match_button.setClick(lambda:game.change_state(Minigame_State()))
+        from .minigame_state import Match_Game_State
+        match_button.setClick(lambda:game.change_state(Match_Game_State()))
         self.all_sprites.add(match_button)
 
         card_collection_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 3.5), size=button_wh, text='卡牌庫', font_size=button_fs)

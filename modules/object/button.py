@@ -25,7 +25,7 @@ class Button(Object):
         self.__isClicking = False
         self.__center = self.rect.center
 
-        self.oriImage = self.image.copy()
+        self.__ori_image = None
 
         self.__scale = 1.0           # 當前縮放倍率
         self.__target_scale = 1.0    # 目標縮放倍率(按下會變0.85)
@@ -50,26 +50,13 @@ class Button(Object):
 
     # override
     def update(self):
+        if self.__ori_image == None:
+            self.__ori_image = self.image
+
         self.__handle_event()
         self.__wiggle()
+        self.__shrink()
         super().update()
-
-        # 決定目標縮放倍率
-        self.__target_scale = 0.85 if self.__isClicking else 1.0
-
-        # 靠近目標縮放倍率
-        self.__scale += (self.__target_scale - self.__scale) * self.__scale_speed
-
-        # 根據目前scale縮放圖片和rect
-        w, h = self.oriImage.get_size()
-        scaled_size = (int(w * self.__scale), int(h * self.__scale))
-        self.image = pg.transform.smoothscale(self.oriImage, scaled_size)
-
-        self.rect.size = self.image.get_size()
-        self.rect.center = self.__center
-
-
-
 
     def setWiggle(self):
         """開始物件抖動,呼叫stopWiggle()停止
@@ -78,7 +65,7 @@ class Button(Object):
         self.__goDown = True
 
     def stopWiggle(self):
-        """停止物件抖動(預設即為停止抖動，初始化不需要呼叫)
+        """停止物件抖動
         """
         self.__isWiggle = False
 
@@ -106,3 +93,18 @@ class Button(Object):
         """設定`_click`
         """
         self.__click = func
+
+    def __shrink(self):
+        # 決定目標縮放倍率
+        self.__target_scale = 0.85 if self.__isClicking else 1.0
+
+        # 靠近目標縮放倍率
+        self.__scale += (self.__target_scale - self.__scale) * self.__scale_speed
+
+        # 根據目前scale縮放圖片和rect
+        w, h = self.__ori_image.get_size()
+        scaled_size = (int(w * self.__scale), int(h * self.__scale))
+        self.image = pg.transform.smoothscale(self.__ori_image, scaled_size)
+
+        self.rect.size = self.image.get_size()
+        self.rect.center = self.__center

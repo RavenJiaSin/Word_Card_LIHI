@@ -20,7 +20,6 @@ class Card(Button):
         self.width *= scale
         self.height *= scale
         self.__ori_img = self.image
-        self.image = pg.transform.scale(self.__ori_img, (int(self.width), int(self.height)))
         self.setClick(lambda:print('Clicked Card'))
         self.setWiggle()
         self.__name = "Card"
@@ -43,4 +42,7 @@ class Card(Button):
             self.x = x
         if y != None:
             self.y = y
+
+    def rotate(self, angle):
+        self.image = pg.transform.rotate(self.image, angle)
             
