@@ -4,7 +4,7 @@ import game
 from .state import State
 from ..object import Button
 from ..object import Card
-from ..manager import img_map
+from ..manager import Image_Manager
 
 class Practice_State(State):
 

@@ -22,18 +22,54 @@ class Button(Object):
         self.__isWiggle = False
         self.__ori_y = self.y
         self.__goDown = True
+        self.__isClicking = False
+        self.__center = self.rect.center
+
+        self.oriImage = self.image.copy()
+
+        self.__scale = 1.0           # 當前縮放倍率
+        self.__target_scale = 1.0    # 目標縮放倍率(按下會變0.85)
+        self.__scale_speed = 0.25    # 每幀縮放變化的速度
+
+
 
     # override
     def __handle_event(self):
         for e in game.event_list:
             if e.type == pg.MOUSEBUTTONDOWN:
-                if(self.rect.collidepoint(e.pos)):
+                mx, my = e.pos
+                scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
+                if self.rect.collidepoint(scaled_pos):
+                    self.__isClicking = True
+            if e.type == pg.MOUSEBUTTONUP:
+                mx, my = e.pos
+                scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
+                self.__isClicking = False
+                if self.rect.collidepoint(scaled_pos):
                     self.__click()
-   # override
+
+    # override
     def update(self):
         self.__handle_event()
         self.__wiggle()
         super().update()
+
+        # 決定目標縮放倍率
+        self.__target_scale = 0.85 if self.__isClicking else 1.0
+
+        # 靠近目標縮放倍率
+        self.__scale += (self.__target_scale - self.__scale) * self.__scale_speed
+
+        # 根據目前scale縮放圖片和rect
+        w, h = self.oriImage.get_size()
+        scaled_size = (int(w * self.__scale), int(h * self.__scale))
+        self.image = pg.transform.smoothscale(self.oriImage, scaled_size)
+
+        self.rect.size = self.image.get_size()
+        self.rect.center = self.__center
+
+
+
 
     def setWiggle(self):
         """開始物件抖動,呼叫stopWiggle()停止
@@ -42,7 +78,7 @@ class Button(Object):
         self.__goDown = True
 
     def stopWiggle(self):
-        """停止物件抖動
+        """停止物件抖動(預設即為停止抖動，初始化不需要呼叫)
         """
         self.__isWiggle = False
 

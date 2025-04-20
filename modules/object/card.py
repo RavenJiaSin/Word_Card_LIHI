@@ -1,6 +1,6 @@
 import pygame as pg
 from .button import Button
-from ..manager import img_map
+from ..manager import Image_Manager
 
 class Card(Button):
     """卡片物件。繼承自Button。
@@ -14,7 +14,7 @@ class Card(Button):
     """
     def __init__(self, pos=(0,0), size:int=50, scale=1, name:str='test_poker'):
         size = (size,size*1.5)
-        super().__init__(pos, size, img_map[name])
+        super().__init__(pos, size, Image_Manager.get(name))
         self.__ori_w = self.width
         self.__ori_h = self.height
         self.width *= scale
