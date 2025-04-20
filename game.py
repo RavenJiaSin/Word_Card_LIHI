@@ -4,7 +4,7 @@ from modules.manager import font_map
 
 FPS = 60
 
-FULLSCREEN = False
+FULLSCREEN = True
 MOUSE_SCALE = 1 if FULLSCREEN else 1.5
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
