@@ -4,3 +4,4 @@ from .menu_state import Menu_State
 from .start_state import Start_State
 from .minigame_state import Minigame_State
 from .start_state import Start_State
+from .practice_state import Practice_State

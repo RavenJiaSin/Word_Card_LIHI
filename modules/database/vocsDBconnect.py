@@ -18,7 +18,7 @@ class VocabularyDB:
             print(f"[ERROR] Failed to fetch all records: {e}")
             return []
 
-    def find_vocabulary(self, voc=None, column=None, part_of_speech=None, level=None):
+    def find_vocabulary(self, voc=None, column=None, part_of_speech=None, level=None, length=None):
         """
         valid_columns = {"ID", "Vocabulary", "Part_of_speech", "Translation", "Level"}\n
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}\n
@@ -45,15 +45,14 @@ class VocabularyDB:
             query = "SELECT * FROM vocs_raw WHERE 1=1"
             params = []
 
+            # 如果有提供column，則選擇指定的欄位
+            if column is not None:
+                query = f"SELECT {column} FROM vocs_raw WHERE 1=1"
+                
             # 如果有提供voc，則添加條件
             if voc is not None:
                 query += " AND Vocabulary = ?"
                 params.append(voc)
-
-            # 如果有提供column，則選擇指定的欄位
-            if column is not None:
-                query = f"SELECT {column} FROM vocs_raw WHERE Vocabulary = ?"
-                params = [voc]  # 重設參數，只查詢指定的欄位
 
             # 如果有提供詞性，則添加條件
             if part_of_speech is not None:
@@ -64,6 +63,11 @@ class VocabularyDB:
             if level is not None:
                 query += " AND Level = ?"
                 params.append(level)
+
+            # 如果有提供長度，則添加條件
+            if length is not None:
+                query += " AND LENGTH(Vocabulary) = ?"
+                params.append(length)
 
             # 執行查詢
             with self._connect() as conn:
