@@ -3,25 +3,37 @@ import game
 from .state import State
 from ..object import Text_Button
 from ..object import Card
+from ..object import Match_Game
 
-class Minigame_State(State):
+class Match_Game_State(State):
+    """小遊戲頁面。繼承自`State`。
 
+    找出相應卡片的小遊戲
+
+    Attributes:
+        all_sprites (pg.sprite.Group): 管理所有Object物件。
+        match_game (Match_Game): 小遊戲
+        
+    """
     def __init__(self):
-        from ..state import Main_State  # 在這邊import是為了避免circular import
         self.all_sprites = pg.sprite.Group()
 
         menu_button = Text_Button(pos=(100,100), size=(160,80), text='返回', font_size=40, font='SWEISANSCJKTC-REGULAR')
-        menu_button.setClick(lambda:game.change_state(Main_State()))
+        from .menu_state import Menu_State
+        menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.all_sprites.add(menu_button)
 
-        card = Card(pos=(game.CANVAS_WIDTH/2, 400), size=200)
-        self.all_sprites.add(card)
+        self.match_game = Match_Game()
+        self.all_sprites.add(self.match_game.getGroup())
+
+        
 
     # override
     def update(self):
         self.all_sprites.update()
+        self.match_game.update()
 
     # override
     def render(self):
-        game.draw_text(game.canvas, "連連看", 50, game.CANVAS_WIDTH/2, 50)
+        game.draw_text(game.canvas, "連連看", 70, game.CANVAS_WIDTH/2, 100)
         self.all_sprites.draw(game.canvas)

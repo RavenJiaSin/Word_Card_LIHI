@@ -25,6 +25,7 @@ class Carousel():
 
         for i in range(card_count):
             card = Card(pos=center, size=card_size / (1 + zoom_factor), name='test_poker')
+            card.stopWiggle()
             self.cards.add(card)
 
     def rotate(self, delta_angle):
@@ -53,4 +54,3 @@ class Carousel():
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.scale)
         for card in sorted_cards:
             surface.blit(card.image, card.rect)
-            
