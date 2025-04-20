@@ -19,10 +19,10 @@ db = VocabularyDB()
 # print(db.find_vocabulary(part_of_speech="n."))
 
 # 查詢只指定等級（不指定詞性）
-# print(db.find_vocabulary(level=1))
+print(db.find_vocabulary(level=1))
 
 # 查詢欄位合法值
 # print(db.get_valid_conditions())
 
 # 查詢例句(use ID)
-print(db.get_example_sentences(voc_id='0_able', column='translation' ))
+# print(db.get_example_sentences(voc_id='0_able', column='translation' ))
