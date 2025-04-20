@@ -39,7 +39,6 @@ class Button(Object):
             if e.type == pg.MOUSEBUTTONDOWN:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
-                print(scaled_pos)
                 if self.rect.collidepoint(scaled_pos):
                     self.__isClicking = True
             if e.type == pg.MOUSEBUTTONUP:
