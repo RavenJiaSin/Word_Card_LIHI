@@ -1,7 +1,7 @@
 import pygame as pg
 import game
-from modules.object.card import Card
 from .state import State
+from ..object.card import Card
 from ..object import Text_Button
 from ..object import Carousel
 
@@ -30,19 +30,20 @@ class Menu_State(State):
         button_fs = 40
 
         train_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 1.5), size=button_wh, text='練功坊', font_size=button_fs)
-        # test_button.setClick(lambda:game.chage_state(Test_State()))
+        # test_button.setClick(lambda:game.change_state(Test_State()))
         self.all_sprites.add(train_button)
 
         match_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 2.5), size=button_wh, text='連連看', font_size=button_fs)
-        match_button.setClick(lambda:game.chage_state(Test_State()))
+        from .minigame_state import Minigame_State
+        match_button.setClick(lambda:game.change_state(Minigame_State()))
         self.all_sprites.add(match_button)
 
         card_collection_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 3.5), size=button_wh, text='卡牌庫', font_size=button_fs)
-        # tcard_collection_button.setClick(lambda:game.chage_state(Test_State()))
+        # tcard_collection_button.setClick(lambda:game.change_state(Test_State()))
         self.all_sprites.add(card_collection_button)
 
         statistic_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 4.5), size=button_wh, text='統計', font_size=button_fs)
-        # statistic_button.setClick(lambda:game.chage_state(Test_State()))
+        # statistic_button.setClick(lambda:game.change_state(Test_State()))
         self.all_sprites.add(statistic_button)
 
         exit_button = Text_Button(pos=(game.CANVAS_WIDTH-60,game.CANVAS_HEIGHT-60), size=(80,60), text='EXIT', font_size=20)
