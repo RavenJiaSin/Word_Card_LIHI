@@ -11,7 +11,6 @@ CANVAS_HEIGHT = 1080
 
 EVENT_CHANGE_STATE = pg.event.custom_type()
 deltaTick = 0
-window = None
 canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
 
@@ -36,8 +35,7 @@ class Game:
         self.__window_width = 1920 if FULLSCREEN else 1280
         self.__window_height = 1080 if FULLSCREEN else 720
         self.__window_flag = (pg.FULLSCREEN | pg.SCALED) if FULLSCREEN else 0
-        global window
-        window = pg.display.set_mode((self.__window_width,self.__window_height),self.__window_flag)
+        self.__window = pg.display.set_mode((self.__window_width,self.__window_height),self.__window_flag)
     def run(self):
         global deltaTick, event_list
         while self.__isRunning:
@@ -60,12 +58,12 @@ class Game:
         self.__state.update()
 
     def __render(self):
-        global window, canvas
+        global canvas
         canvas.fill(color=(30,30,30))
         self.__state.render()
 
-        scaled_surface = pg.transform.scale(canvas, window.get_size())
-        window.blit(scaled_surface, (0, 0))
+        scaled_surface = pg.transform.scale(canvas, self.__window.get_size())
+        self.__window.blit(scaled_surface, (0, 0))
         pg.display.update()
 
     def quit(self):
