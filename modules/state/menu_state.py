@@ -64,6 +64,10 @@ class Menu_State(State):
         self.all_sprites.remove(self.card_packet_button)
         
     # override
+    def handle_event(self):
+        ...
+
+    # override
     def update(self):
         self.all_sprites.update()
         if (not self.card_pack):

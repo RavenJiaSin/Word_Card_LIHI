@@ -25,7 +25,7 @@ class Button(Object):
         self.__isClicking = False
         self.__center = self.rect.center
 
-        self.__ori_image = None
+        self.ori_image = None
 
         self.__scale = 1.0           # 當前縮放倍率
         self.__target_scale = 1.0    # 目標縮放倍率(按下會變0.85)
@@ -50,8 +50,8 @@ class Button(Object):
 
     # override
     def update(self):
-        if self.__ori_image == None:
-            self.__ori_image = self.image
+        if self.ori_image == None:
+            self.ori_image = self.image
 
         self.__handle_event()
         self.__wiggle()
@@ -102,9 +102,9 @@ class Button(Object):
         self.__scale += (self.__target_scale - self.__scale) * self.__scale_speed
 
         # 根據目前scale縮放圖片和rect
-        w, h = self.__ori_image.get_size()
+        w, h = self.ori_image.get_size()
         scaled_size = (int(w * self.__scale), int(h * self.__scale))
-        self.image = pg.transform.smoothscale(self.__ori_image, scaled_size)
+        self.image = pg.transform.smoothscale(self.ori_image, scaled_size)
 
         self.rect.size = self.image.get_size()
         self.rect.center = self.__center

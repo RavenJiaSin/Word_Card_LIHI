@@ -42,7 +42,3 @@ class Card(Button):
             self.x = x
         if y != None:
             self.y = y
-
-    def rotate(self, angle):
-        self.image = pg.transform.rotate(self.image, angle)
-            

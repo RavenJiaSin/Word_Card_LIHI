@@ -2,8 +2,8 @@ import pygame as pg
 import game
 from .state import State
 from ..object import Text_Button
-from ..object import Card
 from ..object import Match_Game
+
 
 class Match_Game_State(State):
     """小遊戲頁面。繼承自`State`。
@@ -25,13 +25,15 @@ class Match_Game_State(State):
 
         self.match_game = Match_Game()
         self.all_sprites.add(self.match_game.getGroup())
-
-        
-
+    
+    # overrride
+    def handle_event(self):
+        self.match_game.handle_event()
+    
     # override
     def update(self):
-        self.all_sprites.update()
         self.match_game.update()
+        self.all_sprites.update()
 
     # override
     def render(self):

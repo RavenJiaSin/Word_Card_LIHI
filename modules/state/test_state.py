@@ -17,6 +17,11 @@ class Test_State(State):
         card = Card(pos=(game.CANVAS_WIDTH/2, 200), size=100, name='test_poker')
         self.all_sprites.add(card)
 
+
+    # override
+    def handle_event(self):
+        ...
+    
     # override
     def update(self):
         self.all_sprites.update()
