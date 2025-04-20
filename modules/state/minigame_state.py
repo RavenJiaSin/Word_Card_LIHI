@@ -12,6 +12,7 @@ class Match_Game_State(State):
 
     Attributes:
         all_sprites (pg.sprite.Group): 管理所有Object物件。
+        match_game (Match_Game): 小遊戲
         
     """
     def __init__(self):
@@ -22,14 +23,15 @@ class Match_Game_State(State):
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.all_sprites.add(menu_button)
 
-        lianliankan = Match_Game()
-        self.all_sprites.add(lianliankan.getGroup())
+        self.match_game = Match_Game()
+        self.all_sprites.add(self.match_game.getGroup())
 
         
 
     # override
     def update(self):
         self.all_sprites.update()
+        self.match_game.update()
 
     # override
     def render(self):
