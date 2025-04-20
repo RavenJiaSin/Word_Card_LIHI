@@ -3,11 +3,16 @@ from modules.state import State, Menu_State, Start_State
 from modules.manager import font_map
 
 FPS = 60
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 600
+
+FULLSCREEN = True
+WINDOW_WIDTH = 1920 if FULLSCREEN else 1280
+WINDOW_HEIGHT = 1080 if FULLSCREEN else 720
+WINDOW_FLAG = (pg.FULLSCREEN | pg.SCALED) if FULLSCREEN else 0
+
 EVENT_CHANGE_STATE = pg.event.custom_type()
 deltaTick = 0
 window = None
+canvas =  pg.Surface((1920, 1080))
 event_list = None
 
 def chage_state(state:State):
@@ -28,7 +33,7 @@ class Game:
         self.__clock = pg.time.Clock()
         self.__state = Start_State()
         global window
-        window = pg.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
+        window = pg.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT),WINDOW_FLAG)
     def run(self):
         global deltaTick, event_list
         while self.__isRunning:
@@ -50,9 +55,12 @@ class Game:
         self.__state.update()
 
     def __render(self):
-        global window
-        window.fill(color=(30,30,30))
+        global window, canvas
+        canvas.fill(color=(30,30,30))
         self.__state.render()
+
+        scaled_surface = pg.transform.scale(canvas, window.get_size())
+        window.blit(scaled_surface, (0, 0))
         pg.display.update()
 
     def quit(self):

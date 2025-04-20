@@ -37,5 +37,5 @@ class Menu_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.window, "Menu", 50, game.WINDOW_WIDTH/2, 50)
-        self.all_sprites.draw(game.window)
+        game.draw_text(game.canvas, "Menu", 50, game.WINDOW_WIDTH/2, 50)
+        self.all_sprites.draw(game.canvas)

@@ -26,9 +26,12 @@ class Text_Button(Button):
         font = pg.font.Font(font_map[font], font_size)
         text_surface = font.render(text, True, font_color)
         text_rect = text_surface.get_rect()
+
         text_rect.centerx = self.width / 2
         text_rect.centery = self.height / 2
+
         self.image.blit(text_surface, text_rect)
+        self.oriImage = self.image.copy()
 
     #override
     def draw(
