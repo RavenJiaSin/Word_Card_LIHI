@@ -27,7 +27,7 @@ class Menu_State(State):
 
         self.all_sprites = pg.sprite.Group()
 
-        button_x = 150
+        button_x = 300
         button_wh = (140, 100)
         button_fs = 40
 
