@@ -29,7 +29,7 @@ class Match_Game:
         self.__pending_flip_time = None
 
         self.__player_turn = True
-        game.background_color = (0,0,100)
+        game.background_color = (50,50,100)
 
     def handle_event(self):
         for event in game.event_list:
@@ -97,6 +97,6 @@ class Match_Game:
     def __change_player_turn(self):
         self.__player_turn = not self.__player_turn
         if self.__player_turn:
-            game.background_color = (0,0,100)
+            game.background_color = (50,50,100)
         else:
-            game.background_color = (100,0,0)
+            game.background_color = (100,50,50)
