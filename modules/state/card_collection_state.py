@@ -38,28 +38,30 @@ class Card_Collection_State(State):
         else:
             self.enlarge_card(card)
 
-    def handle_event(self, event):
-        if event.type == pg.MOUSEBUTTONDOWN:
-            
-            mouse_pos = pg.mouse.get_pos()
+    # override
+    def handle_event(self):
+        for event in game.event_list:
+            if event.type == pg.MOUSEBUTTONDOWN:
+                
+                mouse_pos = pg.mouse.get_pos()
 
-            if self.foreground_card:
-                # 如果點的位置不在卡片上，就關掉
-                if not self.foreground_card.rect.collidepoint(event.pos):
-                    self.foreground_card_group.empty()
-                    self.foreground_card = None
+                if self.foreground_card:
+                    # 如果點的位置不在卡片上，就關掉
+                    if not self.foreground_card.rect.collidepoint(event.pos):
+                        self.foreground_card_group.empty()
+                        self.foreground_card = None
 
-            else:
-            # 沒有放大卡 → 檢查是否點到背景卡牌或 UI 按鈕
-                for sprite in self.ui_sprites:
-                    if sprite.rect.collidepoint(mouse_pos) and hasattr(sprite, 'onClick'):
-                        sprite.onClick()
-                        return
+                else:
+                # 沒有放大卡 → 檢查是否點到背景卡牌或 UI 按鈕
+                    for sprite in self.ui_sprites:
+                        if sprite.rect.collidepoint(mouse_pos) and hasattr(sprite, 'onClick'):
+                            sprite.onClick()
+                            return
 
-                for card in self.background_cards:
-                    if card.rect.collidepoint(mouse_pos) and hasattr(card, 'onClick'):
-                        card.onClick()
-                        return
+                    for card in self.background_cards:
+                        if card.rect.collidepoint(mouse_pos) and hasattr(card, 'onClick'):
+                            card.onClick()
+                            return
 
     # override
     def update(self):
