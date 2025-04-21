@@ -15,7 +15,7 @@ class Carousel():
         zoom_factor (float): 控制旋轉的縱深
         speed (float): 滾輪的旋轉力道
     """
-    def __init__(self, card_count=5, card_size=100, center=(400, 300), radius=200, zoom_factor=0.5, speed=0.005):
+    def __init__(self, card_count=10, card_size=100, center=(400, 300), radius=400, zoom_factor=0.7, speed=0.005):
         self.center_x, self.center_y = center
         self.radius = radius
         self.zoom_factor = zoom_factor
