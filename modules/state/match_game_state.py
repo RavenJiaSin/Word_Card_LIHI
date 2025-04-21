@@ -2,8 +2,8 @@ import pygame as pg
 import game
 from .state import State
 from ..object import Text_Button
-from ..object import Card
 from ..object import Match_Game
+
 
 class Match_Game_State(State):
     """小遊戲頁面。繼承自`State`。
@@ -19,21 +19,28 @@ class Match_Game_State(State):
         self.all_sprites = pg.sprite.Group()
 
         menu_button = Text_Button(pos=(100,100), size=(160,80), text='返回', font_size=40, font='SWEISANSCJKTC-REGULAR')
-        from .menu_state import Menu_State
-        menu_button.setClick(lambda:game.change_state(Menu_State()))
+        
+        menu_button.setClick(lambda:Match_Game_State.go_to_menu())
         self.all_sprites.add(menu_button)
 
         self.match_game = Match_Game()
         self.all_sprites.add(self.match_game.getGroup())
-
-        
-
+    
+    # overrride
+    def handle_event(self):
+        self.match_game.handle_event()
+    
     # override
     def update(self):
-        self.all_sprites.update()
         self.match_game.update()
+        self.all_sprites.update()
 
     # override
     def render(self):
         game.draw_text(game.canvas, "連連看", 70, game.CANVAS_WIDTH/2, 100)
         self.all_sprites.draw(game.canvas)
+
+    def go_to_menu():
+        game.background_color = (30,30,30)
+        from .menu_state import Menu_State
+        game.change_state(Menu_State())

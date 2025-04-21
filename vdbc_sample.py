@@ -1,10 +1,14 @@
 from modules.database import VocabularyDB
+import random
 
 db = VocabularyDB()
 
 # 查詢所有單字
 # print(db.get_all())
-print(db.find_vocabulary()[:10])
+words = db.find_vocabulary(column='Vocabulary', length=5)
+random_words = [word[0] for word in random.sample(words, 24)]
+for word in random_words:
+    print(db.find_vocabulary(column='Translation', voc=word)[0][0])
 
 # 查詢特定單字
 # print(db.find_vocabulary(voc='apple'))

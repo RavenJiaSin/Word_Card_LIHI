@@ -24,10 +24,14 @@ class Button(Object):
         self.__goDown = True
         self.__isPressed = False
 
+<<<<<<< HEAD
         self.__ori_w = self.width
         self.__ori_h = self.height
         self.width *= scale
         self.height *= scale
+=======
+        self.ori_image = None
+>>>>>>> toby
 
         self.__ori_image = self.image
         self.ori_scale = scale             # Card會用到，不加底線
@@ -54,6 +58,12 @@ class Button(Object):
 
     # override
     def update(self):
+<<<<<<< HEAD
+=======
+        if self.ori_image == None:
+            self.ori_image = self.image
+
+>>>>>>> toby
         self.__handle_event()
         self.__wiggle()
         self.__pressed_effect()
@@ -103,6 +113,7 @@ class Button(Object):
         # 按下縮小、放開放大
         self.transform(scale=self.scale + self.__delta_press_scale * self.__press_scale_speed * -1 if self.__isPressed else 1)
 
+<<<<<<< HEAD
     def transform(self, x=None, y=None, scale=None):
         if scale != None:
             self.scale = scale
@@ -117,3 +128,12 @@ class Button(Object):
     
     def rotate(self, angle):
         self.image = pg.transform.rotate(self.image, angle)
+=======
+        # 根據目前scale縮放圖片和rect
+        w, h = self.ori_image.get_size()
+        scaled_size = (int(w * self.__scale), int(h * self.__scale))
+        self.image = pg.transform.smoothscale(self.ori_image, scaled_size)
+
+        self.rect.size = self.image.get_size()
+        self.rect.center = self.__center
+>>>>>>> toby

@@ -27,4 +27,18 @@ class Card(Button):
     def setDescription(self, description:str):
         self.__description = description
 
+<<<<<<< HEAD
             
+=======
+    def transform(self, x=None, y=None, scale=None):
+        if scale != None:
+            self.scale = scale
+            self.width = self.__ori_w * scale
+            self.height = self.__ori_h * scale
+            self.image = pg.transform.smoothscale(self.__ori_img, (self.width, self.height))
+            self.rect = self.image.get_rect()
+        if x != None:
+            self.x = x
+        if y != None:
+            self.y = y
+>>>>>>> toby

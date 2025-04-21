@@ -18,7 +18,11 @@ class Start_State(State):
 
         enter_button.setClick(lambda:game.change_state(Menu_State()))
         self.all_sprites.add(enter_button)
-        
+    
+    # override 
+    def handle_event(self):
+        ...
+
     # override
     def update(self):
         self.all_sprites.update()
