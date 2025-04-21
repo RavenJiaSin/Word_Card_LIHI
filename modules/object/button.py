@@ -35,17 +35,19 @@ class Button(Object):
         self.__delta_press_scale = 0.15    # 點擊時的縮放倍率變化量
         self.__press_scale_speed = 0.25    # 點擊時每幀縮放變化的速度
 
+        self.can_press = True
+
 
 
     # override
     def __handle_event(self):
         for e in game.event_list:
-            if e.type == pg.MOUSEBUTTONDOWN:
+            if e.type == pg.MOUSEBUTTONDOWN and self.can_press:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
                 if self.rect.collidepoint(scaled_pos):
                     self.__isPressed = True
-            if e.type == pg.MOUSEBUTTONUP:
+            if e.type == pg.MOUSEBUTTONUP and self.can_press:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
                 self.__isPressed = False
@@ -96,6 +98,8 @@ class Button(Object):
         self.__click = func
 
     def __pressed_effect(self):
+        if not self.can_press:
+            return
         if ((not self.__isPressed and self.scale >= self.ori_scale) or                            # 未按下且已回復原尺寸 (多數情況所以放條件判斷前面)
                 (self.__isPressed and self.scale <= self.ori_scale * (1 - self.__delta_press_scale))):  # 已按下且已縮放到位
             return
@@ -117,3 +121,11 @@ class Button(Object):
     
     def rotate(self, angle):
         self.image = pg.transform.rotate(self.image, angle)
+
+    def set_ori_image(self, img):
+        center = self.rect.center
+        self.__ori_image = img
+        self.image = self.__ori_image
+        self.rect.size = self.__ori_image.get_rect().size
+        self.__ori_w, self.__ori_h = self.rect.size
+        self.rect.center = center

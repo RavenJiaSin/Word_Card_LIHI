@@ -54,5 +54,4 @@ class Carousel():
         # 根據 scale (depth) 排序後再畫
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale)
         for card in sorted_cards:
-            pg.draw.rect(surface, (255,100,0), card.rect)
             surface.blit(card.image, card.rect)

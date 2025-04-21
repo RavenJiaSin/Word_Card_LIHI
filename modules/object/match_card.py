@@ -32,7 +32,7 @@ class Match_Card(Button):
         text_rect.centery = self.__front_img.get_size()[1] / 2
 
         self.__front_img.blit(text_surface, text_rect)
-        self.__front_img = pg.transform.rotate(pg.transform.scale(self.__front_img, (self.width, self.height)), 90)
+        self.__front_img = pg.transform.rotate(pg.transform.smoothscale(self.__front_img, (self.width, self.height)), 90)
 
         self.__rotating = True
         self.__rotate_speed = 2
@@ -40,32 +40,31 @@ class Match_Card(Button):
             pg.transform.rotate(self.image, angle)
             for angle in range(0, 91, self.__rotate_speed)
         ]
-        self.__index_image = -1
+        self.__image_index = -1
 
         self.setClick(lambda: self.flip())
-        self.can_flip = False
+        self.can_press = False
 
 
     # override
     def update(self):
         super().update()
         if self.__rotating:
-            self.__index_image += 1
-            if self.__index_image == len(self.__cache_images):
-                self.__index_image = len(self.__cache_images)-1
+            self.__image_index += 1
+            if self.__image_index == len(self.__cache_images):
+                self.__image_index = len(self.__cache_images)-1
                 self.__rotating = False
-                self.can_flip = True
+                self.can_press = True
                 self.__back_img = pg.transform.rotate(pg.transform.scale(self.__back_img, (self.width, self.height)), 90)
-            self.ori_image = self.__cache_images[self.__index_image]
-            self.rect = self.image.get_rect(center=self.rect.center)
+            self.set_ori_image(self.__cache_images[self.__image_index])
 
     def flip(self):
-        if not self.can_flip:
+        if not self.can_press:
             return
         if self.__show_back:
-            self.ori_image = self.__front_img
+            self.set_ori_image(self.__front_img)
         else:
-            self.ori_image = self.__back_img
+            self.set_ori_image(self.__back_img)
         self.__show_back = not self.__show_back
         pg.event.post(pg.event.Event(Event_Manager.EVENT_MATCH_CARD_FLIP, {"card":self}))
 

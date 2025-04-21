@@ -36,7 +36,7 @@ class Match_Game:
             if event.type == Event_Manager.EVENT_MATCH_CARD_FLIP:
                 card = event.dict['card']
                 if not card.get_show_back():
-                    card.can_flip = False
+                    card.can_press = False
                     if self.__first_chosen_card == None:
                         self.__first_chosen_card = card
                     else:
@@ -48,8 +48,8 @@ class Match_Game:
         # 卡片配對錯誤，等待800ms後，翻到卡背
         if self.__pending_flip_time is not None:
             if current_time >= self.__pending_flip_time:
-                self.__first_chosen_card.can_flip = True
-                self.__second_chosen_card.can_flip = True
+                self.__first_chosen_card.can_press = True
+                self.__second_chosen_card.can_press = True
                 self.__first_chosen_card.flip()
                 self.__second_chosen_card.flip()
                 self.__first_chosen_card = None
@@ -92,7 +92,7 @@ class Match_Game:
     def __set_all_card_flip(self, can_flip):
         for card in self.__card_sprites:
             if card not in self.__correct_cards:
-                card.can_flip = can_flip
+                card.can_press = can_flip
 
     def __change_player_turn(self):
         self.__player_turn = not self.__player_turn

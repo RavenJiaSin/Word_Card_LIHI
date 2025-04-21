@@ -195,6 +195,10 @@ class Train_State(State):
             surface.blit(rendered_line, (x, y + i * (font.get_linesize() + line_spacing)))
         
     # override
+    def handle_event(self):
+        ...
+        
+    # override
     def update(self):
         self.all_sprites.update()
 
