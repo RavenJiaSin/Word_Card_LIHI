@@ -28,6 +28,9 @@ class Match_Game:
         self.__second_chosen_card = None
         self.__pending_flip_time = None
 
+        self.__player_turn = True
+        game.background_color = (0,0,100)
+
     def handle_event(self):
         for event in game.event_list:
             if event.type == Event_Manager.EVENT_MATCH_CARD_FLIP:
@@ -42,6 +45,7 @@ class Match_Game:
     def update(self):
         current_time = pg.time.get_ticks()
 
+        # 卡片配對錯誤，等待800ms後，翻到卡背
         if self.__pending_flip_time is not None:
             if current_time >= self.__pending_flip_time:
                 self.__first_chosen_card.can_flip = True
@@ -52,8 +56,10 @@ class Match_Game:
                 self.__second_chosen_card = None
                 self.__pending_flip_time = None
                 self.__set_all_card_flip(True)
+                self.__change_player_turn()
             return
 
+        # 選擇兩張卡片翻開後，如果配對成功，則放入__correct_cards中鎖定(不能再次翻開)
         if self.__first_chosen_card and self.__second_chosen_card:
             first_word = self.__first_chosen_card.get_word()
             second_word = self.__second_chosen_card.get_word()
@@ -67,7 +73,6 @@ class Match_Game:
                 self.__correct_cards.append(self.__second_chosen_card)
                 self.__first_chosen_card = None
                 self.__second_chosen_card = None
-
 
     def getGroup(self) -> pg.sprite.Group:
         return self.__card_sprites
@@ -88,3 +93,10 @@ class Match_Game:
         for card in self.__card_sprites:
             if card not in self.__correct_cards:
                 card.can_flip = can_flip
+
+    def __change_player_turn(self):
+        self.__player_turn = not self.__player_turn
+        if self.__player_turn:
+            game.background_color = (0,0,100)
+        else:
+            game.background_color = (100,0,0)

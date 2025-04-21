@@ -19,8 +19,8 @@ class Match_Game_State(State):
         self.all_sprites = pg.sprite.Group()
 
         menu_button = Text_Button(pos=(100,100), size=(160,80), text='返回', font_size=40, font='SWEISANSCJKTC-REGULAR')
-        from .menu_state import Menu_State
-        menu_button.setClick(lambda:game.change_state(Menu_State()))
+        
+        menu_button.setClick(lambda:Match_Game_State.go_to_menu())
         self.all_sprites.add(menu_button)
 
         self.match_game = Match_Game()
@@ -39,3 +39,8 @@ class Match_Game_State(State):
     def render(self):
         game.draw_text(game.canvas, "連連看", 70, game.CANVAS_WIDTH/2, 100)
         self.all_sprites.draw(game.canvas)
+
+    def go_to_menu():
+        game.background_color = (30,30,30)
+        from .menu_state import Menu_State
+        game.change_state(Menu_State())

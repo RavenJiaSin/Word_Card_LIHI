@@ -13,7 +13,7 @@ CANVAS_HEIGHT = 1080
 deltaTick = 0
 canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
-
+background_color = (30,30,30)
 
 def change_state(state:State):
     pg.event.post(pg.event.Event(Event_Manager.EVENT_CHANGE_STATE, {"state":state}))
@@ -62,12 +62,13 @@ class Game:
 
     def __render(self):
         global canvas
-        canvas.fill(color=(30,30,30))
+        canvas.fill(color=background_color)
         self.__state.render()
 
         scaled_surface = pg.transform.scale(canvas, self.__window.get_size())
         self.__window.blit(scaled_surface, (0, 0))
         pg.display.update()
+
 
     def quit(self):
         print('Successfully quit pygame')
