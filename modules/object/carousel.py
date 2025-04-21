@@ -54,4 +54,8 @@ class Carousel():
         # 根據 scale (depth) 排序後再畫
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale)
         for card in sorted_cards:
+             # 根據距離決定透明度
+            distance = card.ori_scale ** 4
+            opacity = int(distance * 255)
+            card.image.set_alpha(opacity)
             surface.blit(card.image, card.rect)
