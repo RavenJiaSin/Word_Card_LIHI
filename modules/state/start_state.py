@@ -14,16 +14,20 @@ class Start_State(State):
 
         self.all_sprites = pg.sprite.Group()
 
-        enter_button = Text_Button(pos=(game.WINDOW_WIDTH/2,game.WINDOW_HEIGHT/2 + 20), size=(80,40), text='ENTER', font_size=20)
+        enter_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+50), size=(160,80), text='ENTER', font_size=40)
 
-        enter_button.setClick(lambda:game.chage_state(Menu_State()))
+        enter_button.setClick(lambda:game.change_state(Menu_State()))
         self.all_sprites.add(enter_button)
-        
+    
+    # override 
+    def handle_event(self):
+        ...
+
     # override
     def update(self):
         self.all_sprites.update()
 
     # override
     def render(self):
-        game.draw_text(game.window, "WORD卡厲害", 50, game.WINDOW_WIDTH/2, game.WINDOW_HEIGHT/2 - 50)
-        self.all_sprites.draw(game.window)
+        game.draw_text(game.canvas, "WORD卡厲害", 100, game.CANVAS_WIDTH/2, 200)
+        self.all_sprites.draw(game.canvas)

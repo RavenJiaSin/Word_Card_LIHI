@@ -26,7 +26,7 @@ class Object(pg.sprite.Sprite):
             self.image = pg.Surface(size)
             self.image.fill(pg.Color(200,50,50))
         else:
-            self.image = pg.transform.scale(img, size)
+            self.image = pg.transform.smoothscale(img, size)
         self.rect = self.image.get_rect()
         self.rect.center = pos
         

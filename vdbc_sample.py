@@ -1,16 +1,23 @@
 from modules.database import VocabularyDB
+import random
 
 db = VocabularyDB()
 
 # 查詢所有單字
 # print(db.get_all())
-# print(db.find_vocabulary())
+words = db.find_vocabulary(column='Vocabulary', length=5)
+random_words = [word[0] for word in random.sample(words, 24)]
+for word in random_words:
+    print(db.find_vocabulary(column='Translation', voc=word)[0][0])
 
 # 查詢特定單字
 # print(db.find_vocabulary(voc='apple'))
 
 # 查詢特定單字的特定欄位
 # print(db.find_vocabulary(voc='apple',column='ID'))
+
+# 查詢長度為5的單字
+# print(db.find_vocabulary(column='Vocabulary', length=5 ))
 
 # 查詢詞性為動詞，等級為2的單字
 # print(db.find_vocabulary(part_of_speech="v.", level=2))

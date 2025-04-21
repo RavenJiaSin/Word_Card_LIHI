@@ -1,6 +1,6 @@
 import pygame as pg
 from .button import Button
-from ..manager import img_map
+from ..manager import Image_Manager
 
 class Card(Button):
     """卡片物件。繼承自Button。
@@ -14,13 +14,8 @@ class Card(Button):
     """
     def __init__(self, pos=(0,0), size:int=50, scale=1, name:str='test_poker'):
         size = (size,size*1.5)
-        super().__init__(pos, size, img_map[name])
-        self.__ori_w = self.width
-        self.__ori_h = self.height
-        self.width *= scale
-        self.height *= scale
-        self.__ori_img = self.image
-        self.image = pg.transform.scale(self.__ori_img, (int(self.width), int(self.height)))
+        super().__init__(pos, size, Image_Manager.get(name))
+
         self.setClick(lambda:print('Clicked Card'))
         self.setWiggle()
         self.__name = "Card"
@@ -32,15 +27,4 @@ class Card(Button):
     def setDescription(self, description:str):
         self.__description = description
 
-    def transform(self, x=None, y=None, scale=None):
-        if scale != None:
-            self.scale = scale
-            self.width = self.__ori_w * scale
-            self.height = self.__ori_h * scale
-            self.image = pg.transform.smoothscale(self.__ori_img, (self.width, self.height))
-            self.rect = self.image.get_rect()
-        if x != None:
-            self.x = x
-        if y != None:
-            self.y = y
             
