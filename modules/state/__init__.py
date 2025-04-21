@@ -6,4 +6,3 @@ from .match_game_state import Match_Game_State
 from .start_state import Start_State
 from .start_state import Start_State
 from .card_collection_state import Card_Collection_State
-from .practice_state import Practice_State
