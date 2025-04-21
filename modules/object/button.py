@@ -32,12 +32,10 @@ class Button(Object):
         self.__ori_image = self.image
         self.ori_scale = scale             # Card會用到，不加底線
         self.scale = scale               # 當前縮放倍率
-        self.__delta_press_scale = 0.15    # 點擊時的縮放倍率變化量
-        self.__press_scale_speed = 0.25    # 點擊時每幀縮放變化的速度
+        self.__delta_press_scale = 0.1    # 點擊時的縮放倍率變化量
+        self.__press_scale_speed = 0.45    # 點擊時每幀縮放變化的速度
 
         self.can_press = True
-
-
 
     # override
     def __handle_event(self):
