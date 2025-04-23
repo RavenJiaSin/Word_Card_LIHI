@@ -14,7 +14,7 @@ class Test_State(State):
         menu_button.setClick(lambda:game.change_state(Main_State()))
         self.all_sprites.add(menu_button)
 
-        card = Card(pos=(game.CANVAS_WIDTH/2, 200), size=100, name='test_poker')
+        card = Card(pos=(game.CANVAS_WIDTH/2, 200), size=100, id='test_poker')
         self.all_sprites.add(card)
 
 

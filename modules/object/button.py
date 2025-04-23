@@ -16,7 +16,7 @@ class Button(Object):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None, scale:float=1.0):
+    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None):
         super().__init__(pos=pos, size=size, img=img)
         self.__click = lambda:None
         self.__isWiggle = False
@@ -24,16 +24,16 @@ class Button(Object):
         self.__goDown = True
         self.__isPressed = False
 
+        self.scale = 1                      # 當前縮放倍率
         self.__ori_w = self.width
         self.__ori_h = self.height
-        self.width *= scale
-        self.height *= scale
+        self.width *= self.scale
+        self.height *= self.scale
 
         self.__ori_image = self.image
-        self.ori_scale = scale             # Card會用到，不加底線
-        self.scale = scale               # 當前縮放倍率
-        self.__delta_press_scale = 0.1    # 點擊時的縮放倍率變化量
-        self.__press_scale_speed = 0.45    # 點擊時每幀縮放變化的速度
+        self.ori_scale = self.scale         # Card會用到，不加底線
+        self.__delta_press_scale = 0.1      # 點擊時的縮放倍率變化量
+        self.__press_scale_speed = 0.45     # 點擊時每幀縮放變化的速度
 
         self.can_press = True
 

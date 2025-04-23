@@ -56,7 +56,7 @@ class Menu_State(State):
         card_pack_pos = (game.CANVAS_WIDTH / 2 + 100, game.CANVAS_HEIGHT / 2) 
 
         if self.card_pack:
-            self.card_packet_button = Card(pos=card_pack_pos, size=200, name='test_poker')
+            self.card_packet_button = Card(pos=card_pack_pos, size=200, id='test_poker')
             self.card_packet_button.setClick(self.open_card_pack)
             self.all_sprites.add(self.card_packet_button)
 
