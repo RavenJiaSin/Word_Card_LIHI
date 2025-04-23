@@ -9,3 +9,4 @@
 - [Week6](https://www.canva.com/design/DAGj7d8hpOE/6GXnAbHllYcagjYv-Spu3w/edit)
 - [Week7](https://www.canva.com/design/DAGkli-tx2s/U26-asSXfgE3lPHRaCwscA/edit)
 - [期中報告](https://www.canva.com/design/DAGlFFzWoMw/bB45C5Go0TycKJJdCVtefw/edit)
+- [時程分配](https://www.canva.com/design/DAGlPjskoHQ/wiAE4cksjcmuL1WKdFYrOw/edit?utm_content=DAGlPjskoHQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
