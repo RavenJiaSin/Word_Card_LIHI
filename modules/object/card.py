@@ -1,7 +1,6 @@
-import pygame as pg
 from .button import Button
 from ..manager import Image_Manager
-from ..manager import font_map
+from ..manager import Font_Manager
 
 class Card(Button):
     """卡片物件。繼承自Button。
@@ -13,16 +12,11 @@ class Card(Button):
     """
     def __init__(self, pos=(0,0), scale:float=1, id:str='Card'):
         self.__id = id
-        super().__init__(pos=pos, scale=scale, img=Image_Manager.get('apple_card'))
+        super().__init__(pos=pos, scale=scale, img=Image_Manager.get('card'))
         self.__set_image()
         self.setClick(lambda:print('Clicked Card:', self.__id))
 
     def __set_image(self):
-        font = pg.font.Font(font_map['test_font'], 20)
-        text_surface = font.render(self.__id, True, (0,0,0))
-        text_rect = text_surface.get_rect()
-
-        text_rect.centerx = self.width / 2
-        text_rect.centery = self.height / 2
-
+        text_surface = Font_Manager.get_text_surface(self.__id, 36, (36,36,36))
+        text_rect = text_surface.get_rect(center=(self.width / 2,self.height / 2))
         self.image.blit(text_surface, text_rect)

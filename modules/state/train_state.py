@@ -4,6 +4,7 @@ import game
 from modules.database import VocabularyDB
 from .state import State
 from ..object import Text_Button
+from ..manager import Font_Manager
 #from ..object import Card
 #from ..manager import Image_Manager
 
@@ -29,7 +30,6 @@ class Train_State(State):
             scale=1, 
             text='MENU', 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
         )
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.all_sprites.add(menu_button)
@@ -48,7 +48,6 @@ class Train_State(State):
                 scale=1, 
                 text="LEVEL"+str(i+1), 
                 font_size=70, 
-                font='SWEISANSCJKTC-REGULAR'
                 )
             btn.setClick(lambda level=i+1: self.start_game(level))
             self.difficulty_buttons.append(btn)
@@ -58,7 +57,6 @@ class Train_State(State):
             scale=1, 
             text="Menu", 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
         )
         back_btn.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(back_btn)
@@ -111,7 +109,6 @@ class Train_State(State):
                     scale=1, 
                     text=self.choice[i][1], 
                     font_size=70, 
-                    font='SWEISANSCJKTC-REGULAR'
                     )
                 btn.setClick(lambda i=i:self.check_answer(self.choice[i][1]))
                 self.all_sprites.add(btn)
@@ -145,7 +142,6 @@ class Train_State(State):
                 scale=1, 
                 text='Next', 
                 font_size=70, 
-                font='SWEISANSCJKTC-REGULAR'
             )
             next_button.setClick(lambda: self.load_question(self.level))
             self.all_sprites.add(next_button)
@@ -164,7 +160,6 @@ class Train_State(State):
             scale=1, 
             text="Menu", 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
         )
         back_btn.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(back_btn)
@@ -204,12 +199,12 @@ class Train_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.canvas, self.current_title_text, 70, game.CANVAS_WIDTH/2, 100)
+        Font_Manager.draw_text(game.canvas, self.current_title_text, 70, game.CANVAS_WIDTH/2, 100)
         # 顯示題目
         if self.current_question_text:
-            game.draw_text(game.canvas, self.current_question_text, 60, game.CANVAS_WIDTH//2, 180)
+            Font_Manager.draw_text(game.canvas, self.current_question_text, 60, game.CANVAS_WIDTH//2, 180)
         # 顯示正解與翻譯（若有）
         if self.result_shown:
-            game.draw_text(game.canvas, self.current_result_text, 40, game.CANVAS_WIDTH//2, 250)
-            game.draw_text(game.canvas, self.current_translation_text, 40, game.CANVAS_WIDTH//2, 300)
+            Font_Manager.draw_text(game.canvas, self.current_result_text, 40, game.CANVAS_WIDTH//2, 250)
+            Font_Manager.draw_text(game.canvas, self.current_translation_text, 40, game.CANVAS_WIDTH//2, 300)
         self.all_sprites.draw(game.canvas)

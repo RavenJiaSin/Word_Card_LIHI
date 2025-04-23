@@ -1,9 +1,8 @@
 import pygame as pg
 import game
 from .state import State
-from ..object import Button
 from ..object import Text_Button
-
+from ..manager import Font_Manager
 
 class Start_State(State):
     """初始狀態。繼承自`State`。
@@ -34,5 +33,5 @@ class Start_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.canvas, "WORD卡厲害", 100, game.CANVAS_WIDTH/2, 200)
+        Font_Manager.draw_text(game.canvas, "WORD卡厲害", 100, game.CANVAS_WIDTH/2, 200)
         self.all_sprites.draw(game.canvas)

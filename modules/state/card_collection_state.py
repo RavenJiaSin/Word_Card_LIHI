@@ -5,6 +5,7 @@ from ..object import Button
 from ..object import Text_Button
 from ..object import Card
 from functools import partial
+from ..manager import Font_Manager
 
 class Card_Collection_State(State):
 
@@ -72,7 +73,7 @@ class Card_Collection_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.canvas, "Card Collection", 70, game.CANVAS_WIDTH/2 + 50 , 100)
+        Font_Manager.draw_text(game.canvas, "Card Collection", 70, game.CANVAS_WIDTH/2 + 50 , 100)
         self.background_cards.draw(game.canvas)  # 背景卡牌
         if self.foreground_card:
             dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面，製造聚焦效果

@@ -20,7 +20,7 @@ class Match_Game:
         i = 0
         for row in grid:
             for pos in row:
-                card = Match_Card(pos=pos, scale=1, word=words[i], font_size=25)
+                card = Match_Card(pos=pos, scale=1, word=words[i], font_size=24)
                 i += 1
                 self.__card_sprites.add(card)
 

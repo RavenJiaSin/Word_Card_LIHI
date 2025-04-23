@@ -1,6 +1,6 @@
 import pygame as pg
 from modules.state import State, Start_State
-from modules.manager import font_map
+from modules.manager import Font_Manager
 from modules.manager import Event_Manager
 
 FPS = 60
@@ -17,14 +17,6 @@ background_color = (30,30,30)
 
 def change_state(state:State):
     pg.event.post(pg.event.Event(Event_Manager.EVENT_CHANGE_STATE, {"state":state}))
-
-def draw_text(surf, text, size, x, y, font='SWEISANSCJKTC-REGULAR'):
-    font = pg.font.Font(font_map[font], size)
-    text_surface = font.render(text, True, (200, 200, 200))
-    text_rect = text_surface.get_rect()
-    text_rect.centerx = x
-    text_rect.centery = y
-    surf.blit(text_surface, text_rect)
 
 class Game:
     def __init__(self):

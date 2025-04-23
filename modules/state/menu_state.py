@@ -4,6 +4,7 @@ from .state import State
 from ..object.card import Card
 from ..object import Text_Button
 from ..object import Carousel
+from ..manager import Font_Manager
 
 
 class Menu_State(State):
@@ -79,7 +80,7 @@ class Menu_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.canvas, "首頁", 70, game.CANVAS_WIDTH/2, 100)
+        Font_Manager.draw_text(game.canvas, "首頁", 70, game.CANVAS_WIDTH/2, 100)
         self.all_sprites.draw(game.canvas)
         if (not self.card_pack):
             self.daily_card.draw(game.canvas)

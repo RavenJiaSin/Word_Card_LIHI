@@ -1,7 +1,7 @@
 import pygame as pg
 from .button import Button
 import game
-from modules.manager import font_map
+from modules.manager import Font_Manager
 
 class Text_Button(Button):
     """文字按鈕物件。繼承自Button。
@@ -16,14 +16,10 @@ class Text_Button(Button):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), scale:int=1, img=None, text='text', font='SWEISANSCJKTC-REGULAR', font_size=16, font_color = (200,200,200)):
+    def __init__(self, pos:tuple=(0,0), scale:int=1, img=None, text='text', font_size=12, font_color = (200,200,200)):
         super().__init__(pos=pos, scale=scale, img=img)
                 
-        font = pg.font.Font(font_map[font], font_size)
+        font = Font_Manager.get_font(font_size)
         text_surface = font.render(text, True, font_color)
-        text_rect = text_surface.get_rect()
-
-        text_rect.centerx = self.width / 2
-        text_rect.centery = self.height / 2
-
+        text_rect = text_surface.get_rect(center=(self.width / 2,self.height / 2))
         self.image.blit(text_surface, text_rect)
