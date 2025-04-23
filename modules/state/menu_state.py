@@ -57,12 +57,12 @@ class Menu_State(State):
         card_pack_pos = (game.CANVAS_WIDTH / 2 + 100, game.CANVAS_HEIGHT / 2) 
 
         if self.card_pack:
-            self.card_packet_button = Card(pos=card_pack_pos, scale=2, id='test_poker')
+            self.card_packet_button = Card(pos=card_pack_pos, scale=2)
             self.card_packet_button.setClick(self.open_card_pack)
             self.card_packet_button.setWiggle()
             self.all_sprites.add(self.card_packet_button)
 
-        self.daily_card = Carousel(center=card_pack_pos, card_scale=3, radius=500, zoom_factor=1, speed=0.5)
+        self.daily_card = Carousel(center=card_pack_pos, card_scale=2, radius=400, zoom_factor=1, speed=0.5)
 
     def open_card_pack(self):
         self.card_pack = False

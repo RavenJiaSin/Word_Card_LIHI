@@ -24,16 +24,16 @@ class Button(Object):
         self.__goDown = True
         self.__isPressed = False
 
-        self.scale = 1                      # 當前縮放倍率
+        self.scale_for_transform = 1                    # 當前縮放倍率
         self.__ori_w = self.width
         self.__ori_h = self.height
-        self.width *= self.scale
-        self.height *= self.scale
+        self.width *= self.scale_for_transform
+        self.height *= self.scale_for_transform
 
         self.__ori_image = self.image
-        self.ori_scale = self.scale         # Card會用到，不加底線
-        self.__delta_press_scale = 0.1      # 點擊時的縮放倍率變化量
-        self.__press_scale_speed = 0.45     # 點擊時每幀縮放變化的速度
+        self.ori_scale = self.scale_for_transform       # Card會用到，不加底線
+        self.__delta_press_scale = 0.1                  # 點擊時的縮放倍率變化量
+        self.__press_scale_speed = 0.45                 # 點擊時每幀縮放變化的速度
 
         self.can_press = True
 
@@ -98,16 +98,16 @@ class Button(Object):
     def __pressed_effect(self):
         if not self.can_press:
             return
-        if ((not self.__isPressed and self.scale >= self.ori_scale) or                            # 未按下且已回復原尺寸 (多數情況所以放條件判斷前面)
-                (self.__isPressed and self.scale <= self.ori_scale * (1 - self.__delta_press_scale))):  # 已按下且已縮放到位
+        if ((not self.__isPressed and self.scale_for_transform >= self.ori_scale) or                            # 未按下且已回復原尺寸 (多數情況所以放條件判斷前面)
+                (self.__isPressed and self.scale_for_transform <= self.ori_scale * (1 - self.__delta_press_scale))):  # 已按下且已縮放到位
             return
 
         # 按下縮小、放開放大
-        self.transform(scale=self.scale + self.__delta_press_scale * self.__press_scale_speed * -1 if self.__isPressed else 1)
+        self.transform(scale=self.scale_for_transform + self.__delta_press_scale * self.__press_scale_speed * -1 if self.__isPressed else 1)
 
     def transform(self, x=None, y=None, scale=None):
         if scale != None:
-            self.scale = scale
+            self.scale_for_transform = scale
             self.width = self.__ori_w * scale
             self.height = self.__ori_h * scale
             self.image = pg.transform.smoothscale(self.__ori_image, (self.width, self.height))

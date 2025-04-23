@@ -24,7 +24,7 @@ class Carousel():
         self.cards = pg.sprite.Group()
 
         for i in range(card_count):
-            card = Card(pos=center, scale=card_scale / (1 + zoom_factor), id='test_poker')
+            card = Card(pos=center, scale=card_scale / (1 + zoom_factor))
             self.cards.add(card)
 
     def rotate(self, delta_angle):

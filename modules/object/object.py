@@ -30,6 +30,7 @@ class Object(pg.sprite.Sprite):
         self.rect.center = pos
         self.width = float(self.rect.width)
         self.height = float(self.rect.height)
+        self.scale = scale
         
     def __handle_event(self):
         """需要覆寫,物件可以從這邊處理相關事件(event_list)

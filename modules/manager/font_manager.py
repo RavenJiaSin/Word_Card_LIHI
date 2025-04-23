@@ -35,5 +35,5 @@ class Font_Manager:
     def draw_text(cls, surface:pg.Surface, text:str, size:int, x, y, color=(255,255,255)):
         font = cls.get_font(size)
         text_surface = font.render(text, True, color)
-        rect = text_surface.get_rect(center=(x, y))
-        surface.blit(text_surface, rect)
+        text_rect = text_surface.get_rect(center=(x,y))
+        surface.blit(text_surface, text_rect)
