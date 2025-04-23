@@ -5,7 +5,7 @@ from modules.manager import Event_Manager
 
 FPS = 60
 
-FULLSCREEN = True
+FULLSCREEN = False
 MOUSE_SCALE = 1 if FULLSCREEN else 1.5
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
@@ -28,14 +28,13 @@ def draw_text(surf, text, size, x, y, font='SWEISANSCJKTC-REGULAR'):
 
 class Game:
     def __init__(self):
-        pg.init()
         self.__isRunning = True
-        self.__clock = pg.time.Clock()
-        self.__state = Start_State()
         self.__window_width = 1920 if FULLSCREEN else 1280
         self.__window_height = 1080 if FULLSCREEN else 720
         self.__window_flag = (pg.FULLSCREEN | pg.SCALED) if FULLSCREEN else 0
         self.__window = pg.display.set_mode((self.__window_width,self.__window_height),self.__window_flag)
+        self.__clock = pg.time.Clock()
+        self.__state = Start_State()
     def run(self):
         global deltaTick, event_list
         while self.__isRunning:

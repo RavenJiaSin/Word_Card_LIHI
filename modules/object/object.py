@@ -16,19 +16,20 @@ class Object(pg.sprite.Sprite):
         image (pg.Surface): 物件渲染在畫面上的圖片。
         rect (pg.Rect): 物件渲染在畫面上的位置、寬高(transform)資訊, x 和 y 更新後要存回`rect`中。
     """
-    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None):
+    def __init__(self, pos:tuple=(0,0), scale:float=1, img=None):
         super().__init__()
         self.x = float(pos[0])
         self.y = float(pos[1])
-        self.width = float(size[0])
-        self.height = float(size[1])
         if img == None:
-            self.image = pg.Surface(size)
+            self.image = pg.Surface((160,120))
             self.image.fill(pg.Color(200,50,50))
         else:
-            self.image = pg.transform.smoothscale(img, size)
+            width, height = img.get_size()
+            self.image = pg.transform.smoothscale(img, (width*scale,height*scale))
         self.rect = self.image.get_rect()
         self.rect.center = pos
+        self.width = float(self.rect.width)
+        self.height = float(self.rect.height)
         
     def __handle_event(self):
         """需要覆寫,物件可以從這邊處理相關事件(event_list)

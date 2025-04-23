@@ -14,14 +14,19 @@ class Start_State(State):
 
         self.all_sprites = pg.sprite.Group()
 
-        enter_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+50), size=(160,80), text='ENTER', font_size=40)
+        enter_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+50), scale=1, text='ENTER', font_size=40)
 
-        enter_button.setClick(lambda:game.change_state(Menu_State()))
+        self.__menu_state = Menu_State()
+        enter_button.setClick(lambda:game.change_state(self.__menu_state))
         self.all_sprites.add(enter_button)
     
     # override 
     def handle_event(self):
-        ...
+        for event in game.event_list:
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    game.change_state(self.__menu_state)
+
 
     # override
     def update(self):

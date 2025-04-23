@@ -26,7 +26,7 @@ class Train_State(State):
 
         menu_button = Text_Button(
             pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), 
-            size=(200, 80), 
+            scale=1, 
             text='MENU', 
             font_size=70, 
             font='SWEISANSCJKTC-REGULAR'
@@ -45,7 +45,7 @@ class Train_State(State):
         for i in range(3):
             btn = Text_Button(
                 pos=(game.CANVAS_WIDTH/2, 400 + i*200), 
-                size=(400, 150), 
+                scale=1, 
                 text="LEVEL"+str(i+1), 
                 font_size=70, 
                 font='SWEISANSCJKTC-REGULAR'
@@ -55,7 +55,7 @@ class Train_State(State):
             self.all_sprites.add(btn)
         back_btn = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-            size=(200, 80), 
+            scale=1, 
             text="Menu", 
             font_size=70, 
             font='SWEISANSCJKTC-REGULAR'
@@ -108,7 +108,7 @@ class Train_State(State):
             for i in range(4):
                 btn = Text_Button(
                     pos=(game.CANVAS_WIDTH // 2, 400 + i * 150), 
-                    size=(600, 100), 
+                    scale=1, 
                     text=self.choice[i][1], 
                     font_size=70, 
                     font='SWEISANSCJKTC-REGULAR'
@@ -142,7 +142,7 @@ class Train_State(State):
                 
             next_button = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-                size=(200, 80), 
+                scale=1, 
                 text='Next', 
                 font_size=70, 
                 font='SWEISANSCJKTC-REGULAR'
@@ -161,7 +161,7 @@ class Train_State(State):
         self.result_shown = True
         back_btn = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-            size=(200, 80), 
+            scale=1, 
             text="Menu", 
             font_size=70, 
             font='SWEISANSCJKTC-REGULAR'

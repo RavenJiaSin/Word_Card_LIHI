@@ -18,7 +18,7 @@ class Match_Game_State(State):
     def __init__(self):
         self.all_sprites = pg.sprite.Group()
 
-        menu_button = Text_Button(pos=(100,100), size=(160,80), text='返回', font_size=40, font='SWEISANSCJKTC-REGULAR')
+        menu_button = Text_Button(pos=(100,100), scale=1, text='返回', font_size=40, font='SWEISANSCJKTC-REGULAR')
         
         menu_button.setClick(lambda:Match_Game_State.go_to_menu())
         self.all_sprites.add(menu_button)

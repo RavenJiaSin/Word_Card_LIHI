@@ -15,7 +15,7 @@ class Card_Collection_State(State):
         self.foreground_card_group = pg.sprite.GroupSingle()
         self.foreground_card = None
 
-        menu_button = Text_Button(pos=(100, 100), size=(80,60), text='MENU', font_size=20)
+        menu_button = Text_Button(pos=(100, 100), scale=1, text='MENU', font_size=20)
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.ui_sprites.add(menu_button)
 
@@ -23,12 +23,12 @@ class Card_Collection_State(State):
         
         for row in range(2):
             for col in range(5):
-                card = Card(pos=(360 + col * 300, 360 + row * 300), size=150, id='test_poker')
+                card = Card(pos=(360 + col * 300, 360 + row * 300), scale=1, id='test_poker')
                 card.setClick(partial(self.try_enlarge_card, card))
                 self.background_cards.add(card)
 
     def enlarge_card(self, card):
-        self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), size=300, id='test_poker')
+        self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), scale=3, id='test_poker')
         self.foreground_card_group.add(self.foreground_card)
 
     def try_enlarge_card(self, card):

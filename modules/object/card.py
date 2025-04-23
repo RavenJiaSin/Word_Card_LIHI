@@ -11,10 +11,9 @@ class Card(Button):
     Attributes:
         __id (str): 卡片名稱。    
     """
-    def __init__(self, pos=(0,0), size:int=50, id:str='Card'):
+    def __init__(self, pos=(0,0), scale:float=1, id:str='Card'):
         self.__id = id
-        size = (size,size*1.5)
-        super().__init__(pos, size, Image_Manager.get('tmp_card_front'))
+        super().__init__(pos=pos, scale=scale, img=Image_Manager.get('apple_card'))
         self.__set_image()
         self.setClick(lambda:print('Clicked Card:', self.__id))
 

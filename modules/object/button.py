@@ -16,8 +16,8 @@ class Button(Object):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None):
-        super().__init__(pos=pos, size=size, img=img)
+    def __init__(self, pos:tuple=(0,0), scale:float=1, img=None):
+        super().__init__(pos=pos, scale=scale, img=img)
         self.__click = lambda:None
         self.__isWiggle = False
         self.__ori_y = self.y
