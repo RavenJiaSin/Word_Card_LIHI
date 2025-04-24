@@ -8,7 +8,7 @@ db = VocabularyDB()
 
 
 # 查詢特定單字
-print(db.find_vocabulary(voc='apple'))
+# print(db.find_vocabulary(voc='apple'))
 
 # 查詢特定單字的特定欄位
 # print(db.find_vocabulary(voc='apple',column='ID'))
