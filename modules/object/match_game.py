@@ -21,7 +21,6 @@ class Match_Game:
     def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(530,270), col_spacing:int=280, row_spacing:int=230):
         grid = [[(top_left[0] + c * col_spacing, top_left[1] + r * row_spacing) for c in range(cols)] for r in range(rows)]
         self.__card_sprites = pg.sprite.Group()
-        self.__correct_cards = []
 
         words = self.__getWords(cols*rows // 2)
         i = 0
@@ -69,18 +68,18 @@ class Match_Game:
                 self.__pending_flip_time = current_time + 800
                 self.__set_all_card_flip(False)
             else:
-                self.__first_chosen_card.moveTo((150, 300), 1)
                 self.__first_chosen_card.setWiggle()
-                self.__second_chosen_card.moveTo((150, 300), 1)
                 self.__second_chosen_card.setWiggle()
-                self.__correct_cards.append(self.__first_chosen_card)
-                self.__correct_cards.append(self.__second_chosen_card)
-                self.__first_chosen_card = None
-                self.__second_chosen_card = None
                 if self.__blue_turn:
                     self.__blue_score += 1
+                    self.__first_chosen_card.moveTo((150, 300), 1)
+                    self.__second_chosen_card.moveTo((150, 300), 1)
                 else:
                     self.__red_score += 1
+                    self.__first_chosen_card.moveTo((1750, 300), 1)
+                    self.__second_chosen_card.moveTo((1750, 300), 1)
+                self.__first_chosen_card = None
+                self.__second_chosen_card = None
 
     def getScore(self) -> tuple[0,0]:
         return (self.__blue_score, self.__red_score)
@@ -102,8 +101,7 @@ class Match_Game:
     
     def __set_all_card_flip(self, can_flip):
         for card in self.__card_sprites:
-            if card not in self.__correct_cards:
-                card.can_press = can_flip
+            card.can_press = can_flip
 
     def __change_player_turn(self):
         self.__blue_turn = not self.__blue_turn

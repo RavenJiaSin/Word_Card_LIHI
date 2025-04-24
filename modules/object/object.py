@@ -35,6 +35,9 @@ class Object(pg.sprite.Sprite):
         self.__is_moving = False
         self.__vel = (0,0)
         self.__target_pos = (0,0)
+        self.__is_wiggle = False
+        self.__ori_y = self.y
+        self.__goDown = True
         
     def __handle_event(self):
         """需要覆寫,物件可以從這邊處理相關事件(event_list)
@@ -44,28 +47,59 @@ class Object(pg.sprite.Sprite):
     def update(self):     
         """需要覆寫,物件在此更新,要記得呼叫__handle_event()才能夠處理事件
         """   
+        self.__wiggle()
         self.__handle_event()
         self.__move()
         self.rect.center = (int(self.x), int(self.y))
 
     def moveTo(self, target:tuple, time:int):
+        # .__move_XXX only declared and used in move function. Do not call them from outside
+        self.__move_start_pos = self.rect.center
+        self.__move_target_pos = target
+        self.__move_total_movement = (target[0] - self.rect.centerx, target[1] - self.rect.centery)
+        self.__move_total_frames = time * game.FPS
+        self.__move_cur_frame = 0
+        self.__ori_wiggle = self.__is_wiggle
+        self.stopWiggle()
         self.__is_moving = True
-        self.__target_pos = target
-        dir = (target[0]-self.x, target[1]-self.y)
-        distance = math.sqrt(dir[0]**2+dir[1]**2)
-        speed = distance / (time*1000)
-        self.__vel = (dir[0] / distance * speed * game.deltaTick, dir[1] / distance * speed * game.deltaTick)
 
     def __move(self):
         if not self.__is_moving:
             return
-        # 由於按鈕物件會晃動，採用區域確認是否抵達目的地，導致不準確
-        dx = self.x - self.__target_pos[0]
-        dy = self.y - self.__target_pos[1]
-        if abs(dx) < 10 and abs(dy) < 10:
+        self.__move_cur_frame += 1
+        self.x = self.__move_start_pos[0] + (self.__move_total_movement[0] * (self.__move_cur_frame / self.__move_total_frames))
+        self.y = self.__move_start_pos[1] + (self.__move_total_movement[1] * (self.__move_cur_frame / self.__move_total_frames))        
+        
+        if self.__move_cur_frame == self.__move_total_frames:
             self.__is_moving = False
-            self.__vel = (0,0)
-            self.__target_pos = (0,0)
-        self.x += self.__vel[0]
-        self.y += self.__vel[1]
 
+    def setWiggle(self):
+        """開始物件抖動,呼叫stopWiggle()停止
+        """
+        self.__is_wiggle = True
+        self.__goDown = True
+
+    def stopWiggle(self):
+        """停止物件抖動
+        """
+        self.__is_wiggle = False
+
+    def __wiggle(self):
+        """抖動物件
+        """
+        if not self.__is_wiggle:
+            return
+        
+        wiggleHeight = 0.02
+        wiggleFreq = 1.2
+        
+        maxHeight = wiggleHeight * self.height
+        wiggleSpeed = 2 * maxHeight / (1/wiggleFreq)
+
+        if self.y < self.__ori_y + maxHeight and self.__goDown:
+            self.y += (wiggleSpeed * game.deltaTick / 1000)
+        elif self.y > self.__ori_y - maxHeight:
+            self.__goDown = False
+            self.y -= (wiggleSpeed * game.deltaTick / 1000)
+        else:
+            self.__goDown = True

@@ -19,9 +19,6 @@ class Button(Object):
     def __init__(self, pos:tuple=(0,0), scale:float=1, img=None):
         super().__init__(pos=pos, scale=scale, img=img)
         self.__click = lambda:None
-        self.__isWiggle = False
-        self.__ori_y = self.y
-        self.__goDown = True
         self.__isPressed = False
 
         self.scale_for_transform = 1                    # 當前縮放倍率
@@ -55,40 +52,8 @@ class Button(Object):
     # override
     def update(self):
         self.__handle_event()
-        self.__wiggle()
         self.__pressed_effect()
-        super().update()
-
-    def setWiggle(self):
-        """開始物件抖動,呼叫stopWiggle()停止
-        """
-        self.__isWiggle = True
-        self.__goDown = True
-
-    def stopWiggle(self):
-        """停止物件抖動
-        """
-        self.__isWiggle = False
-
-    def __wiggle(self):
-        """抖動物件
-        """
-        if not self.__isWiggle:
-            return
-        wiggleHeight = 0.02
-        wiggleFreq = 1.2
-        
-        maxHeight = wiggleHeight * self.height
-        wiggleSpeed = 2 * maxHeight / (1/wiggleFreq)
-
-        if self.y < self.__ori_y + maxHeight and self.__goDown:
-            self.y += (wiggleSpeed * game.deltaTick / 1000)
-        elif self.y > self.__ori_y - maxHeight:
-            self.__goDown = False
-            self.y -= (wiggleSpeed * game.deltaTick / 1000)
-        else:
-            self.__goDown = True
-
+        super().update()    
 
     def setClick(self,func:Callable[[], None] = lambda: None):
         """設定`_click`

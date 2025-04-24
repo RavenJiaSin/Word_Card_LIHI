@@ -62,7 +62,7 @@ class Menu_State(State):
             self.card_packet_button.setWiggle()
             self.all_sprites.add(self.card_packet_button)
 
-        self.daily_card = Carousel(center=card_pack_pos, card_scale=2, radius=400, zoom_factor=1, speed=0.5)
+        self.daily_card = Carousel(center=card_pack_pos, card_scale=2, radius=400, zoom_factor=0.8, speed=0.5)
 
     def open_card_pack(self):
         self.card_pack = False

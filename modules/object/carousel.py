@@ -55,7 +55,7 @@ class Carousel():
         for card in sorted_cards:
             surface.blit(card.image, card.rect)
             # 把 scale 從 [0,2] -> [0,1]
-            distance = card.ori_scale / 2
+            distance = card.ori_scale / (1 + self.zoom_factor)
             distance **= 3
             # 根據距離決定透明度
             opacity = int((1 - distance) * 255)

@@ -24,9 +24,9 @@ class Card(Button):
         except:
             self.__id = 'Not Found'
             
-        super().__init__(pos=pos, scale=scale, img=Image_Manager.get('card'))
-        self.__set_image()
+        super().__init__(pos=pos, scale=scale, img=Image_Manager.get('card_template'))
         self.setClick(lambda:print('Clicked Card:', self.__id))
+        self.__set_image()
 
     def __set_image(self):
 
@@ -40,9 +40,15 @@ class Card(Button):
         font_size = int(12*self.scale)
 
         # 先畫單字圖片
-        img_surf = pg.transform.smoothscale(Image_Manager.get(self.__id), (100*self.scale, 100*self.scale)) 
-        img_rect = img_surf.get_rect(center=(self.width/2, 75*self.scale))
-        surfs.append((img_surf, img_rect)) 
+        try:
+            tmp = Image_Manager.get(self.__id)
+            width = tmp.get_width()
+            height = tmp.get_height()
+            img_surf = pg.transform.smoothscale(tmp, (60*self.scale, height*60/width*self.scale)) 
+            img_rect = img_surf.get_rect(center=(self.width/2, 75*self.scale))
+            surfs.append((img_surf, img_rect)) 
+        except:
+            pass
 
         # 再畫卡片模板
         surfs.append((card_img, card_img.get_rect()))
@@ -80,6 +86,7 @@ class Card(Button):
 
         # 更新image
         self.image.blits(surfs) 
+
 
     def get_id(self) -> str:
         return self.__id
