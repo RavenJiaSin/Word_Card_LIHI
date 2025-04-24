@@ -1,4 +1,5 @@
 import pygame as pg
+import math
 import game
 
 class Object(pg.sprite.Sprite):
@@ -31,6 +32,9 @@ class Object(pg.sprite.Sprite):
         self.width = float(self.rect.width)
         self.height = float(self.rect.height)
         self.scale = scale
+        self.__is_moving = False
+        self.__vel = (0,0)
+        self.__target_pos = (0,0)
         
     def __handle_event(self):
         """需要覆寫,物件可以從這邊處理相關事件(event_list)
@@ -41,4 +45,27 @@ class Object(pg.sprite.Sprite):
         """需要覆寫,物件在此更新,要記得呼叫__handle_event()才能夠處理事件
         """   
         self.__handle_event()
+        self.__move()
         self.rect.center = (int(self.x), int(self.y))
+
+    def moveTo(self, target:tuple, time:int):
+        self.__is_moving = True
+        self.__target_pos = target
+        dir = (target[0]-self.x, target[1]-self.y)
+        distance = math.sqrt(dir[0]**2+dir[1]**2)
+        speed = distance / (time*1000)
+        self.__vel = (dir[0] / distance * speed * game.deltaTick, dir[1] / distance * speed * game.deltaTick)
+
+    def __move(self):
+        if not self.__is_moving:
+            return
+        # 由於按鈕物件會晃動，採用區域確認是否抵達目的地，導致不準確
+        dx = self.x - self.__target_pos[0]
+        dy = self.y - self.__target_pos[1]
+        if abs(dx) < 10 and abs(dy) < 10:
+            self.__is_moving = False
+            self.__vel = (0,0)
+            self.__target_pos = (0,0)
+        self.x += self.__vel[0]
+        self.y += self.__vel[1]
+

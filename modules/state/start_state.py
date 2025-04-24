@@ -19,9 +19,9 @@ class Start_State(State):
         enter_button.setClick(lambda:game.change_state(self.__menu_state))
 
         self.all_sprites.add(enter_button)
-        apple_card = Card((300, game.CANVAS_HEIGHT/2), 3, 'apple')
-        apple_card.setWiggle()
-        self.all_sprites.add(apple_card)
+        self.apple_card = Card((300, game.CANVAS_HEIGHT/2), 3, 'apple')
+        self.apple_card.setWiggle()
+        self.all_sprites.add(self.apple_card)
     
     # override 
     def handle_event(self):

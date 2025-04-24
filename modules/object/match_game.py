@@ -18,7 +18,7 @@ class Match_Game:
     __blue_score = 0
     __red_score = 0
 
-    def __init__(self, cols:int=6, rows:int=4, top_left:tuple=(260,270), col_spacing:int=280, row_spacing:int=230):
+    def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(530,270), col_spacing:int=280, row_spacing:int=230):
         grid = [[(top_left[0] + c * col_spacing, top_left[1] + r * row_spacing) for c in range(cols)] for r in range(rows)]
         self.__card_sprites = pg.sprite.Group()
         self.__correct_cards = []
@@ -69,7 +69,9 @@ class Match_Game:
                 self.__pending_flip_time = current_time + 800
                 self.__set_all_card_flip(False)
             else:
+                self.__first_chosen_card.moveTo((150, 300), 1)
                 self.__first_chosen_card.setWiggle()
+                self.__second_chosen_card.moveTo((150, 300), 1)
                 self.__second_chosen_card.setWiggle()
                 self.__correct_cards.append(self.__first_chosen_card)
                 self.__correct_cards.append(self.__second_chosen_card)
