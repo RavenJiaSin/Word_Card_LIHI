@@ -127,3 +127,9 @@ class Button(Object):
         self.rect.size = self.__ori_image.get_rect().size
         self.__ori_w, self.__ori_h = self.rect.size
         self.rect.center = center
+        
+    def set_color(self, color):
+        self.image.fill(color)
+        self.__ori_image = self.image.copy()
+        self.rect.size = self.image.get_rect().size
+        self.__ori_w, self.__ori_h = self.rect.size

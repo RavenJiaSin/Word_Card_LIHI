@@ -125,6 +125,7 @@ class Train_State(State):
             if self.question_count == 0:
                 from modules.database import VocabularyDB
                 self.question_history = []
+                self.choice_history = []
                 self.answer_history = []
                 self.level = level
                 # 載入資料庫中的單字
@@ -144,9 +145,11 @@ class Train_State(State):
             self.current_title_text="Question "+str(self.question_count)+"/"+str(self.question_num)
             # 隨機選擇4個單字
             self.choice = random.sample(self.voc_list, 4)
+            self.choice_history.append(self.choice)
             # 隨機選擇一個單字作為答案
             self.answer_index = random.randint(0, 3)
             self.answer = self.choice[self.answer_index][1]    
+            self.answer_history.append(self.answer)
             # 將答案所對應的例句挖空/單字對應翻譯作為題目
             if type==0:#0:單字中翻英 1:單字英翻中 2:例句填空
                 self.answer = self.choice[self.answer_index][1]     
@@ -161,6 +164,7 @@ class Train_State(State):
                 self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index][0]) 
                 sentence = self.question[0][2]
                 self.current_question_text = sentence.replace(self.answer, "_____")
+            self.question_history.append(self.question)
             print(self.question)
             # 顯示選項                
             for i in range(4):
@@ -185,6 +189,9 @@ class Train_State(State):
                 self.all_sprites.add(btn)
         else:
             self.show_result()
+            print("Question History",self.question_history)
+            print("Choice History",self.choice_history)
+            print("Answer History",self.answer_history)
         
     # 檢查答案
         #1.如果選擇的答案正確，顯示正確，並且加1分(可同時記錄其他資訊)
@@ -206,11 +213,7 @@ class Train_State(State):
                     self.result_shown = True
                 
                 # 顯示正確答案和翻譯
-                if type==0:#0:單字中翻英 1:單字英翻中 2:例句填空
-                    self.current_translation_text = f"Translation: {self.question[0][3]}"
-                elif type==1:
-                    self.current_translation_text = f"Translation: {self.question[0][1]}"
-                elif type==2:
+                if type==2:#0:單字中翻英 1:單字英翻中 2:例句填空
                     self.current_translation_text = f"Translation: {self.question[0][3]}"
                 
             next_button = Text_Button(
