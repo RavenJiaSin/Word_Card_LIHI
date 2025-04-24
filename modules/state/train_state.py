@@ -50,9 +50,61 @@ class Train_State(State):
                 font_size=70, 
                 font='SWEISANSCJKTC-REGULAR'
                 )
-            btn.setClick(lambda level=i+1: self.start_game(level))
+            btn.setClick(lambda level=i+1: self.question_type_select(level))
             self.difficulty_buttons.append(btn)
             self.all_sprites.add(btn)
+        back_btn = Text_Button(
+            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
+            size=(200, 80), 
+            text="Menu", 
+            font_size=70, 
+            font='SWEISANSCJKTC-REGULAR'
+        )
+        back_btn.setClick(lambda: game.change_state(Menu_State()))
+        self.all_sprites.add(back_btn)
+    
+    
+    # 題型選擇(例句填空or單字翻譯)
+    def question_type_select(self,level):
+        from ..state import Menu_State
+        self.all_sprites.empty()
+        self.difficulty_buttons = []
+        self.question_type = 0
+        #單字翻譯
+        btn1 = Text_Button(
+            pos=(game.CANVAS_WIDTH/2, 400), 
+            size=(400, 150), 
+            text="單字中翻英", 
+            font_size=70, 
+            font='SWEISANSCJKTC-REGULAR'
+            )
+        btn1.setClick(lambda type=0: self.start_game(type,level))
+        self.difficulty_buttons.append(btn1)
+        self.all_sprites.add(btn1)
+        
+        btn2 = Text_Button(
+            pos=(game.CANVAS_WIDTH/2, 600), 
+            size=(400, 150), 
+            text="單字英翻中", 
+            font_size=70, 
+            font='SWEISANSCJKTC-REGULAR'
+            )
+        btn2.setClick(lambda type=1: self.start_game(type,level))
+        self.difficulty_buttons.append(btn2)
+        self.all_sprites.add(btn2)
+        
+        #例句填空
+        btn3 = Text_Button(
+            pos=(game.CANVAS_WIDTH/2, 800), 
+            size=(400, 150), 
+            text="例句填空", 
+            font_size=70, 
+            font='SWEISANSCJKTC-REGULAR'
+            )
+        btn3.setClick(lambda type=2: self.start_game(type,level))
+        self.difficulty_buttons.append(btn3)
+        self.all_sprites.add(btn3)
+        
         back_btn = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
             size=(200, 80), 
@@ -68,7 +120,7 @@ class Train_State(State):
         #2.隨機選擇一個單字作為答案
         #3.將答案所對應的例句挖空作為題目
         #4.將剩餘的3個單字作為選項
-    def load_question(self,level):
+    def load_question(self,type,level):
         if self.question_count < self.question_num:
             if self.question_count == 0:
                 from modules.database import VocabularyDB
@@ -95,25 +147,41 @@ class Train_State(State):
             # 隨機選擇一個單字作為答案
             self.answer_index = random.randint(0, 3)
             self.answer = self.choice[self.answer_index][1]    
-            # 將答案所對應的例句挖空作為題目
-            self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index][0]) 
-            
-            #print("Vocabulary List: ", self.choice) 
-            print("Answer: ", self.answer)   
-            print("Question: ", self.question[0][2])
-            # 顯示題目
-            sentence = self.question[0][2]
-            self.current_question_text = sentence.replace(self.answer, "_____")
+            # 將答案所對應的例句挖空/單字對應翻譯作為題目
+            if type==0:#0:單字中翻英 1:單字英翻中 2:例句填空
+                self.answer = self.choice[self.answer_index][1]     
+                self.question = self.choice[self.answer_index]
+                self.current_question_text = self.question[3]
+            elif type==1:
+                self.answer = self.choice[self.answer_index][3]
+                self.question = self.choice[self.answer_index]
+                self.current_question_text = self.question[1]
+            elif type==2:
+                self.answer = self.choice[self.answer_index][1]
+                self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index][0]) 
+                sentence = self.question[0][2]
+                self.current_question_text = sentence.replace(self.answer, "_____")
+            print(self.question)
             # 顯示選項                
             for i in range(4):
-                btn = Text_Button(
+                if type==1:
+                    btn = Text_Button(
+                    pos=(game.CANVAS_WIDTH // 2, 400 + i * 150), 
+                    size=(600, 100), 
+                    text=self.choice[i][3], 
+                    font_size=70, 
+                    font='SWEISANSCJKTC-REGULAR'
+                    )
+                    btn.setClick(lambda i=i:self.check_answer(type, self.choice[i][3]))
+                else:
+                    btn = Text_Button(
                     pos=(game.CANVAS_WIDTH // 2, 400 + i * 150), 
                     size=(600, 100), 
                     text=self.choice[i][1], 
                     font_size=70, 
                     font='SWEISANSCJKTC-REGULAR'
                     )
-                btn.setClick(lambda i=i:self.check_answer(self.choice[i][1]))
+                    btn.setClick(lambda i=i:self.check_answer(type, self.choice[i][1]))
                 self.all_sprites.add(btn)
         else:
             self.show_result()
@@ -124,7 +192,7 @@ class Train_State(State):
         #3.顯示正確答案
         #4.顯示例句的翻譯
         #5.顯示下一題按鈕
-    def check_answer(self, selected):
+    def check_answer(self, type, selected):
         print("Selected: ", selected)
         if self.IsAnswering:
             self.IsAnswering = False
@@ -134,11 +202,16 @@ class Train_State(State):
                     self.current_result_text = "Correct!"
                     self.result_shown = True
                 else:
-                    self.current_result_text = f"Correct Answer: {self.answer}"
+                    self.current_result_text = f"Wrong! Correct Answer: {self.answer}"
                     self.result_shown = True
                 
                 # 顯示正確答案和翻譯
-                self.current_translation_text = f"Translation: {self.question[0][3]}"
+                if type==0:#0:單字中翻英 1:單字英翻中 2:例句填空
+                    self.current_translation_text = f"Translation: {self.question[0][3]}"
+                elif type==1:
+                    self.current_translation_text = f"Translation: {self.question[0][1]}"
+                elif type==2:
+                    self.current_translation_text = f"Translation: {self.question[0][3]}"
                 
             next_button = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
@@ -147,7 +220,7 @@ class Train_State(State):
                 font_size=70, 
                 font='SWEISANSCJKTC-REGULAR'
             )
-            next_button.setClick(lambda: self.load_question(self.level))
+            next_button.setClick(lambda: self.load_question(type, self.level))
             self.all_sprites.add(next_button)
     
     # 顯示結果
@@ -170,10 +243,11 @@ class Train_State(State):
         self.all_sprites.add(back_btn)
         
     # 開始遊戲
-    def start_game(self, level):
+    def start_game(self,type,level):
         self.all_sprites.empty()
+        self.question_type = type
         self.level = level
-        self.load_question(level)
+        self.load_question(type,level)
     
     # 顯示文字
     def draw_wrapped_text(surface, text, font, color, x, y, max_width, line_spacing=10):
