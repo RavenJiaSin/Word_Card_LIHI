@@ -11,24 +11,25 @@ class Match_Game:
 
     管理配對小遊戲的物件
     """
-    def __init__(self, cols:int=6, rows:int=4, top_left:tuple=(260,270), col_spacing:int=280, row_spacing:int=230):
+    __first_chosen_card = None
+    __second_chosen_card = None
+    __pending_flip_time = None
+    __blue_turn = True
+    __blue_score = 0
+    __red_score = 0
+
+    def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(530,270), col_spacing:int=280, row_spacing:int=230):
         grid = [[(top_left[0] + c * col_spacing, top_left[1] + r * row_spacing) for c in range(cols)] for r in range(rows)]
         self.__card_sprites = pg.sprite.Group()
-        self.__correct_cards = []
 
         words = self.__getWords(cols*rows // 2)
         i = 0
         for row in grid:
             for pos in row:
-                card = Match_Card(pos, size=160, word=words[i], font_size=25)
+                card = Match_Card(pos=pos, scale=1.6, word=words[i], font_size=24)
                 i += 1
                 self.__card_sprites.add(card)
 
-        self.__first_chosen_card = None
-        self.__second_chosen_card = None
-        self.__pending_flip_time = None
-
-        self.__player_turn = True
         game.background_color = (50,50,100)
 
     def handle_event(self):
@@ -69,10 +70,19 @@ class Match_Game:
             else:
                 self.__first_chosen_card.setWiggle()
                 self.__second_chosen_card.setWiggle()
-                self.__correct_cards.append(self.__first_chosen_card)
-                self.__correct_cards.append(self.__second_chosen_card)
+                if self.__blue_turn:
+                    self.__blue_score += 1
+                    self.__first_chosen_card.moveTo((150, 300), 1)
+                    self.__second_chosen_card.moveTo((150, 300), 1)
+                else:
+                    self.__red_score += 1
+                    self.__first_chosen_card.moveTo((1750, 300), 1)
+                    self.__second_chosen_card.moveTo((1750, 300), 1)
                 self.__first_chosen_card = None
                 self.__second_chosen_card = None
+
+    def getScore(self) -> tuple[0,0]:
+        return (self.__blue_score, self.__red_score)
 
     def getGroup(self) -> pg.sprite.Group:
         return self.__card_sprites
@@ -82,7 +92,7 @@ class Match_Game:
         words = db.find_vocabulary(column='Vocabulary', length=random.randrange(5,8))
         random_words = [word[0] for word in random.sample(words, n)]
         random_words_trans = [db.find_vocabulary(column='Translation', voc=word)[0][0] for word in random_words]
-        random_words_trans = [chinese.split(';')[0] for chinese in random_words_trans]
+        random_words_trans = [chinese.split(';')[0].split(',')[0] for chinese in random_words_trans]
         self.__ans = dict(zip(random_words, random_words_trans))
 
         mixed_words = random_words + random_words_trans
@@ -91,12 +101,11 @@ class Match_Game:
     
     def __set_all_card_flip(self, can_flip):
         for card in self.__card_sprites:
-            if card not in self.__correct_cards:
-                card.can_press = can_flip
+            card.can_press = can_flip
 
     def __change_player_turn(self):
-        self.__player_turn = not self.__player_turn
-        if self.__player_turn:
+        self.__blue_turn = not self.__blue_turn
+        if self.__blue_turn:
             game.background_color = (50,50,100)
         else:
             game.background_color = (100,50,50)

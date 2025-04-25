@@ -1,4 +1,5 @@
 import pygame as pg
+import math
 import game
 
 class Object(pg.sprite.Sprite):
@@ -16,19 +17,27 @@ class Object(pg.sprite.Sprite):
         image (pg.Surface): 物件渲染在畫面上的圖片。
         rect (pg.Rect): 物件渲染在畫面上的位置、寬高(transform)資訊, x 和 y 更新後要存回`rect`中。
     """
-    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None):
+    def __init__(self, pos:tuple=(0,0), scale:float=1, img=None):
         super().__init__()
         self.x = float(pos[0])
         self.y = float(pos[1])
-        self.width = float(size[0])
-        self.height = float(size[1])
         if img == None:
-            self.image = pg.Surface(size)
+            self.image = pg.Surface((160,120))
             self.image.fill(pg.Color(200,50,50))
         else:
-            self.image = pg.transform.smoothscale(img, size)
+            width, height = img.get_size()
+            self.image = pg.transform.smoothscale(img, (width*scale,height*scale))
         self.rect = self.image.get_rect()
         self.rect.center = pos
+        self.width = float(self.rect.width)
+        self.height = float(self.rect.height)
+        self.scale = scale
+        self.__is_moving = False
+        self.__vel = (0,0)
+        self.__target_pos = (0,0)
+        self.__is_wiggle = False
+        self.__ori_y = self.y
+        self.__goDown = True
         
     def __handle_event(self):
         """需要覆寫,物件可以從這邊處理相關事件(event_list)
@@ -38,5 +47,59 @@ class Object(pg.sprite.Sprite):
     def update(self):     
         """需要覆寫,物件在此更新,要記得呼叫__handle_event()才能夠處理事件
         """   
+        self.__wiggle()
         self.__handle_event()
+        self.__move()
         self.rect.center = (int(self.x), int(self.y))
+
+    def moveTo(self, target:tuple, time:int):
+        # .__move_XXX only declared and used in move function. Do not call them from outside
+        self.__move_start_pos = self.rect.center
+        self.__move_target_pos = target
+        self.__move_total_movement = (target[0] - self.rect.centerx, target[1] - self.rect.centery)
+        self.__move_total_frames = time * game.FPS
+        self.__move_cur_frame = 0
+        self.__ori_wiggle = self.__is_wiggle
+        self.stopWiggle()
+        self.__is_moving = True
+
+    def __move(self):
+        if not self.__is_moving:
+            return
+        self.__move_cur_frame += 1
+        self.x = self.__move_start_pos[0] + (self.__move_total_movement[0] * (self.__move_cur_frame / self.__move_total_frames))
+        self.y = self.__move_start_pos[1] + (self.__move_total_movement[1] * (self.__move_cur_frame / self.__move_total_frames))        
+        
+        if self.__move_cur_frame == self.__move_total_frames:
+            self.__is_moving = False
+
+    def setWiggle(self):
+        """開始物件抖動,呼叫stopWiggle()停止
+        """
+        self.__is_wiggle = True
+        self.__goDown = True
+
+    def stopWiggle(self):
+        """停止物件抖動
+        """
+        self.__is_wiggle = False
+
+    def __wiggle(self):
+        """抖動物件
+        """
+        if not self.__is_wiggle:
+            return
+        
+        wiggleHeight = 0.02
+        wiggleFreq = 1.2
+        
+        maxHeight = wiggleHeight * self.height
+        wiggleSpeed = 2 * maxHeight / (1/wiggleFreq)
+
+        if self.y < self.__ori_y + maxHeight and self.__goDown:
+            self.y += (wiggleSpeed * game.deltaTick / 1000)
+        elif self.y > self.__ori_y - maxHeight:
+            self.__goDown = False
+            self.y -= (wiggleSpeed * game.deltaTick / 1000)
+        else:
+            self.__goDown = True

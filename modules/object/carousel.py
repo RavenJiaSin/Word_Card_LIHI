@@ -15,7 +15,7 @@ class Carousel():
         zoom_factor (float): 控制旋轉的縱深
         speed (float): 滾輪的旋轉力道
     """
-    def __init__(self, card_count=10, card_size=100, center=(400, 300), radius=400, zoom_factor=0.7, speed=0.005):
+    def __init__(self, card_count=10, card_scale=1, center=(400, 300), radius=400, zoom_factor=0.7, speed=0.005):
         self.center_x, self.center_y = center
         self.radius = radius
         self.zoom_factor = zoom_factor
@@ -24,8 +24,7 @@ class Carousel():
         self.cards = pg.sprite.Group()
 
         for i in range(card_count):
-            card = Card(pos=center, size=card_size / (1 + zoom_factor), name='test_poker')
-            card.stopWiggle()
+            card = Card(pos=center, scale=card_scale / (1 + zoom_factor))
             self.cards.add(card)
 
     def rotate(self, delta_angle):
@@ -55,3 +54,11 @@ class Carousel():
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale)
         for card in sorted_cards:
             surface.blit(card.image, card.rect)
+            # 把 scale 從 [0,2] -> [0,1]
+            distance = card.ori_scale / (1 + self.zoom_factor)
+            distance **= 3
+            # 根據距離決定透明度
+            opacity = int((1 - distance) * 255)
+            mask = pg.Surface(card.rect.size, pg.SRCALPHA)
+            mask.fill((0, 0, 0, opacity))
+            surface.blit(mask, card.rect)

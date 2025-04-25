@@ -3,6 +3,7 @@ import game
 from .state import State
 from ..object import Text_Button
 from ..object import Match_Game
+from ..manager import Font_Manager
 
 
 class Match_Game_State(State):
@@ -18,7 +19,7 @@ class Match_Game_State(State):
     def __init__(self):
         self.all_sprites = pg.sprite.Group()
 
-        menu_button = Text_Button(pos=(100,100), size=(160,80), text='返回', font_size=40, font='SWEISANSCJKTC-REGULAR')
+        menu_button = Text_Button(pos=(100,100), scale=1, text='返回', font_size=40)
         
         menu_button.setClick(lambda:Match_Game_State.go_to_menu())
         self.all_sprites.add(menu_button)
@@ -37,7 +38,10 @@ class Match_Game_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.canvas, "連連看", 70, game.CANVAS_WIDTH/2, 100)
+        Font_Manager.draw_text(game.canvas, "連連看", 70, game.CANVAS_WIDTH/2, 100)
+        scores = self.match_game.getScore()
+        Font_Manager.draw_text(game.canvas, "藍方:"+str(scores[0])+"分", 60, game.CANVAS_WIDTH/2 - 400, 100)
+        Font_Manager.draw_text(game.canvas, "紅方:"+str(scores[1])+"分", 60, game.CANVAS_WIDTH/2 + 400, 100)
         self.all_sprites.draw(game.canvas)
 
     def go_to_menu():

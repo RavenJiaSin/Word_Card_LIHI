@@ -4,6 +4,7 @@ import game
 from modules.database import VocabularyDB
 from .state import State
 from ..object import Text_Button
+from ..manager import Font_Manager
 #from ..object import Card
 #from ..manager import Image_Manager
 
@@ -26,10 +27,9 @@ class Train_State(State):
 
         menu_button = Text_Button(
             pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), 
-            size=(200, 80), 
+            scale=1, 
             text='MENU', 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
         )
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.all_sprites.add(menu_button)
@@ -45,14 +45,64 @@ class Train_State(State):
         for i in range(3):
             btn = Text_Button(
                 pos=(game.CANVAS_WIDTH/2, 400 + i*200), 
-                size=(400, 150), 
+                scale=1, 
                 text="LEVEL"+str(i+1), 
                 font_size=70, 
-                font='SWEISANSCJKTC-REGULAR'
                 )
             btn.setClick(lambda level=i+1: self.question_type_select(level))
             self.difficulty_buttons.append(btn)
             self.all_sprites.add(btn)
+        back_btn = Text_Button(
+            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
+            scale=1, 
+            text="Menu", 
+            font_size=70, 
+        )
+        back_btn.setClick(lambda: game.change_state(Menu_State()))
+        self.all_sprites.add(back_btn)
+    
+    
+    # 題型選擇(例句填空or單字翻譯)
+    def question_type_select(self,level):
+        from ..state import Menu_State
+        self.all_sprites.empty()
+        self.difficulty_buttons = []
+        self.question_type = 0
+        #單字翻譯
+        btn1 = Text_Button(
+            pos=(game.CANVAS_WIDTH/2, 400), 
+            size=(400, 150), 
+            text="單字中翻英", 
+            font_size=70, 
+            font='SWEISANSCJKTC-REGULAR'
+            )
+        btn1.setClick(lambda type=0: self.start_game(type,level))
+        self.difficulty_buttons.append(btn1)
+        self.all_sprites.add(btn1)
+        
+        btn2 = Text_Button(
+            pos=(game.CANVAS_WIDTH/2, 600), 
+            size=(400, 150), 
+            text="單字英翻中", 
+            font_size=70, 
+            font='SWEISANSCJKTC-REGULAR'
+            )
+        btn2.setClick(lambda type=1: self.start_game(type,level))
+        self.difficulty_buttons.append(btn2)
+        self.all_sprites.add(btn2)
+        
+        #例句填空
+        btn3 = Text_Button(
+            pos=(game.CANVAS_WIDTH/2, 800), 
+            size=(400, 150), 
+            text="例句填空", 
+            font_size=70, 
+            font='SWEISANSCJKTC-REGULAR'
+            )
+        btn3.setClick(lambda type=2: self.start_game(type,level))
+        self.difficulty_buttons.append(btn3)
+        self.all_sprites.add(btn3)
+        
         back_btn = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
             size=(200, 80), 
@@ -214,10 +264,9 @@ class Train_State(State):
                 
             next_button = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-                size=(200, 80), 
+                scale=1, 
                 text='Next', 
                 font_size=70, 
-                font='SWEISANSCJKTC-REGULAR'
             )
             next_button.setClick(lambda: self.load_question(type, self.level))
             self.all_sprites.add(next_button)
@@ -233,10 +282,9 @@ class Train_State(State):
         self.result_shown = True
         back_btn = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-            size=(200, 80), 
+            scale=1, 
             text="Menu", 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
         )
         back_btn.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(back_btn)
@@ -277,7 +325,7 @@ class Train_State(State):
 
     # override
     def render(self):
-        game.draw_text(game.canvas, self.current_title_text, 70, game.CANVAS_WIDTH/2, 100)
+        Font_Manager.draw_text(game.canvas, self.current_title_text, 70, game.CANVAS_WIDTH/2, 100)
         # 顯示題目
         if self.current_question_text:
             font = pg.font.Font("res\\font\SWEISANSCJKTC-REGULAR.TTF", 60)

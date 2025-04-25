@@ -16,24 +16,21 @@ class Button(Object):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), size:tuple=(32,32), img=None, scale:float=1.0):
-        super().__init__(pos=pos, size=size, img=img)
+    def __init__(self, pos:tuple=(0,0), scale:float=1, img=None):
+        super().__init__(pos=pos, scale=scale, img=img)
         self.__click = lambda:None
-        self.__isWiggle = False
-        self.__ori_y = self.y
-        self.__goDown = True
         self.__isPressed = False
 
+        self.scale_for_transform = 1                    # 當前縮放倍率
         self.__ori_w = self.width
         self.__ori_h = self.height
-        self.width *= scale
-        self.height *= scale
+        self.width *= self.scale_for_transform
+        self.height *= self.scale_for_transform
 
         self.__ori_image = self.image
-        self.ori_scale = scale             # Card會用到，不加底線
-        self.scale = scale               # 當前縮放倍率
-        self.__delta_press_scale = 0.1    # 點擊時的縮放倍率變化量
-        self.__press_scale_speed = 0.45    # 點擊時每幀縮放變化的速度
+        self.ori_scale = self.scale_for_transform       # Card會用到，不加底線
+        self.__delta_press_scale = 0.1                  # 點擊時的縮放倍率變化量
+        self.__press_scale_speed = 0.45                 # 點擊時每幀縮放變化的速度
 
         self.can_press = True
 
@@ -55,40 +52,8 @@ class Button(Object):
     # override
     def update(self):
         self.__handle_event()
-        self.__wiggle()
         self.__pressed_effect()
-        super().update()
-
-    def setWiggle(self):
-        """開始物件抖動,呼叫stopWiggle()停止
-        """
-        self.__isWiggle = True
-        self.__goDown = True
-
-    def stopWiggle(self):
-        """停止物件抖動
-        """
-        self.__isWiggle = False
-
-    def __wiggle(self):
-        """抖動物件
-        """
-        if not self.__isWiggle:
-            return
-        wiggleHeight = 0.02
-        wiggleFreq = 1.2
-        
-        maxHeight = wiggleHeight * self.height
-        wiggleSpeed = 2 * maxHeight / (1/wiggleFreq)
-
-        if self.y < self.__ori_y + maxHeight and self.__goDown:
-            self.y += (wiggleSpeed * game.deltaTick / 1000)
-        elif self.y > self.__ori_y - maxHeight:
-            self.__goDown = False
-            self.y -= (wiggleSpeed * game.deltaTick / 1000)
-        else:
-            self.__goDown = True
-
+        super().update()    
 
     def setClick(self,func:Callable[[], None] = lambda: None):
         """設定`_click`
@@ -98,16 +63,16 @@ class Button(Object):
     def __pressed_effect(self):
         if not self.can_press:
             return
-        if ((not self.__isPressed and self.scale >= self.ori_scale) or                            # 未按下且已回復原尺寸 (多數情況所以放條件判斷前面)
-                (self.__isPressed and self.scale <= self.ori_scale * (1 - self.__delta_press_scale))):  # 已按下且已縮放到位
+        if ((not self.__isPressed and self.scale_for_transform >= self.ori_scale) or                            # 未按下且已回復原尺寸 (多數情況所以放條件判斷前面)
+                (self.__isPressed and self.scale_for_transform <= self.ori_scale * (1 - self.__delta_press_scale))):  # 已按下且已縮放到位
             return
 
         # 按下縮小、放開放大
-        self.transform(scale=self.scale + self.__delta_press_scale * self.__press_scale_speed * -1 if self.__isPressed else 1)
+        self.transform(scale=self.scale_for_transform + self.__delta_press_scale * self.__press_scale_speed * -1 if self.__isPressed else 1)
 
     def transform(self, x=None, y=None, scale=None):
         if scale != None:
-            self.scale = scale
+            self.scale_for_transform = scale
             self.width = self.__ori_w * scale
             self.height = self.__ori_h * scale
             self.image = pg.transform.smoothscale(self.__ori_image, (self.width, self.height))

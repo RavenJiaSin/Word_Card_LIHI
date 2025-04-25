@@ -11,12 +11,14 @@ class VocabularyDB:
     def get_all(self):
         try:
             with self._connect() as conn:
+                conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute("SELECT * FROM vocs_raw")
-                return cursor.fetchall()
+                rows = cursor.fetchall()
+                return [dict(row) for row in rows]
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to fetch all records: {e}")
-            return []
+            return None
 
     def find_vocabulary(self, voc=None, column=None, part_of_speech=None, level=None, length=None):
         """
@@ -71,9 +73,11 @@ class VocabularyDB:
 
             # 執行查詢
             with self._connect() as conn:
+                conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute(query, tuple(params))
-                return cursor.fetchall()
+                rows = cursor.fetchall()
+                return [dict(row) for row in rows]
 
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
@@ -117,9 +121,11 @@ class VocabularyDB:
 
             # 執行查詢
             with self._connect() as conn:
+                conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute(query, tuple(params))
-                return cursor.fetchall()
+                rows = cursor.fetchall()
+                return [dict(row) for row in rows]
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
             return None
