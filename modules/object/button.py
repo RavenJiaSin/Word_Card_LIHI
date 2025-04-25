@@ -36,18 +36,22 @@ class Button(Object):
 
     # override
     def __handle_event(self):
-        for e in game.event_list:
+        event_list = game.event_list.copy()  # 避免因 remove 導致迭代出錯
+        for e in event_list:
             if e.type == pg.MOUSEBUTTONDOWN and self.can_press:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
                 if self.rect.collidepoint(scaled_pos):
+                    game.event_list.remove(e)  # 一個按下事件只會讓一個 button 被按下 
                     self.__isPressed = True
-            if e.type == pg.MOUSEBUTTONUP and self.can_press:
+            if e.type == pg.MOUSEBUTTONUP and self.can_press and self.__isPressed:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
                 self.__isPressed = False
                 if self.rect.collidepoint(scaled_pos):
+                    game.event_list.remove(e)  # 一個放開事件只會讓一個 button 被放開
                     self.__click()
+
 
     # override
     def update(self):
