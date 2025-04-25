@@ -115,6 +115,21 @@ class Train_State(State):
         back_btn.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(back_btn)
     
+    def create_choice_buttons(self, type: int) -> None:
+        """根據題型繪製選項按鈕（2x2排列）"""
+        for i in range(4):
+            text = self.choice[i][3] if type == 1 else self.choice[i][1]
+            btn = Text_Button(
+                pos=(game.CANVAS_WIDTH // 2 - 320 + 640 * (i % 2), 600 + (i // 2) * 200),
+                size=(600, 100),
+                text=text,
+                font_size=70,
+                font='SWEISANSCJKTC-REGULAR'
+            )
+            btn.setClick(lambda i=i: self.check_answer(type, text))
+            self.all_sprites.add(btn)
+
+    
     # 題目建構
         #1.根據難度選擇隨機抓取4個資料庫中的單字 
         #2.隨機選擇一個單字作為答案
@@ -167,26 +182,7 @@ class Train_State(State):
             self.question_history.append(self.question)
             print(self.question)
             # 顯示選項                
-            for i in range(4):
-                if type==1:
-                    btn = Text_Button(
-                    pos=(game.CANVAS_WIDTH // 2, 400 + i * 150), 
-                    size=(600, 100), 
-                    text=self.choice[i][3], 
-                    font_size=70, 
-                    font='SWEISANSCJKTC-REGULAR'
-                    )
-                    btn.setClick(lambda i=i:self.check_answer(type, self.choice[i][3]))
-                else:
-                    btn = Text_Button(
-                    pos=(game.CANVAS_WIDTH // 2, 400 + i * 150), 
-                    size=(600, 100), 
-                    text=self.choice[i][1], 
-                    font_size=70, 
-                    font='SWEISANSCJKTC-REGULAR'
-                    )
-                    btn.setClick(lambda i=i:self.check_answer(type, self.choice[i][1]))
-                self.all_sprites.add(btn)
+            self.create_choice_buttons(type)
         else:
             self.show_result()
             print("Question History",self.question_history)
@@ -253,11 +249,11 @@ class Train_State(State):
         self.load_question(type,level)
     
     # 顯示文字
-    def draw_wrapped_text(surface, text, font, color, x, y, max_width, line_spacing=10):
+    def draw_wrapped_text(self, surface: pg.Surface, text: str, font: pg.font.Font, color: tuple, x: int, y: int, max_width: int, line_spacing: int = 10) -> None:
+        """自動換行繪製文字"""
         words = text.split(' ')
         lines = []
         line = ""
-        
         for word in words:
             test_line = line + word + " "
             if font.size(test_line)[0] <= max_width:
@@ -265,7 +261,7 @@ class Train_State(State):
             else:
                 lines.append(line)
                 line = word + " "
-        lines.append(line)  # append last line
+        lines.append(line)
 
         for i, line in enumerate(lines):
             rendered_line = font.render(line.strip(), True, color)
@@ -284,9 +280,10 @@ class Train_State(State):
         game.draw_text(game.canvas, self.current_title_text, 70, game.CANVAS_WIDTH/2, 100)
         # 顯示題目
         if self.current_question_text:
-            game.draw_text(game.canvas, self.current_question_text, 60, game.CANVAS_WIDTH//2, 180)
+            font = pg.font.Font("res\\font\SWEISANSCJKTC-REGULAR.TTF", 60)
+            self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 100, 180, game.CANVAS_WIDTH - 200)
         # 顯示正解與翻譯（若有）
         if self.result_shown:
-            game.draw_text(game.canvas, self.current_result_text, 40, game.CANVAS_WIDTH//2, 250)
-            game.draw_text(game.canvas, self.current_translation_text, 40, game.CANVAS_WIDTH//2, 300)
+            game.draw_text(game.canvas, self.current_result_text, 50, game.CANVAS_WIDTH//2, 350)
+            game.draw_text(game.canvas, self.current_translation_text, 50, game.CANVAS_WIDTH//2, 450)
         self.all_sprites.draw(game.canvas)
