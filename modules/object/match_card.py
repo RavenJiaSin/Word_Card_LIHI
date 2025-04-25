@@ -16,14 +16,14 @@ class Match_Card(Button):
         __show_back (Bool): 是否正在顯示卡片背面。
         __word (str): 卡片正面的單字
     """
-    def __init__(self, pos:tuple=(0,0), scale:int=1, word:tuple=('apple','eng'), font_size:int=12):
+    def __init__(self, pos:tuple=(0,0), scale:float=1, word:tuple=('apple','eng')):
         self.__back_img = Image_Manager.get('tmp_card_back').copy()
         self.__front_img = Image_Manager.get('tmp_card_front').copy()
         self.__show_back = True
         self.__word = word
         super().__init__(pos, scale, self.__back_img)
 
-        text_surface = Font_Manager.get_text_surface(word[0], font_size, (20,20,20))
+        text_surface = Font_Manager.get_text_surface(word[0], int(20*scale), (20,20,20))
         text_surface = pg.transform.rotate(text_surface, -90)
         text_rect = text_surface.get_rect(center=(self.__front_img.get_size()[0] / 2, self.__front_img.get_size()[1] / 2))
 

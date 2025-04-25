@@ -23,24 +23,24 @@ class Match_Game:
         __paired_cards (pg.sprite.LayeredUpdates): 配對成功卡片群組
         __layer (int): 繪畫圖層, 當新的配對出現則加一, 使其顯示在最上層
     """
-    __first_chosen_card = None
-    __second_chosen_card = None
-    __pending_wrong_time = None
-    __pending_right_time = None
-    __blue_turn = True
-    __blue_score = 0
-    __red_score = 0
-    __all_cards = pg.sprite.LayeredUpdates()
-    __paired_cards = pg.sprite.LayeredUpdates()
-    __layer = 0
+
     def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(530,270), col_spacing:int=280, row_spacing:int=230):
         grid = [[(top_left[0] + c * col_spacing, top_left[1] + r * row_spacing) for c in range(cols)] for r in range(rows)]
-
+        self.__first_chosen_card = None
+        self.__second_chosen_card = None
+        self.__pending_wrong_time = None
+        self.__pending_right_time = None
+        self.__blue_turn = True
+        self.__blue_score = 0
+        self.__red_score = 0
+        self.__all_cards = pg.sprite.LayeredUpdates()
+        self.__paired_cards = pg.sprite.LayeredUpdates()
+        self.__layer = 0
         words = self.__getWords((cols*rows / 2).__ceil__())
         i = 0
         for row in grid:
             for pos in row:
-                card = Match_Card(pos=pos, scale=1.6, word=words[i], font_size=24)
+                card = Match_Card(pos=pos, scale=1.6, word=words[i])
                 i += 1
                 self.__all_cards.add(card, layer=0)
 
