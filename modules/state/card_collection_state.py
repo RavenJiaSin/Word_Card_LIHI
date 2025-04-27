@@ -16,20 +16,38 @@ class Card_Collection_State(State):
         self.foreground_card_group = pg.sprite.GroupSingle()
         self.foreground_card = None
 
+        self.scroll_offset = 0  # 初始卷軸偏移
+        self.card_list = []
+
         menu_button = Text_Button(pos=(100, 100), scale=1, text='MENU', font_size=20)
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.ui_sprites.add(menu_button)
 
+        self.card_width = 300
+        self.card_height = 400
+        self.cards_per_row = 5
         
-        
-        for row in range(2):
-            for col in range(5):
-                card = Card(pos=(360 + col * 300, 360 + row * 300), scale=1)
-                card.setClick(partial(self.try_enlarge_card, card))
-                self.background_cards.add(card)
+        self.total_rows = 2
+        self.generate_row(0)
+        self.generate_row(1)
+
+    def generate_row(self, row_index):
+        """生成一整排卡片,row_index從0開始"""
+
+        start_y_offset = 200
+
+        for col in range(self.cards_per_row):
+            x = 360 + col * self.card_width
+            y = 180 + row_index * self.card_height
+            card = Card(pos=(x, y), scale=2)
+            card.original_x = x
+            card.original_y = y
+            card.setClick(partial(self.try_enlarge_card, card))
+            self.background_cards.add(card)
+            self.card_list.append(card)
 
     def enlarge_card(self, card):
-        self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), scale=3)
+        self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), scale=3,id=card.get_id())
         self.foreground_card_group.add(self.foreground_card)
 
     def try_enlarge_card(self, card):
@@ -42,8 +60,14 @@ class Card_Collection_State(State):
     # override
     def handle_event(self):
         for event in game.event_list:
-            if event.type == pg.MOUSEBUTTONDOWN:
-                
+            if event.type == pg.MOUSEWHEEL:
+                self.scroll_offset += event.y * 30
+
+                if self.scroll_offset > 0:
+                    self.scroll_offset = 0
+
+            elif event.type == pg.MOUSEBUTTONDOWN:
+
                 mouse_pos = pg.mouse.get_pos()
 
                 if self.foreground_card:
@@ -64,6 +88,7 @@ class Card_Collection_State(State):
                             card.onClick()
                             return
 
+
     # override
     def update(self):
         self.background_cards.update()
@@ -71,10 +96,40 @@ class Card_Collection_State(State):
         if self.foreground_card:
             self.foreground_card.update()
 
+        max_original_y = max(card.original_y for card in self.card_list)
+        if max_original_y + self.scroll_offset < game.CANVAS_HEIGHT:
+            self.total_rows += 1
+            self.generate_row(self.total_rows - 1)
+
     # override
     def render(self):
         Font_Manager.draw_text(game.canvas, "Card Collection", 70, game.CANVAS_WIDTH/2 + 50 , 100)
-        self.background_cards.draw(game.canvas)  # 背景卡牌
+
+        title_area_bottom = 150
+        bottom_limit = game.CANVAS_HEIGHT - 50
+
+        for card in self.card_list:
+            card.rect.x = card.original_x
+            card.rect.y = card.original_y + self.scroll_offset
+
+        for card in self.background_cards:
+            if card.rect.bottom > title_area_bottom and card.rect.top < bottom_limit:
+
+                visible_rect = card.rect.clip(pg.Rect(
+                0, title_area_bottom,
+                game.CANVAS_WIDTH, bottom_limit - title_area_bottom
+                ))
+                
+                if visible_rect.width > 0 and visible_rect.height > 0:
+                # 計算這張卡片圖像中要取的部分
+                    source_area = pg.Rect(
+                        visible_rect.x - card.rect.x,  # 相對於卡片圖片的位置
+                        visible_rect.y - card.rect.y,
+                        visible_rect.width,
+                        visible_rect.height
+                    )
+                    game.canvas.blit(card.image, visible_rect.topleft, source_area)
+        
         if self.foreground_card:
             dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面，製造聚焦效果
             dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
