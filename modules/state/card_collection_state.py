@@ -6,10 +6,15 @@ from ..object import Text_Button
 from ..object import Card
 from functools import partial
 from ..manager import Font_Manager
+from modules.database import VocabularyDB
 
 class Card_Collection_State(State):
 
     def __init__(self):
+
+        self.db = VocabularyDB()
+        self.current_vocab_index = 0
+
         from . import Menu_State  # 在這邊import是為了避免circular import
         self.background_cards = pg.sprite.Group()
         self.ui_sprites = pg.sprite.Group()
@@ -34,17 +39,20 @@ class Card_Collection_State(State):
     def generate_row(self, row_index):
         """生成一整排卡片,row_index從0開始"""
 
-        start_y_offset = 200
-
         for col in range(self.cards_per_row):
-            x = 360 + col * self.card_width
+        
+            voc_id = self.db.find_vocabulary(column='Vocabulary')[self.current_vocab_index]['Vocabulary'] # 或你要其他欄位
+
+            x = 330 + col * self.card_width
             y = 180 + row_index * self.card_height
-            card = Card(pos=(x, y), scale=2)
+            card = Card(pos=(x, y), scale=2,id=voc_id)
             card.original_x = x
             card.original_y = y
             card.setClick(partial(self.try_enlarge_card, card))
             self.background_cards.add(card)
             self.card_list.append(card)
+
+            self.current_vocab_index += 1
 
     def enlarge_card(self, card):
         self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), scale=3,id=card.get_id())
