@@ -25,7 +25,6 @@ class Match_Game_State(State):
         self.all_sprites.add(menu_button)
 
         self.match_game = Match_Game()
-        self.all_sprites.add(self.match_game.getGroup())
     
     # overrride
     def handle_event(self):
@@ -35,6 +34,7 @@ class Match_Game_State(State):
     def update(self):
         self.match_game.update()
         self.all_sprites.update()
+        self.match_game.getSpriteGroup().update()
 
     # override
     def render(self):
@@ -42,6 +42,7 @@ class Match_Game_State(State):
         scores = self.match_game.getScore()
         Font_Manager.draw_text(game.canvas, "藍方:"+str(scores[0])+"分", 60, game.CANVAS_WIDTH/2 - 400, 100)
         Font_Manager.draw_text(game.canvas, "紅方:"+str(scores[1])+"分", 60, game.CANVAS_WIDTH/2 + 400, 100)
+        self.match_game.getSpriteGroup().draw(game.canvas)
         self.all_sprites.draw(game.canvas)
 
     def go_to_menu():

@@ -6,6 +6,7 @@ import sys
 import os
 import time
 import google.api_core.exceptions
+import json
 # 把根目錄 (WORD_CARD_LIHI) 加入 sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modules.database import vocsDBconnect
@@ -14,6 +15,18 @@ db = vocsDBconnect.VocabularyDB()
 
 with open('vocs_data\gemini_api_key', 'r') as api_key_file:
     api_key=api_key_file.readline()
+
+SAVE_FILE = 'vocs_data/processed_ids.json'
+
+def load_processed_ids():
+    if os.path.exists(SAVE_FILE):
+        with open(SAVE_FILE, 'r') as f:
+            return set(json.load(f))
+    return set()
+
+def save_processed_ids(processed_ids):
+    with open(SAVE_FILE, 'w') as f:
+        json.dump(list(processed_ids), f)
 
 def generate_sentence(input_word, input_pos):
     prompt = f'''
@@ -48,14 +61,49 @@ def generate_sentence(input_word, input_pos):
         return match.group(1).strip(), match.group(2).strip()
     else:
         return None, None
-    
+
+def write_example_sentence_to_db(voc_id, sentence, translation):
+    try:
+        with db._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO example_sentences (voc_id, sentence, translation)
+                VALUES (?, ?, ?)
+            ''', (voc_id, sentence, translation))
+            conn.commit()
+    except sqlite3.Error as e:
+        print(f"[ERROR] Failed to insert example sentence for {voc_id}: {e}")    
     
 
 if __name__ == '__main__':
-    for row in tqdm(db.get_all(), desc="Processing...", dynamic_ncols=True):
-        voc_id = row[0]
-        vocabulary = row[1]
-        part_of_speech = row[2]
-        sentence,translate = generate_sentence(vocabulary, part_of_speech)
-        
-        tqdm.write(f"{vocabulary}: {sentence} | {translate}")
+
+    with db._connect() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS example_sentences (
+            example_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            voc_id TEXT,
+            sentence TEXT,
+            translation TEXT,
+            FOREIGN KEY (voc_id) REFERENCES vocs_raw(ID)
+        )
+        ''')
+        conn.commit()
+    
+    processed_ids = load_processed_ids()
+    all_rows = db.get_all()
+
+    for row in tqdm(all_rows, desc="Processing...", dynamic_ncols=True):
+        voc_id = row['ID']
+        if voc_id in processed_ids:
+            continue  # 跳過已完成的
+
+        vocabulary = row['Vocabulary']
+        part_of_speech = row['Part_of_speech']
+        sentence, translation = generate_sentence(vocabulary, part_of_speech)
+        write_example_sentence_to_db(voc_id, sentence, translation)
+        tqdm.write(f"{vocabulary}: {sentence} | {translation}")
+
+        # 加入成功處理的 ID 並儲存
+        processed_ids.add(voc_id)
+        save_processed_ids(processed_ids)

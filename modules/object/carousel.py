@@ -26,12 +26,24 @@ class Carousel():
         for i in range(card_count):
             card = Card(pos=center, scale=card_scale / (1 + zoom_factor))
             self.cards.add(card)
+        
+        self.update_cards()
 
     def rotate(self, delta_angle):
         self.angle_offset += delta_angle
         # 轉一圈就歸零，避免數字太大
         if self.angle_offset >= 2 * math.pi:
             self.angle_offset %= 2 * math.pi
+
+    def update_cards(self):
+        angle_step = 2 * math.pi / len(self.cards.sprites())
+        for i, card in enumerate(self.cards.sprites()):
+            angle = self.angle_offset + i * angle_step
+            scale = 1 + self.zoom_factor * math.cos(angle)
+            x = self.center_x + self.radius * math.sin(angle)
+            card.transform(x=x, scale=scale)
+            card.ori_scale = scale  # 作為按鈕動畫的縮放基準
+
 
     def __handle_event(self):
         for e in game.event_list:
@@ -40,13 +52,10 @@ class Carousel():
 
     def update(self):
         self.__handle_event()
-        angle_step = 2 * math.pi / len(self.cards.sprites())
-        for i, card in enumerate(self.cards.sprites()):
-            angle = self.angle_offset + i * angle_step
-            scale = 1 + self.zoom_factor * math.cos(angle)
-            x = self.center_x + self.radius * math.sin(angle)
-            card.transform(x=x, scale=scale)
-            card.ori_scale = scale  # 作為按鈕動畫的縮放基準
+        self.update_cards()
+        sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale, reverse=True)
+        for i, card in enumerate(sorted_cards):
+        # for i, card in enumerate(self.cards.sprites()):
             card.update()
 
     def draw(self, surface:pg.Surface):

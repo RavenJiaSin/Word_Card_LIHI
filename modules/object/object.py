@@ -33,10 +33,7 @@ class Object(pg.sprite.Sprite):
         self.height = float(self.rect.height)
         self.scale = scale
         self.__is_moving = False
-        self.__vel = (0,0)
-        self.__target_pos = (0,0)
         self.__is_wiggle = False
-        self.__ori_y = self.y
         self.__goDown = True
         
     def __handle_event(self):
@@ -55,7 +52,6 @@ class Object(pg.sprite.Sprite):
     def moveTo(self, target:tuple, time:int):
         # .__move_XXX only declared and used in move function. Do not call them from outside
         self.__move_start_pos = self.rect.center
-        self.__move_target_pos = target
         self.__move_total_movement = (target[0] - self.rect.centerx, target[1] - self.rect.centery)
         self.__move_total_frames = time * game.FPS
         self.__move_cur_frame = 0
@@ -72,12 +68,15 @@ class Object(pg.sprite.Sprite):
         
         if self.__move_cur_frame == self.__move_total_frames:
             self.__is_moving = False
+            if self.__ori_wiggle:
+                self.setWiggle()
 
     def setWiggle(self):
         """開始物件抖動,呼叫stopWiggle()停止
         """
         self.__is_wiggle = True
         self.__goDown = True
+        self.__ori_y = self.y
 
     def stopWiggle(self):
         """停止物件抖動
