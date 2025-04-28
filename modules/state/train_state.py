@@ -273,7 +273,8 @@ class Train_State(State):
     #.............................更新與事件處理.............................#
     #########################################################################
     def handle_event(self):
-        ...
+        for object in self.all_sprites:
+            object.handle_event()
 
     def update(self):
         self.all_sprites.update()
