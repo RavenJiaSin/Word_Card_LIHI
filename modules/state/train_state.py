@@ -179,7 +179,6 @@ class Train_State(State):
                 )
                 card.setClick(lambda i=i: self.play_card(type, i))
                 self.all_sprites.add(card)
-                print("Index:", i, "Voc:", self.choice[i]['Vocabulary'])
         else:
             self.show_result()
     
@@ -196,7 +195,6 @@ class Train_State(State):
         if not self.result_shown and self.IsAnswering:
             self.IsAnswering = False
             removed_card = self.choice[index]
-            print("Choice:", self.choice[index])
             self.choice.remove(removed_card)
             self.current_card_num = len(self.choice)
             if selected == self.answer:
