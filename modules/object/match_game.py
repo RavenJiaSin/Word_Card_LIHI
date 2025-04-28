@@ -56,8 +56,11 @@ class Match_Game:
                         self.__first_chosen_card = card
                     else:
                         self.__second_chosen_card = card
+        for object in self.__all_cards:
+            object.handle_event()
 
     def update(self):
+        self.__all_cards.update()
         current_time = pg.time.get_ticks()
 
         # 卡片配對錯誤，等待800ms後，翻到卡背
