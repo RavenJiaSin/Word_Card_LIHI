@@ -5,8 +5,8 @@ from modules.database import VocabularyDB
 from .state import State
 from ..object import Text_Button
 from ..manager import Font_Manager
-#from ..object import Card
-#from ..manager import Image_Manager
+from ..object import Card
+from ..manager import Image_Manager
 
 class Train_State(State):
 
@@ -24,12 +24,15 @@ class Train_State(State):
         self.question_num = 4
         self.question_count = 0
         self.IsAnswering= False
-
+        self.end_card_num = 2         # 剩下幾張卡片時結束
+        self.max_card_num = 8          # 最大手牌數量        
         menu_button = Text_Button(
             pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), 
-            scale=1, 
+            scale=1,
+            #size=(200, 80), 
             text='MENU', 
             font_size=70, 
+            
         )
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.all_sprites.add(menu_button)
@@ -45,18 +48,22 @@ class Train_State(State):
         for i in range(3):
             btn = Text_Button(
                 pos=(game.CANVAS_WIDTH/2, 400 + i*200), 
-                scale=1, 
+                scale=1,
+                #size=(400, 150), 
                 text="LEVEL"+str(i+1), 
                 font_size=70, 
+                
                 )
             btn.setClick(lambda level=i+1: self.question_type_select(level))
             self.difficulty_buttons.append(btn)
             self.all_sprites.add(btn)
         back_btn = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-            scale=1, 
+            scale=1,
+            #size=(200, 80), 
             text="Menu", 
             font_size=70, 
+            
         )
         back_btn.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(back_btn)
@@ -71,10 +78,11 @@ class Train_State(State):
         #單字翻譯
         btn1 = Text_Button(
             pos=(game.CANVAS_WIDTH/2, 400), 
-            size=(400, 150), 
+            scale=1,
+            #size=(400, 150), 
             text="單字中翻英", 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
+            
             )
         btn1.setClick(lambda type=0: self.start_game(type,level))
         self.difficulty_buttons.append(btn1)
@@ -82,10 +90,11 @@ class Train_State(State):
         
         btn2 = Text_Button(
             pos=(game.CANVAS_WIDTH/2, 600), 
-            size=(400, 150), 
+            scale=1,
+            #size=(400, 150), 
             text="單字英翻中", 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
+            
             )
         btn2.setClick(lambda type=1: self.start_game(type,level))
         self.difficulty_buttons.append(btn2)
@@ -94,10 +103,11 @@ class Train_State(State):
         #例句填空
         btn3 = Text_Button(
             pos=(game.CANVAS_WIDTH/2, 800), 
-            size=(400, 150), 
+            scale=1,
+            #size=(400, 150), 
             text="例句填空", 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
+            
             )
         btn3.setClick(lambda type=2: self.start_game(type,level))
         self.difficulty_buttons.append(btn3)
@@ -105,115 +115,47 @@ class Train_State(State):
         
         back_btn = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-            size=(200, 80), 
+            scale=1,
+            #size=(200, 80), 
             text="Menu", 
             font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
+            
         )
         back_btn.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(back_btn)
-    
-    
-    # 題型選擇(例句填空or單字翻譯)
-    def question_type_select(self,level):
-        from ..state import Menu_State
-        self.all_sprites.empty()
-        self.difficulty_buttons = []
-        self.question_type = 0
-        #單字翻譯
-        btn1 = Text_Button(
-            pos=(game.CANVAS_WIDTH/2, 400), 
-            size=(400, 150), 
-            text="單字中翻英", 
-            font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
-            )
-        btn1.setClick(lambda type=0: self.start_game(type,level))
-        self.difficulty_buttons.append(btn1)
-        self.all_sprites.add(btn1)
-        
-        btn2 = Text_Button(
-            pos=(game.CANVAS_WIDTH/2, 600), 
-            size=(400, 150), 
-            text="單字英翻中", 
-            font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
-            )
-        btn2.setClick(lambda type=1: self.start_game(type,level))
-        self.difficulty_buttons.append(btn2)
-        self.all_sprites.add(btn2)
-        
-        #例句填空
-        btn3 = Text_Button(
-            pos=(game.CANVAS_WIDTH/2, 800), 
-            size=(400, 150), 
-            text="例句填空", 
-            font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
-            )
-        btn3.setClick(lambda type=2: self.start_game(type,level))
-        self.difficulty_buttons.append(btn3)
-        self.all_sprites.add(btn3)
-        
-        back_btn = Text_Button(
-            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-            size=(200, 80), 
-            text="Menu", 
-            font_size=70, 
-            font='SWEISANSCJKTC-REGULAR'
-        )
-        back_btn.setClick(lambda: game.change_state(Menu_State()))
-        self.all_sprites.add(back_btn)
-    
-    def create_choice_buttons(self, type: int) -> None:
-        """根據題型繪製選項按鈕（2x2排列）"""
-        for i in range(4):
-            text = self.choice[i][3] if type == 1 else self.choice[i][1]
-            btn = Text_Button(
-                pos=(game.CANVAS_WIDTH // 2 - 320 + 640 * (i % 2), 600 + (i // 2) * 200),
-                size=(600, 100),
-                text=text,
-                font_size=70,
-                font='SWEISANSCJKTC-REGULAR'
-            )
-            btn.setClick(lambda i=i: self.check_answer(type, text))
-            self.all_sprites.add(btn)
-
-    
-    # 題目建構
-        #1.根據難度選擇隨機抓取4個資料庫中的單字 
-        #2.隨機選擇一個單字作為答案
-        #3.將答案所對應的例句挖空作為題目
-        #4.將剩餘的3個單字作為選項
+            
     def load_question(self,type,level):
-        if self.question_count < self.question_num:
-            if self.question_count == 0:
+        if self.current_card_num > self.end_card_num:
+            if self.current_card_num == self.max_card_num:
                 from modules.database import VocabularyDB
                 self.question_history = []
-                self.choice_history = []
+                self.card_history = []
                 self.answer_history = []
                 self.level = level
-                # 載入資料庫中的單字
                 self.db = VocabularyDB()
                 '''
+                # 載入擁有牌庫中的資料
                 self.voc_list = self.db.find_vocabulary(level)
                 '''
+                #建立牌庫
                 self.voc_list=[ ('4401_sack', 'sack', 'n.', '袋;粗布袋', 3), ('4402_sake', 'sake', 'n.', '理由;緣故;利益', 3), 
                                 ('4403_saucer', 'saucer', 'n.', '淺碟', 3), ('4404_sausage', 'sausage', 'n.', '香腸,臘腸', 3), 
                                 ('4405_saving', 'saving', 'n.', '挽救;節儉,節約;儲金', 3), ('4406_scale', 'scale', 'n.', '尺度;等級;級別', 3), 
                                 ('4407_scarecrow', 'scarecrow', 'n.', '稻草人;威嚇物', 3), ('4408_scarf', 'scarf', 'n.', '圍巾', 3)]
+                
+                # 隨機選擇手牌上限數量個單字
+                self.choice = random.sample(self.voc_list, self.max_card_num)
+                self.choice_history=self.choice
+                self.current_card_num = len(self.choice)
             self.IsAnswering = True
             self.question_count += 1
             self.all_sprites.empty()
             self.question = []
             self.result_shown = False
-            self.current_title_text="Question "+str(self.question_count)+"/"+str(self.question_num)
-            # 隨機選擇4個單字
-            self.choice = random.sample(self.voc_list, 4)
-            self.choice_history.append(self.choice)
+            self.current_title_text="Question "+str(self.question_count)
             # 隨機選擇一個單字作為答案
-            self.answer_index = random.randint(0, 3)
-            self.answer = self.choice[self.answer_index][1]    
+            self.answer_index = random.randint(0, self.current_card_num-1)
+            self.answer = self.choice[self.answer_index][1]
             self.answer_history.append(self.answer)
             # 將答案所對應的例句挖空/單字對應翻譯作為題目
             if type==0:#0:單字中翻英 1:單字英翻中 2:例句填空
@@ -226,30 +168,47 @@ class Train_State(State):
                 self.current_question_text = self.question[1]
             elif type==2:
                 self.answer = self.choice[self.answer_index][1]
-                self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index][0]) 
-                sentence = self.question[0][2]
+                self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index][0])[0]
+                sentence = self.question['sentence']
                 self.current_question_text = sentence.replace(self.answer, "_____")
             self.question_history.append(self.question)
             print(self.question)
-            # 顯示選項                
-            self.create_choice_buttons(type)
+            print(self.answer)
+            # 顯示卡片                
+            for i in range(self.current_card_num):
+                card = Card(
+                    pos=(game.CANVAS_WIDTH // 2-720+250*i, 600), 
+                    scale=2,
+                    id=self.choice[i][1], 
+                )
+                card.setClick(lambda i=i:self.check_answer(type, i))
+                self.all_sprites.add(card)
+            
         else:
             self.show_result()
             print("Question History",self.question_history)
             print("Choice History",self.choice_history)
             print("Answer History",self.answer_history)
-        
+    
+    
+    
     # 檢查答案
         #1.如果選擇的答案正確，顯示正確，並且加1分(可同時記錄其他資訊)
         #2.如果選擇的答案錯誤，顯示錯誤，並且不加分(可同時記錄其他資訊)
         #3.顯示正確答案
         #4.顯示例句的翻譯
         #5.顯示下一題按鈕
-    def check_answer(self, type, selected):
+    def check_answer(self, type, index):
+        selected=self.choice[index][1]
+        self.choice.remove(self.choice[index])
+        self.current_card_num = len(self.choice)
+        print(self.choice)
         print("Selected: ", selected)
         if self.IsAnswering:
+            print("Is Answering")
             self.IsAnswering = False
             if not self.result_shown:
+                print("Not Shown")
                 if selected == self.answer:
                     self.score += 1
                     self.current_result_text = "Correct!"
@@ -260,13 +219,15 @@ class Train_State(State):
                 
                 # 顯示正確答案和翻譯
                 if type==2:#0:單字中翻英 1:單字英翻中 2:例句填空
-                    self.current_translation_text = f"Translation: {self.question[0][3]}"
+                    self.current_translation_text = f"Translation: {self.question['translation']}"
                 
             next_button = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-                scale=1, 
+                scale=1,
+                #size=(200, 80), 
                 text='Next', 
                 font_size=70, 
+                
             )
             next_button.setClick(lambda: self.load_question(type, self.level))
             self.all_sprites.add(next_button)
@@ -282,9 +243,11 @@ class Train_State(State):
         self.result_shown = True
         back_btn = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
-            scale=1, 
+            scale=1,
+            #size=(200, 80), 
             text="Menu", 
             font_size=70, 
+            
         )
         back_btn.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(back_btn)
@@ -332,6 +295,6 @@ class Train_State(State):
             self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 100, 180, game.CANVAS_WIDTH - 200)
         # 顯示正解與翻譯（若有）
         if self.result_shown:
-            game.draw_text(game.canvas, self.current_result_text, 50, game.CANVAS_WIDTH//2, 350)
-            game.draw_text(game.canvas, self.current_translation_text, 50, game.CANVAS_WIDTH//2, 450)
+            Font_Manager.draw_text(game.canvas, self.current_result_text, 50, game.CANVAS_WIDTH//2, 350)
+            Font_Manager.draw_text(game.canvas, self.current_translation_text, 50, game.CANVAS_WIDTH//2, 450)
         self.all_sprites.draw(game.canvas)
