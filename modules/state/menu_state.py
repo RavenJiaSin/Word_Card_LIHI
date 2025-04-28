@@ -70,12 +70,15 @@ class Menu_State(State):
         
     # override
     def handle_event(self):
-        ...
+        for object in self.all_sprites:
+            object.handle_event()
+        if not self.card_pack:
+            self.daily_card.handle_event()
 
     # override
     def update(self):
         self.all_sprites.update()
-        if (not self.card_pack):
+        if not self.card_pack:
             self.daily_card.update()
 
     # override

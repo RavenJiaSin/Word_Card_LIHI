@@ -45,13 +45,17 @@ class Carousel():
             card.ori_scale = scale  # 作為按鈕動畫的縮放基準
 
 
-    def __handle_event(self):
+    def handle_event(self):
         for e in game.event_list:
             if e.type == pg.MOUSEWHEEL:
                 self.rotate(e.y * self.speed)
+        sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale, reverse=True)
+        for i, card in enumerate(sorted_cards):
+            card.handle_event()
+
+
 
     def update(self):
-        self.__handle_event()
         self.update_cards()
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale, reverse=True)
         for i, card in enumerate(sorted_cards):

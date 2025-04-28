@@ -291,7 +291,8 @@ class Train_State(State):
         
     # override
     def handle_event(self):
-        ...
+        for object in self.all_sprites:
+            object.handle_event()
         
     # override
     def update(self):

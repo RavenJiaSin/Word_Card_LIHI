@@ -36,7 +36,7 @@ class Object(pg.sprite.Sprite):
         self.__is_wiggle = False
         self.__goDown = True
         
-    def __handle_event(self):
+    def handle_event(self):
         """需要覆寫,物件可以從這邊處理相關事件(event_list)
         """
         ...
@@ -45,7 +45,6 @@ class Object(pg.sprite.Sprite):
         """需要覆寫,物件在此更新,要記得呼叫__handle_event()才能夠處理事件
         """   
         self.__wiggle()
-        self.__handle_event()
         self.__move()
         self.rect.center = (int(self.x), int(self.y))
 

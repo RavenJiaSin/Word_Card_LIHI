@@ -29,6 +29,8 @@ class Start_State(State):
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     game.change_state(self.__menu_state)
+        for object in self.all_sprites:
+            object.handle_event()
 
 
     # override

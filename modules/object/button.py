@@ -35,7 +35,7 @@ class Button(Object):
         self.can_press = True
 
     # override
-    def __handle_event(self):
+    def handle_event(self):
         event_list = game.event_list.copy()  # 避免因 remove 導致迭代出錯
         for e in event_list:
             if e.type == pg.MOUSEBUTTONDOWN and e.button == 1 and self.can_press:
@@ -55,7 +55,6 @@ class Button(Object):
 
     # override
     def update(self):
-        self.__handle_event()
         self.__pressed_effect()
         super().update()    
 

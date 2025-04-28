@@ -29,6 +29,10 @@ class Match_Game_State(State):
     # overrride
     def handle_event(self):
         self.match_game.handle_event()
+        for object in self.all_sprites:
+            object.handle_event()
+        for object in self.match_game.getSpriteGroup():
+            object.handle_event()
     
     # override
     def update(self):
