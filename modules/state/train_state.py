@@ -17,6 +17,8 @@ class Train_State(State):
         self.current_question_text = ""
         self.current_result_text = ""
         self.current_translation_text = ""
+        self.current_result_text= ""
+        self.back_to_menu = False
         self.score = 0
         self.result_shown = False
         self.question_num = 6
@@ -29,10 +31,38 @@ class Train_State(State):
         menu_button.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(menu_button)
         self.difficulty_select()
-
+        
+    def setMenuButton(self):
+        menu_button = Text_Button(pos=(100,100), scale=1, text='Menu', font_size=40)
+        menu_button.setClick(lambda:Train_State.check_go_to_menu(self))
+        self.all_sprites.add(menu_button)
+        
+    def check_go_to_menu(self):
+        self.current_result_text= "Are you sure to go back to menu?"
+        self.IsAnswering = False
+        self.back_to_menu = True
+        self.checkbtnY = Text_Button(pos=(game.CANVAS_WIDTH/2-200, game.CANVAS_HEIGHT/2), scale=1, text="Yes", font_size=70)
+        self.checkbtnY.setClick(lambda: self.go_to_menu())
+        self.checkbtnN = Text_Button(pos=(game.CANVAS_WIDTH/2+200, game.CANVAS_HEIGHT/2), scale=1, text="No", font_size=70)
+        self.checkbtnN.setClick(lambda : self.cancel_go_to_menu())
+        self.all_sprites.add(self.checkbtnY, self.checkbtnN)
+        
+    def cancel_go_to_menu(self):
+        self.back_to_menu = False
+        self.IsAnswering = True
+        self.current_result_text= ""
+        self.all_sprites.remove(self.checkbtnY)
+        self.all_sprites.remove(self.checkbtnN)
+        
+    def go_to_menu(self):
+        game.background_color = (30,30,30)
+        from .menu_state import Menu_State
+        game.change_state(Menu_State())
+        
     def difficulty_select(self):
         from ..state import Menu_State
         self.all_sprites.empty()
+        self.setMenuButton()
         self.difficulty_buttons = []
         self.level = 0
         for i in range(3):
@@ -40,13 +70,12 @@ class Train_State(State):
             btn.setClick(lambda level=i+1: self.question_type_select(level))
             self.difficulty_buttons.append(btn)
             self.all_sprites.add(btn)
-        back_btn = Text_Button(pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), scale=1, text="Menu", font_size=70)
-        back_btn.setClick(lambda: game.change_state(Menu_State()))
-        self.all_sprites.add(back_btn)
+        
 
     def question_type_select(self, level):
         from ..state import Menu_State
         self.all_sprites.empty()
+        self.setMenuButton()
         self.difficulty_buttons = []
         self.question_type = 0
         btn1 = Text_Button(pos=(game.CANVAS_WIDTH/2, 400), scale=1, text="單字中翻英", font_size=70)
@@ -64,9 +93,6 @@ class Train_State(State):
         self.difficulty_buttons.append(btn3)
         self.all_sprites.add(btn3)
 
-        back_btn = Text_Button(pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), scale=1, text="Menu", font_size=70)
-        back_btn.setClick(lambda: game.change_state(Menu_State()))
-        self.all_sprites.add(back_btn)
 
     def load_question(self, type, level):
         if self.current_card_num > self.end_card_num:
@@ -105,6 +131,7 @@ class Train_State(State):
             self.IsAnswering = True
             self.question_count += 1
             self.all_sprites.empty()
+            self.setMenuButton()
             self.question = []
             self.result_shown = False
             self.current_title_text = "Question " + str(self.question_count)
@@ -131,10 +158,14 @@ class Train_State(State):
                     scale=1.5,
                     id=self.choice[i]['Vocabulary']
                 )
-                card.setClick(lambda i=i: self.check_answer(type, i))
+                card.setClick(lambda i=i: self.play_card(type, i))
                 self.all_sprites.add(card)
         else:
             self.show_result()
+    
+    #卡片打出動畫
+    def play_card(self, type, index):
+        self.check_answer(type, index)
 
     def check_answer(self, type, index):
         selected = self.choice[index]['Vocabulary']
@@ -164,22 +195,16 @@ class Train_State(State):
     def show_result(self):
         from ..state import Menu_State
         self.all_sprites.empty()
+        self.setMenuButton()
         self.current_title_text = "Result"
         self.current_question_text = ""
         self.current_translation_text = ""
         self.current_result_text = f"Your score: {self.score}/{self.question_num}"
         self.result_shown = True
-        back_btn = Text_Button(
-            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80),
-            scale=1,
-            text="Menu",
-            font_size=70
-        )
-        back_btn.setClick(lambda: game.change_state(Menu_State()))
-        self.all_sprites.add(back_btn)
 
     def start_game(self, type, level):
         self.all_sprites.empty()
+        self.setMenuButton()
         self.question_type = type
         self.level = level
         self.load_question(type, level)
@@ -215,3 +240,9 @@ class Train_State(State):
             Font_Manager.draw_text(game.canvas, self.current_result_text, 50, game.CANVAS_WIDTH//2, 350)
             Font_Manager.draw_text(game.canvas, self.current_translation_text, 50, game.CANVAS_WIDTH//2, 450)
         self.all_sprites.draw(game.canvas)
+        
+        if self.back_to_menu:
+            Font_Manager.draw_text(game.canvas, self.current_result_text, 50, game.CANVAS_WIDTH//2, 350)
+            dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面
+            dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
+            game.canvas.blit(dark_overlay, (0, 0))  # 把暗幕畫上去
