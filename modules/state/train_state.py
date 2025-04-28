@@ -21,11 +21,12 @@ class Train_State(State):
         #參數初始化
         self.score = 0
         self.result_shown = False
-        self.question_num = 4
+        self.question_num = 6
         self.question_count = 0
         self.IsAnswering= False
         self.end_card_num = 2         # 剩下幾張卡片時結束
-        self.max_card_num = 8          # 最大手牌數量        
+        self.max_card_num = 8          # 最大(開局)手牌數量        
+        self.current_card_num = self.max_card_num      # 初始化當前手牌數量
         menu_button = Text_Button(
             pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), 
             scale=1,
@@ -218,10 +219,16 @@ class Train_State(State):
                 self.voc_list = self.db.find_vocabulary(level)
                 '''
                 #建立牌庫
-                self.voc_list=[ ('4401_sack', 'sack', 'n.', '袋;粗布袋', 3), ('4402_sake', 'sake', 'n.', '理由;緣故;利益', 3), 
-                                ('4403_saucer', 'saucer', 'n.', '淺碟', 3), ('4404_sausage', 'sausage', 'n.', '香腸,臘腸', 3), 
-                                ('4405_saving', 'saving', 'n.', '挽救;節儉,節約;儲金', 3), ('4406_scale', 'scale', 'n.', '尺度;等級;級別', 3), 
-                                ('4407_scarecrow', 'scarecrow', 'n.', '稻草人;威嚇物', 3), ('4408_scarf', 'scarf', 'n.', '圍巾', 3)]
+                self.voc_list=[ {'ID': '4522_ton', 'Vocabulary': 'ton', 'Part_of_speech': 'n.', 'Translation': '噸', 'Level': 3}, {'ID': '4523_tortoise', 'Vocabulary': 'tortoise', 'Part_of_speech': 'n.', 'Translation': '陸龜;龜,烏龜', 'Level': 3}, 
+                               {'ID': '4524_toss', 'Vocabulary': 'toss', 'Part_of_speech': 'n.', 'Translation': '擲幣賭勝負', 'Level': 3}, {'ID': '4525_tourism', 'Vocabulary': 'tourism', 'Part_of_speech': 'n.', 'Translation': '旅遊,觀光', 'Level': 3}, 
+                               {'ID': '4526_tourist', 'Vocabulary': 'tourist', 'Part_of_speech': 'n.', 'Translation': '旅遊者,觀光者', 'Level': 3}, {'ID': '4527_tow', 'Vocabulary': 'tow', 'Part_of_speech': 'n.', 'Translation': '拖,拉;牽引;拖輪;拖曳車', 'Level': 3}, 
+                               {'ID': '4528_trace', 'Vocabulary': 'trace', 'Part_of_speech': 'n.', 'Translation': '蹤跡', 'Level': 3}, {'ID': '4529_trader', 'Vocabulary': 'trader', 'Part_of_speech': 'n.', 'Translation': '商人;交易人', 'Level': 3}, 
+                               {'ID': '4530_trail', 'Vocabulary': 'trail', 'Part_of_speech': 'n.', 'Translation': '拖曳物,尾部', 'Level': 3}, {'ID': '4531_transport', 'Vocabulary': 'transport', 'Part_of_speech': 'n.', 'Translation': '交通工具', 'Level': 3}, 
+                               {'ID': '4532_trash', 'Vocabulary': 'trash', 'Part_of_speech': 'n.', 'Translation': '垃圾', 'Level': 3}, {'ID': '4533_traveler', 'Vocabulary': 'traveler', 'Part_of_speech': 'n.', 'Translation': '旅客;遊客', 'Level': 3}, 
+                               {'ID': '4534_tray', 'Vocabulary': 'tray', 'Part_of_speech': 'n.', 'Translation': '盤子,托盤', 'Level': 3}, {'ID': '4535_tremble', 'Vocabulary': 'tremble', 'Part_of_speech': 'n.', 'Translation': '震顫,發抖', 'Level': 3}, 
+                               {'ID': '4536_trend', 'Vocabulary': 'trend', 'Part_of_speech': 'n.', 'Translation': '趨勢,傾向;時尚', 'Level': 3}, {'ID': '4537_tribe', 'Vocabulary': 'tribe', 'Part_of_speech': 'n.', 'Translation': '部落;種族', 'Level': 3}, 
+                               {'ID': '4538_troop', 'Vocabulary': 'troop', 'Part_of_speech': 'n.', 'Translation': '軍隊,部隊', 'Level': 3}, {'ID': '4539_trunk', 'Vocabulary': 'trunk', 'Part_of_speech': 'n.', 'Translation': '樹幹;大血管', 'Level': 3}, 
+                               {'ID': '4540_tub', 'Vocabulary': 'tub', 'Part_of_speech': 'n.', 'Translation': '浴缸', 'Level': 3}, {'ID': '4541_tug', 'Vocabulary': 'tug', 'Part_of_speech': 'n.', 'Translation': '牽引,拖曳', 'Level': 3}]
                 
                 # 隨機選擇手牌上限數量個單字
                 self.choice = random.sample(self.voc_list, self.max_card_num)
@@ -235,31 +242,29 @@ class Train_State(State):
             self.current_title_text="Question "+str(self.question_count)
             # 隨機選擇一個單字作為答案
             self.answer_index = random.randint(0, self.current_card_num-1)
-            self.answer = self.choice[self.answer_index][1]
+            self.answer = self.choice[self.answer_index]['Vocabulary']
             self.answer_history.append(self.answer)
             # 將答案所對應的例句挖空/單字對應翻譯作為題目
             if type==0:#0:單字中翻英 1:單字英翻中 2:例句填空
-                self.answer = self.choice[self.answer_index][1]     
+                self.answer = self.choice[self.answer_index]['Vocabulary']     
                 self.question = self.choice[self.answer_index]
-                self.current_question_text = self.question[3]
+                self.current_question_text = self.question['Translation']
             elif type==1:
-                self.answer = self.choice[self.answer_index][3]
+                self.answer = self.choice[self.answer_index]['Translation']
                 self.question = self.choice[self.answer_index]
-                self.current_question_text = self.question[1]
+                self.current_question_text = self.question['Vocabulary']
             elif type==2:
-                self.answer = self.choice[self.answer_index][1]
-                self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index][0])[0]
+                self.answer = self.choice[self.answer_index]['Vocabulary']
+                self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index]['ID'])[0]
                 sentence = self.question['sentence']
                 self.current_question_text = sentence.replace(self.answer, "_____")
             self.question_history.append(self.question)
-            print(self.question)
-            print(self.answer)
             # 顯示卡片                
             for i in range(self.current_card_num):
                 card = Card(
-                    pos=(game.CANVAS_WIDTH // 2-720+250*i, 600), 
-                    scale=2,
-                    id=self.choice[i][1], 
+                    pos=(game.CANVAS_WIDTH // 2-80*self.current_card_num+190*i, 850), 
+                    scale=1.5,
+                    id=self.choice[i]['Vocabulary'], 
                 )
                 card.setClick(lambda i=i:self.check_answer(type, i))
                 self.all_sprites.add(card)
@@ -279,7 +284,7 @@ class Train_State(State):
         #4.顯示例句的翻譯
         #5.顯示下一題按鈕
     def check_answer(self, type, index):
-        selected=self.choice[index][1]
+        selected=self.choice[index]['Vocabulary']
         self.choice.remove(self.choice[index])
         self.current_card_num = len(self.choice)
         print(self.choice)
@@ -302,7 +307,7 @@ class Train_State(State):
                     self.current_translation_text = f"Translation: {self.question['translation']}"
                 
             next_button = Text_Button(
-            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-80), 
+            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-480), 
                 scale=1,
                 #size=(200, 80), 
                 text='Next', 
