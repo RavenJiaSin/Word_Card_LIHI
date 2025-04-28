@@ -15,6 +15,7 @@ class Train_State(State):
     def __init__(self):
         from ..state import Menu_State
         self.all_sprites = pg.sprite.Group()
+        self.check_group = pg.sprite.Group()
         #文字設定
         self.current_title_text = "Train Room!"
         self.current_question_text = ""
@@ -42,7 +43,7 @@ class Train_State(State):
     #######################################################################
     def setMenuButton(self):
         menu_button = Text_Button(pos=(100,100), scale=1, text='Menu', font_size=40)
-        menu_button.setClick(lambda:Train_State.check_go_to_menu(self))
+        menu_button.setClick(lambda:self.check_go_to_menu())
         self.all_sprites.add(menu_button)
         
     def check_go_to_menu(self):
@@ -53,14 +54,20 @@ class Train_State(State):
         self.checkbtnY.setClick(lambda: self.go_to_menu())
         self.checkbtnN = Text_Button(pos=(game.CANVAS_WIDTH/2+200, game.CANVAS_HEIGHT/2), scale=1, text="No", font_size=70)
         self.checkbtnN.setClick(lambda : self.cancel_go_to_menu())
+        self.check_group.add(self.checkbtnY, self.checkbtnN)
         self.all_sprites.add(self.checkbtnY, self.checkbtnN)
+        for sprite in self.all_sprites:
+            if sprite not in (self.checkbtnY, self.checkbtnN):
+                sprite.active = False
         
     def cancel_go_to_menu(self):
         self.back_to_menu = False
         self.IsAnswering = True
-        self.current_result_text= ""
+        self.current_result_text = ""
         self.all_sprites.remove(self.checkbtnY)
         self.all_sprites.remove(self.checkbtnN)
+        self.check_group.remove(self.checkbtnY)
+        self.check_group.remove(self.checkbtnN)
         
     def go_to_menu(self):
         game.background_color = (30,30,30)
@@ -140,6 +147,7 @@ class Train_State(State):
                 ]
                 self.choice=[]
                 self.choice_history = []
+            #加入抽牌動畫與音效
             self.choice += random.sample(self.voc_list, self.hand_card_num-self.current_card_num)
             self.choice_history.append(self.choice)
             self.current_card_num = len(self.choice)
@@ -195,15 +203,21 @@ class Train_State(State):
         if not self.result_shown and self.IsAnswering:
             self.IsAnswering = False
             removed_card = self.choice[index]
-            self.choice.remove(removed_card)
-            self.current_card_num = len(self.choice)
+            answer_card = self.choice[self.answer_index]
             if selected == self.answer:
+                self.choice.remove(removed_card)
+                self.voc_list.remove(removed_card)
                 self.score += 1
                 self.current_result_text = "Correct!"
             else:
                 self.current_result_text = f"Wrong! Correct Answer: {self.answer}"
-                self.choice.remove(self.choice[self.answer_index])
-                self.current_card_num = len(self.choice)
+                self.choice.remove(removed_card)
+                self.voc_list.remove(removed_card)
+                if answer_card in self.choice:
+                    self.choice.remove(answer_card)
+                if answer_card in self.voc_list:
+                    self.voc_list.remove(answer_card)
+            self.current_card_num = len(self.choice)
             self.result_shown = True
             if type == 2:
                 self.current_translation_text = f"Translation: {self.question['translation']}"
@@ -275,7 +289,9 @@ class Train_State(State):
         self.all_sprites.draw(game.canvas)
         
         if self.back_to_menu:
-            Font_Manager.draw_text(game.canvas, self.current_result_text, 50, game.CANVAS_WIDTH//2, 350)
             dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面
             dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
             game.canvas.blit(dark_overlay, (0, 0))  # 把暗幕畫上去
+            Font_Manager.draw_text(game.canvas, self.current_result_text, 50, game.CANVAS_WIDTH//2, 350)
+            self.check_group.draw(game.canvas)
+            
