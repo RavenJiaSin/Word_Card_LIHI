@@ -9,29 +9,37 @@ from ..object import Card
 from ..manager import Image_Manager
 
 class Train_State(State):
-
+    ########################################################################
+    #.............................初始化設定...............................#
+    #######################################################################
     def __init__(self):
         from ..state import Menu_State
         self.all_sprites = pg.sprite.Group()
+        #文字設定
         self.current_title_text = "Train Room!"
         self.current_question_text = ""
         self.current_result_text = ""
         self.current_translation_text = ""
         self.current_result_text= ""
+        #flag設定
         self.back_to_menu = False
-        self.score = 0
         self.result_shown = False
-        self.question_num = 6
-        self.question_count = 0
         self.IsAnswering = False
-        self.end_card_num = 2
-        self.max_card_num = 8
-        self.current_card_num = self.max_card_num
+        #數值設定
+        self.score = 0 #分數
+        self.question_num = 6 #題數
+        self.question_count = 0 #目前題數
+        self.hand_card_num = 6 #手牌數量
+        self.current_card_num = 0 #目前手牌數量
+        #按鈕設定
         menu_button = Text_Button(pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), scale=1, text='MENU', font_size=70)
         menu_button.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(menu_button)
         self.difficulty_select()
-        
+    
+    ########################################################################
+    #.........................設定返回主畫面按鈕............................#
+    #######################################################################
     def setMenuButton(self):
         menu_button = Text_Button(pos=(100,100), scale=1, text='Menu', font_size=40)
         menu_button.setClick(lambda:Train_State.check_go_to_menu(self))
@@ -58,7 +66,11 @@ class Train_State(State):
         game.background_color = (30,30,30)
         from .menu_state import Menu_State
         game.change_state(Menu_State())
-        
+    
+    ########################################################################
+    #.............................遊戲邏輯..................................#
+    ########################################################################
+    #選擇難度
     def difficulty_select(self):
         from ..state import Menu_State
         self.all_sprites.empty()
@@ -70,8 +82,9 @@ class Train_State(State):
             btn.setClick(lambda level=i+1: self.question_type_select(level))
             self.difficulty_buttons.append(btn)
             self.all_sprites.add(btn)
-        
-
+    
+    #選擇題型
+    #0:單字中翻英 1:單字英翻中 2:例句填空
     def question_type_select(self, level):
         from ..state import Menu_State
         self.all_sprites.empty()
@@ -93,10 +106,10 @@ class Train_State(State):
         self.difficulty_buttons.append(btn3)
         self.all_sprites.add(btn3)
 
-
+    #載入題目
     def load_question(self, type, level):
-        if self.current_card_num > self.end_card_num:
-            if self.current_card_num == self.max_card_num:
+        if self.question_count < self.question_num:
+            if self.current_card_num == 0:
                 from modules.database import VocabularyDB
                 self.question_history = []
                 self.card_history = []
@@ -125,19 +138,24 @@ class Train_State(State):
                     {'ID': '4540_tub', 'Vocabulary': 'tub', 'Part_of_speech': 'n.', 'Translation': '浴缸', 'Level': 3},
                     {'ID': '4541_tug', 'Vocabulary': 'tug', 'Part_of_speech': 'n.', 'Translation': '牽引,拖曳', 'Level': 3}
                 ]
-                self.choice = random.sample(self.voc_list, self.max_card_num)
-                self.choice_history = self.choice
-                self.current_card_num = len(self.choice)
+                self.choice=[]
+                self.choice_history = []
+            self.choice += random.sample(self.voc_list, self.hand_card_num-self.current_card_num)
+            self.choice_history.append(self.choice)
+            self.current_card_num = len(self.choice)
+            #更新flag
             self.IsAnswering = True
+            self.result_shown = False
+            #更新計數器
             self.question_count += 1
             self.all_sprites.empty()
             self.setMenuButton()
             self.question = []
-            self.result_shown = False
             self.current_title_text = "Question " + str(self.question_count)
             self.answer_index = random.randint(0, self.current_card_num-1)
             self.answer = self.choice[self.answer_index]['Vocabulary']
             self.answer_history.append(self.answer)
+            #生成題目與答案
             if type == 0:
                 self.answer = self.choice[self.answer_index]['Vocabulary']
                 self.question = self.choice[self.answer_index]
@@ -151,6 +169,7 @@ class Train_State(State):
                 self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index]['ID'])[0]
                 sentence = self.question['sentence']
                 self.current_question_text = sentence.replace(self.answer, "_____")
+                
             self.question_history.append(self.question)
             for i in range(self.current_card_num):
                 card = Card(
@@ -160,25 +179,32 @@ class Train_State(State):
                 )
                 card.setClick(lambda i=i: self.play_card(type, i))
                 self.all_sprites.add(card)
+                print("Index:", i, "Voc:", self.choice[i]['Vocabulary'])
         else:
             self.show_result()
     
     #卡片打出動畫
     def play_card(self, type, index):
-        self.check_answer(type, index)
-
+        self.check_answer(type, index)#下面完成後刪除這行
+        #移動卡片位置
+        #卡片打出後新增按鈕進行確認=>self.check_answer(type, index)
+        #取消卡片打出事件，將卡片復原
+        
+    #檢查答案
     def check_answer(self, type, index):
         selected = self.choice[index]['Vocabulary']
         if not self.result_shown and self.IsAnswering:
             self.IsAnswering = False
-            self.choice.remove(self.choice[index])
+            removed_card = self.choice[index]
+            print("Choice:", self.choice[index])
+            self.choice.remove(removed_card)
             self.current_card_num = len(self.choice)
             if selected == self.answer:
                 self.score += 1
                 self.current_result_text = "Correct!"
             else:
                 self.current_result_text = f"Wrong! Correct Answer: {self.answer}"
-                self.choice.remove(self.choice[index])
+                self.choice.remove(self.choice[self.answer_index])
                 self.current_card_num = len(self.choice)
             self.result_shown = True
             if type == 2:
@@ -192,6 +218,7 @@ class Train_State(State):
         next_button.setClick(lambda: self.load_question(type, self.level))
         self.all_sprites.add(next_button)
 
+    #顯示結果
     def show_result(self):
         from ..state import Menu_State
         self.all_sprites.empty()
@@ -202,6 +229,7 @@ class Train_State(State):
         self.current_result_text = f"Your score: {self.score}/{self.question_num}"
         self.result_shown = True
 
+    #遊戲開始
     def start_game(self, type, level):
         self.all_sprites.empty()
         self.setMenuButton()
@@ -209,6 +237,10 @@ class Train_State(State):
         self.level = level
         self.load_question(type, level)
 
+    #####################################################################
+    #..............................工具.................................#
+    #####################################################################
+    #換行顯示文字
     def draw_wrapped_text(self, surface: pg.Surface, text: str, font: pg.font.Font, color: tuple, x: int, y: int, max_width: int, line_spacing: int = 10) -> None:
         words = text.split(' ')
         lines = []
@@ -225,6 +257,9 @@ class Train_State(State):
             rendered_line = font.render(line.strip(), True, color)
             surface.blit(rendered_line, (x, y + i * (font.get_linesize() + line_spacing)))
 
+    #########################################################################
+    #.............................更新與事件處理.............................#
+    #########################################################################
     def handle_event(self):
         ...
 
