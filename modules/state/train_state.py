@@ -27,11 +27,16 @@ class Train_State(State):
         self.back_to_menu = False
         self.result_shown = False
         self.IsAnswering = False
+        self.is_drawing_cards = False
+        #抽牌設定
+        self.card_draw_start_time = 0
+        self.card_draw_interval = 150  # 毫秒
+        self.pending_cards = []
         #數值設定
         self.score = 0 #分數
         self.question_num = 6 #題數
         self.question_count = 0 #目前題數
-        self.hand_card_num = 4 #手牌數量
+        self.hand_card_num = 6 #手牌數量
         self.current_card_num = 0 #目前手牌數量
         #按鈕設定
         menu_button = Text_Button(pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), scale=1, text='MENU', font_size=70)
@@ -76,7 +81,7 @@ class Train_State(State):
         game.change_state(Menu_State())
     
     ########################################################################
-    #.............................遊戲邏輯..................................#
+    #...........................難度題型選擇................................#
     ########################################################################
     #選擇難度
     def difficulty_select(self):
@@ -114,7 +119,10 @@ class Train_State(State):
         self.difficulty_buttons.append(btn3)
         self.all_sprites.add(btn3)
 
-    #載入題目
+    ########################################################################
+    #.............................載入題目..................................#
+    ########################################################################
+    
     def load_question(self, type, level):
         if self.question_count < self.question_num:
             if self.current_card_num == 0:
@@ -124,73 +132,56 @@ class Train_State(State):
                 self.answer_history = []
                 self.level = level
                 self.db = VocabularyDB()
-                self.voc_list = [
-                    {'ID': '4522_ton', 'Vocabulary': 'ton', 'Part_of_speech': 'n.', 'Translation': '噸', 'Level': 3},
-                    {'ID': '4523_tortoise', 'Vocabulary': 'tortoise', 'Part_of_speech': 'n.', 'Translation': '陸龜;龜,烏龜', 'Level': 3},
-                    {'ID': '4524_toss', 'Vocabulary': 'toss', 'Part_of_speech': 'n.', 'Translation': '擲幣賭勝負', 'Level': 3},
-                    {'ID': '4525_tourism', 'Vocabulary': 'tourism', 'Part_of_speech': 'n.', 'Translation': '旅遊,觀光', 'Level': 3},
-                    {'ID': '4526_tourist', 'Vocabulary': 'tourist', 'Part_of_speech': 'n.', 'Translation': '旅遊者,觀光者', 'Level': 3},
-                    {'ID': '4527_tow', 'Vocabulary': 'tow', 'Part_of_speech': 'n.', 'Translation': '拖,拉;牽引;拖輪;拖曳車', 'Level': 3},
-                    {'ID': '4528_trace', 'Vocabulary': 'trace', 'Part_of_speech': 'n.', 'Translation': '蹤跡', 'Level': 3},
-                    {'ID': '4529_trader', 'Vocabulary': 'trader', 'Part_of_speech': 'n.', 'Translation': '商人;交易人', 'Level': 3},
-                    {'ID': '4530_trail', 'Vocabulary': 'trail', 'Part_of_speech': 'n.', 'Translation': '拖曳物,尾部', 'Level': 3},
-                    {'ID': '4531_transport', 'Vocabulary': 'transport', 'Part_of_speech': 'n.', 'Translation': '交通工具', 'Level': 3},
-                    {'ID': '4532_trash', 'Vocabulary': 'trash', 'Part_of_speech': 'n.', 'Translation': '垃圾', 'Level': 3},
-                    {'ID': '4533_traveler', 'Vocabulary': 'traveler', 'Part_of_speech': 'n.', 'Translation': '旅客;遊客', 'Level': 3},
-                    {'ID': '4534_tray', 'Vocabulary': 'tray', 'Part_of_speech': 'n.', 'Translation': '盤子,托盤', 'Level': 3},
-                    {'ID': '4535_tremble', 'Vocabulary': 'tremble', 'Part_of_speech': 'n.', 'Translation': '震顫,發抖', 'Level': 3},
-                    {'ID': '4536_trend', 'Vocabulary': 'trend', 'Part_of_speech': 'n.', 'Translation': '趨勢,傾向;時尚', 'Level': 3},
-                    {'ID': '4537_tribe', 'Vocabulary': 'tribe', 'Part_of_speech': 'n.', 'Translation': '部落;種族', 'Level': 3},
-                    {'ID': '4538_troop', 'Vocabulary': 'troop', 'Part_of_speech': 'n.', 'Translation': '軍隊,部隊', 'Level': 3},
-                    {'ID': '4539_trunk', 'Vocabulary': 'trunk', 'Part_of_speech': 'n.', 'Translation': '樹幹;大血管', 'Level': 3},
-                    {'ID': '4540_tub', 'Vocabulary': 'tub', 'Part_of_speech': 'n.', 'Translation': '浴缸', 'Level': 3},
-                    {'ID': '4541_tug', 'Vocabulary': 'tug', 'Part_of_speech': 'n.', 'Translation': '牽引,拖曳', 'Level': 3}
-                ]
-                self.choice=[]
+                self.voc_list = self.db.find_vocabulary(level=level)
+                self.choice = []
                 self.choice_history = []
-            #加入抽牌動畫與音效
-            self.choice += random.sample(self.voc_list, self.hand_card_num-self.current_card_num)
-            self.choice_history.append(self.choice)
-            self.current_card_num = len(self.choice)
-            #更新flag
-            self.IsAnswering = True
-            self.result_shown = False
-            #更新計數器
+
+            # 設定抽牌階段
             self.question_count += 1
             self.all_sprites.empty()
             self.setMenuButton()
-            self.question = []
-            self.current_title_text = "Question " + str(self.question_count)
-            self.answer_index = random.randint(0, self.current_card_num-1)
-            self.answer = self.choice[self.answer_index]['Vocabulary']
-            self.answer_history.append(self.answer)
-            #生成題目與答案
-            if type == 0:
-                self.answer = self.choice[self.answer_index]['Vocabulary']
-                self.question = self.choice[self.answer_index]
-                self.current_question_text = self.question['Translation']
-            elif type == 1:
-                self.answer = self.choice[self.answer_index]['Translation']
-                self.question = self.choice[self.answer_index]
-                self.current_question_text = self.question['Vocabulary']
-            elif type == 2:
-                self.answer = self.choice[self.answer_index]['Vocabulary']
-                self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index]['ID'])[0]
-                sentence = self.question['sentence']
-                self.current_question_text = sentence.replace(self.answer, "_____")
-                
-            self.question_history.append(self.question)
-            for i in range(self.current_card_num):
+            for sprite in list(self.all_sprites):
+                if isinstance(sprite, Card):
+                    self.all_sprites.remove(sprite)
+
+            # 重新將還在手上的卡片畫出來
+            for idx, card_data in enumerate(self.choice):
                 card = Card(
-                    pos=(game.CANVAS_WIDTH // 2-80*self.current_card_num+190*i, 850),
+                    pos=(game.CANVAS_WIDTH // 2 - 80 * self.hand_card_num + 190 * idx, 850),
                     scale=1.5,
-                    id=self.choice[i]['Vocabulary']
+                    id=card_data['Vocabulary']
                 )
-                card.setClick(lambda i=i: self.play_card(type, i))
+                card.setClick(lambda i=idx: self.play_card(self.question_type, i))
                 self.all_sprites.add(card)
+                
+            available_cards = [v for v in self.voc_list if v not in self.choice]
+            draw_count = self.hand_card_num - self.current_card_num
+            draw_count = min(draw_count, len(available_cards))
+            self.pending_cards = random.sample(available_cards, draw_count)
+            self.card_draw_start_time = pg.time.get_ticks()
+            self.is_drawing_cards = True
         else:
             self.show_result()
     
+    #題目顯示
+    def setup_question_display(self):
+        self.result_shown = False
+        self.IsAnswering = True
+        self.current_title_text = "Question " + str(self.question_count)
+        self.answer_index = random.randint(0, self.current_card_num - 1)
+        self.answer = self.choice[self.answer_index]['Vocabulary']
+        self.answer_history.append(self.answer)
+
+        if self.question_type == 0:
+            self.current_question_text = self.choice[self.answer_index]['Translation']
+        elif self.question_type == 1:
+            self.current_question_text = self.choice[self.answer_index]['Vocabulary']
+        elif self.question_type == 2:
+            self.question = self.db.get_example_sentences(voc_id=self.choice[self.answer_index]['ID'])[0]
+            sentence = self.question['sentence']
+            self.current_question_text = sentence.replace(self.answer, "_____")
+            self.question_history.append(self.question)
+            
     #卡片打出動畫
     def play_card(self, type, index):
         self.check_answer(type, index)#下面完成後刪除這行
@@ -198,7 +189,9 @@ class Train_State(State):
         #卡片打出後新增按鈕進行確認=>self.check_answer(type, index)
         #取消卡片打出事件，將卡片復原
         
-    #檢查答案
+    ########################################################################
+    #.............................答案檢查..................................#
+    ########################################################################
     def check_answer(self, type, index):
         if not self.result_shown and self.IsAnswering:
             selected = self.choice[index]['Vocabulary']
@@ -230,7 +223,7 @@ class Train_State(State):
             )
             next_button.setClick(lambda: self.load_question(type, self.level))
             self.all_sprites.add(next_button)
-
+    
     #顯示結果
     def show_result(self):
         from ..state import Menu_State
@@ -269,6 +262,7 @@ class Train_State(State):
         for i, line in enumerate(lines):
             rendered_line = font.render(line.strip(), True, color)
             surface.blit(rendered_line, (x, y + i * (font.get_linesize() + line_spacing)))
+    
 
     #########################################################################
     #.............................更新與事件處理.............................#
@@ -278,6 +272,25 @@ class Train_State(State):
 
     def update(self):
         self.all_sprites.update()
+        if self.is_drawing_cards and self.pending_cards:
+            now = pg.time.get_ticks()
+            if now - self.card_draw_start_time >= self.card_draw_interval:
+                card_data = self.pending_cards.pop(0)
+                self.choice.append(card_data)
+                self.choice_history.append(self.choice[:])
+                self.current_card_num = len(self.choice)
+                card = Card(
+                    pos=(game.CANVAS_WIDTH // 2 - 80 * self.hand_card_num + 190 * (self.current_card_num - 1), 850),
+                    scale=1.5,
+                    id=card_data['Vocabulary']
+                )
+                card.setClick(lambda i=self.current_card_num - 1: self.play_card(self.question_type, i))
+                self.all_sprites.add(card)
+                self.card_draw_start_time = now
+
+            if not self.pending_cards:
+                self.is_drawing_cards = False
+                self.setup_question_display()
 
     def render(self):
         Font_Manager.draw_text(game.canvas, self.current_title_text, 70, game.CANVAS_WIDTH/2, 100)
