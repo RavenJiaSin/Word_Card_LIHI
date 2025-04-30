@@ -30,7 +30,7 @@ class Train_State(State):
         self.is_drawing_cards = False
         #抽牌設定
         self.card_draw_start_time = 0
-        self.card_draw_interval = 150  # 毫秒
+        self.card_draw_interval = 120  # 毫秒
         self.pending_cards = []
         #數值設定
         self.score = 0 #分數
