@@ -4,6 +4,7 @@ from .state import State
 from ..object import Button
 from ..object import Text_Button
 from ..object import Card
+from ..object import Group
 from functools import partial
 from ..manager import Font_Manager
 from modules.database import VocabularyDB
@@ -16,9 +17,8 @@ class Card_Collection_State(State):
         self.current_vocab_index = 0
 
         from . import Menu_State  # 在這邊import是為了避免circular import
-        self.background_cards = pg.sprite.Group()
-        self.ui_sprites = pg.sprite.Group()
-        self.foreground_card_group = pg.sprite.GroupSingle()
+        self.background_cards = Group()
+        self.ui_sprites = Group()
         self.foreground_card = None
 
         self.scroll_offset = 0  # 初始卷軸偏移
@@ -48,53 +48,40 @@ class Card_Collection_State(State):
             card = Card(pos=(x, y), scale=2,id=voc_id)
             card.original_x = x
             card.original_y = y
-            card.setClick(partial(self.try_enlarge_card, card))
+            card.setClick(partial(self.enlarge_card, card.get_id()))
             self.background_cards.add(card)
             self.card_list.append(card)
 
-            self.current_vocab_index += 1
+            self.current_vocab_index += 1    
 
-    def enlarge_card(self, card):
-        self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), scale=3,id=card.get_id())
-        self.foreground_card_group.add(self.foreground_card)
 
-    def try_enlarge_card(self, card):
+    def enlarge_card(self, card_id):
         if self.foreground_card:
-            self.foreground_card_group.empty()
             self.foreground_card = None
         else:
-            self.enlarge_card(card)
+            self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), scale=3,id=card_id)
 
     # override
-    def handle_event(self):
-        for event in game.event_list:
-            if event.type == pg.MOUSEWHEEL:
-                self.scroll_offset += event.y * 30
-
-                if self.scroll_offset > 0:
-                    self.scroll_offset = 0
-
-            elif event.type == pg.MOUSEBUTTONDOWN:
-
-                mouse_pos = pg.mouse.get_pos()
-
-                if self.foreground_card:
-                    # 如果點的位置不在卡片上，就關掉
-                    if not self.foreground_card.rect.collidepoint(event.pos):
-                        self.foreground_card_group.empty()
-                        self.foreground_card = None
-
-                else:
-                # 沒有放大卡 → 檢查是否點到背景卡牌或 UI 按鈕
-                    for sprite in self.ui_sprites:
-                        if sprite.rect.collidepoint(mouse_pos) and hasattr(sprite, 'onClick'):
-                            sprite.onClick()
-                            return
-
-                    for card in self.background_cards:
-                        if card.rect.collidepoint(mouse_pos) and hasattr(card, 'onClick'):
-                            card.onClick()
-                            return
+    def handle_event(self):    
+        # 有放大卡，檢查點擊位置，不在卡片上就關掉
+        if self.foreground_card:
+            self.foreground_card.handle_event()
+            for event in game.event_list:
+                mx, my = event.pos
+                scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
+                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and not self.foreground_card.rect.collidepoint(scaled_pos):
+                    self.foreground_card = None
+        # 沒有放大卡，則先檢查是否點到背景卡牌或 UI 按鈕
+        else:
+            self.ui_sprites.handle_event()
+            self.background_cards.handle_event()          
+            for event in game.event_list:
+                # 若為滾輪(上下滾)，計算滾動值
+                if event.type == pg.MOUSEWHEEL:
+                    self.scroll_offset += event.y * 30
+                    if self.scroll_offset > 0:
+                        self.scroll_offset = 0
+                    
 
 
     # override
@@ -112,7 +99,12 @@ class Card_Collection_State(State):
     # override
     def render(self):
         Font_Manager.draw_text(game.canvas, "Card Collection", 70, game.CANVAS_WIDTH/2 + 50 , 100)
+        self.ui_sprites.draw(game.canvas)
 
+        self.render_background()
+        self.render_foreground()
+        
+    def render_background(self):
         title_area_bottom = 150
         bottom_limit = game.CANVAS_HEIGHT - 50
 
@@ -120,6 +112,7 @@ class Card_Collection_State(State):
             card.rect.x = card.original_x
             card.rect.y = card.original_y + self.scroll_offset
 
+        background_cards_list = []
         for card in self.background_cards:
             if card.rect.bottom > title_area_bottom and card.rect.top < bottom_limit:
 
@@ -136,11 +129,11 @@ class Card_Collection_State(State):
                         visible_rect.width,
                         visible_rect.height
                     )
-                    game.canvas.blit(card.image, visible_rect.topleft, source_area)
-        
+                    background_cards_list.append((card.image, visible_rect.topleft, source_area))
+        game.canvas.blits(background_cards_list)
+
+    def render_foreground(self):
         if self.foreground_card:
             dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面，製造聚焦效果
             dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
-            game.canvas.blit(dark_overlay, (0, 0))  # 把暗幕畫上去
-            self.foreground_card_group.draw(game.canvas)
-        self.ui_sprites.draw(game.canvas)
+            game.canvas.blits([(dark_overlay, (0, 0)), (self.foreground_card.image, self.foreground_card.rect)])  # 把暗幕以及放大卡片畫上去

@@ -4,8 +4,9 @@ import game
 from modules.database import VocabularyDB
 from .state import State
 from ..object import Text_Button
-from ..manager import Font_Manager
 from ..object import Card
+from ..object import Group
+from ..manager import Font_Manager
 from ..manager import Image_Manager
 
 class Train_State(State):
@@ -14,8 +15,8 @@ class Train_State(State):
     #######################################################################
     def __init__(self):
         from ..state import Menu_State
-        self.all_sprites = pg.sprite.Group()
-        self.check_group = pg.sprite.Group()
+        self.all_sprites = Group()
+        self.check_group = Group()
         #文字設定
         self.current_title_text = "Train Room!"
         self.current_question_text = ""
@@ -273,8 +274,7 @@ class Train_State(State):
     #.............................更新與事件處理.............................#
     #########################################################################
     def handle_event(self):
-        for object in self.all_sprites:
-            object.handle_event()
+        self.all_sprites.handle_event()
 
     def update(self):
         self.all_sprites.update()
