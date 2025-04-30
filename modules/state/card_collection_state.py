@@ -54,7 +54,6 @@ class Card_Collection_State(State):
 
             self.current_vocab_index += 1    
 
-
     def enlarge_card(self, card_id):
         if self.foreground_card:
             self.foreground_card = None
@@ -67,10 +66,11 @@ class Card_Collection_State(State):
         if self.foreground_card:
             self.foreground_card.handle_event()
             for event in game.event_list:
-                mx, my = event.pos
-                scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
-                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and not self.foreground_card.rect.collidepoint(scaled_pos):
-                    self.foreground_card = None
+                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                    mx, my = event.pos
+                    scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
+                    if not self.foreground_card.rect.collidepoint(scaled_pos):
+                        self.foreground_card = None
         # 沒有放大卡，則先檢查是否點到背景卡牌或 UI 按鈕
         else:
             self.ui_sprites.handle_event()
@@ -82,8 +82,6 @@ class Card_Collection_State(State):
                     if self.scroll_offset > 0:
                         self.scroll_offset = 0
                     
-
-
     # override
     def update(self):
         self.background_cards.update()
