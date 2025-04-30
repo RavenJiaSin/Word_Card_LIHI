@@ -30,7 +30,7 @@ class Train_State(State):
         self.score = 0 #分數
         self.question_num = 6 #題數
         self.question_count = 0 #目前題數
-        self.hand_card_num = 6 #手牌數量
+        self.hand_card_num = 4 #手牌數量
         self.current_card_num = 0 #目前手牌數量
         #按鈕設定
         menu_button = Text_Button(pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), scale=1, text='MENU', font_size=70)
@@ -199,8 +199,8 @@ class Train_State(State):
         
     #檢查答案
     def check_answer(self, type, index):
-        selected = self.choice[index]['Vocabulary']
         if not self.result_shown and self.IsAnswering:
+            selected = self.choice[index]['Vocabulary']
             self.IsAnswering = False
             removed_card = self.choice[index]
             answer_card = self.choice[self.answer_index]
@@ -221,14 +221,14 @@ class Train_State(State):
             self.result_shown = True
             if type == 2:
                 self.current_translation_text = f"Translation: {self.question['translation']}"
-        next_button = Text_Button(
-            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-480),
-            scale=1,
-            text='Next',
-            font_size=70
-        )
-        next_button.setClick(lambda: self.load_question(type, self.level))
-        self.all_sprites.add(next_button)
+            next_button = Text_Button(
+                pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-480),
+                scale=1,
+                text='Next',
+                font_size=70
+            )
+            next_button.setClick(lambda: self.load_question(type, self.level))
+            self.all_sprites.add(next_button)
 
     #顯示結果
     def show_result(self):
