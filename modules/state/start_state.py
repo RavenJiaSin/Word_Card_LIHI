@@ -4,6 +4,7 @@ from .state import State
 from ..object import Text_Button
 from ..manager import Font_Manager
 from ..object import Card
+from ..object import Group
 
 class Start_State(State):
     """初始狀態。繼承自`State`。
@@ -13,7 +14,7 @@ class Start_State(State):
         from ..state import Menu_State # 在這邊import是為了避免circular import
         self.__menu_state = Menu_State()
 
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = Group()
 
         enter_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+50), scale=1, text='ENTER', font_size=40)
         enter_button.setClick(lambda:game.change_state(self.__menu_state))
@@ -29,8 +30,7 @@ class Start_State(State):
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     game.change_state(self.__menu_state)
-        for object in self.all_sprites:
-            object.handle_event()
+        self.all_sprites.handle_event()
 
 
     # override

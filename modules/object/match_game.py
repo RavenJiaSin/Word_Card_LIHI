@@ -4,6 +4,8 @@ import game
 from .match_card import Match_Card
 from modules.database import VocabularyDB
 from ..manager import Event_Manager
+from ..object import Group
+
 
 
 class Match_Game:
@@ -33,8 +35,8 @@ class Match_Game:
         self.__blue_turn = True
         self.__blue_score = 0
         self.__red_score = 0
-        self.__all_cards = pg.sprite.LayeredUpdates()
-        self.__paired_cards = pg.sprite.LayeredUpdates()
+        self.__all_cards = Group()
+        self.__paired_cards = Group()
         self.__layer = 0
         words = self.__getWords((cols*rows / 2).__ceil__())
         i = 0
@@ -56,8 +58,7 @@ class Match_Game:
                         self.__first_chosen_card = card
                     else:
                         self.__second_chosen_card = card
-        for object in self.__all_cards:
-            object.handle_event()
+        self.__all_cards.handle_event()
 
     def update(self):
         self.__all_cards.update()

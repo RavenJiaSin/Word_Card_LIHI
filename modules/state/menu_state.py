@@ -4,6 +4,7 @@ from .state import State
 from ..object.card import Card
 from ..object import Text_Button
 from ..object import Carousel
+from ..object import Group
 from ..manager import Font_Manager
 
 
@@ -25,7 +26,7 @@ class Menu_State(State):
     def __init__(self):
 
 
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = Group()
 
         button_x = 300
         button_scale = 1
@@ -70,8 +71,7 @@ class Menu_State(State):
         
     # override
     def handle_event(self):
-        for object in self.all_sprites:
-            object.handle_event()
+        self.all_sprites.handle_event()
         if not self.card_pack:
             self.daily_card.handle_event()
 
