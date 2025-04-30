@@ -129,6 +129,7 @@ class Train_State(State):
                 self.question_history = []
                 self.card_history = []
                 self.answer_history = []
+                self.selected_history = []
                 self.level = level
                 self.db = VocabularyDB()
                 self.voc_list = self.db.find_vocabulary(level=level)
@@ -194,6 +195,7 @@ class Train_State(State):
     def check_answer(self, type, index):
         if not self.result_shown and self.IsAnswering:
             selected = self.choice[index]['Vocabulary']
+            self.selected_history.append(selected)
             self.IsAnswering = False
             removed_card = self.choice[index]
             answer_card = self.choice[self.answer_index]
@@ -233,6 +235,27 @@ class Train_State(State):
         self.current_translation_text = ""
         self.current_result_text = f"Your score: {self.score}/{self.question_num}"
         self.result_shown = True
+        
+        #在terminal顯示歷史紀錄
+        print("\n================= Quiz Summary =================")
+        for i in range(self.question_num):
+            print(f"\n[Question {i+1}]")
+            
+            # 題目
+            if self.question_type == 0:
+                prompt = next(c['Translation'] for c in self.choice_history[i] if c['Vocabulary'] == self.answer_history[i])
+            elif self.question_type == 1:
+                prompt = self.answer_history[i]
+            elif self.question_type == 2:
+                prompt = self.question_history[i]['sentence'].replace(self.answer_history[i], '_____')
+            
+            print(f"  - Prompt         : {prompt}")
+            print(f"  - Correct Answer : {self.answer_history[i]}")
+            print(f"  - Your Answer    : {self.selected_history[i]}")
+            result = '✓ Correct' if self.selected_history[i] == self.answer_history[i] else '✗ Wrong'
+            print(f"  - Result         : {result}")
+        print("================================================\n")
+
 
     #遊戲開始
     def start_game(self, type, level):
