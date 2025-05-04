@@ -27,7 +27,7 @@ class Carousel():
             card = Card(pos=center, scale=card_scale / (1 + zoom_factor))
             self.cards.add(card)
         
-        self.update_cards()
+        self.wheel_event()
 
     def rotate(self, delta_angle):
         self.angle_offset += delta_angle
@@ -35,7 +35,7 @@ class Carousel():
         if self.angle_offset >= 2 * math.pi:
             self.angle_offset %= 2 * math.pi
 
-    def update_cards(self):
+    def wheel_event(self):
         angle_step = 2 * math.pi / len(self.cards.sprites())
         for i, card in enumerate(self.cards.sprites()):
             angle = self.angle_offset + i * angle_step
@@ -49,17 +49,14 @@ class Carousel():
         for e in game.event_list:
             if e.type == pg.MOUSEWHEEL:
                 self.rotate(e.y * self.speed)
+                self.wheel_event()
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale, reverse=True)
         for i, card in enumerate(sorted_cards):
             card.handle_event()
 
-
-
     def update(self):
-        self.update_cards()
         sorted_cards = sorted(self.cards.sprites(), key=lambda c: c.ori_scale, reverse=True)
         for i, card in enumerate(sorted_cards):
-        # for i, card in enumerate(self.cards.sprites()):
             card.update()
 
     def draw(self, surface:pg.Surface):

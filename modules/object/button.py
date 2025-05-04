@@ -71,7 +71,7 @@ class Button(Object):
             return
 
         # 按下縮小、放開放大
-        self.transform(scale=self.scale_for_transform + self.__delta_press_scale * self.__press_scale_speed * -1 if self.__isPressed else 1)
+        self.transform(scale=self.scale_for_transform + self.__delta_press_scale * self.__press_scale_speed * (-1 if self.__isPressed else 1))
 
     def transform(self, x=None, y=None, scale=None):
         if scale != None:
