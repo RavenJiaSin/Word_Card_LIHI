@@ -43,7 +43,7 @@ class Card_Collection_State(State):
             voc_id = self.db.find_vocabulary(column='Vocabulary')[self.current_vocab_index]['Vocabulary'] # 或你要其他欄位
 
             x = 330 + col * self.card_width
-            y = 180 + row_index * self.card_height
+            y = 350 + row_index * self.card_height
             card = Card(pos=(x, y), scale=2,id=voc_id)
             card.ori_y = y
             card.setClick(partial(self.enlarge_card, card.get_id()))
@@ -55,7 +55,7 @@ class Card_Collection_State(State):
         if self.foreground_card:
             self.foreground_card = None
         else:
-            self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2-400, game.CANVAS_HEIGHT/2), scale=3,id=card_id)
+            self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2-400, game.CANVAS_HEIGHT/2), scale=4,id=card_id)
 
     # override
     def handle_event(self):    
