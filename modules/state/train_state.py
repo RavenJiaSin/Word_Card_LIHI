@@ -76,7 +76,6 @@ class Train_State(State):
         self.check_group.remove(self.checkbtnN)
         
     def go_to_menu(self):
-        game.background_color = (30,30,30)
         from .menu_state import Menu_State
         game.change_state(Menu_State())
     

@@ -14,7 +14,7 @@ class Image_Manager:
         else:    
             path = os.path.join('res/image/assets', key + '.png')
         if not os.path.exists(path):
-            raise FileNotFoundError(f"找不到圖片檔案: {path} key='{key}')")
+            raise FileNotFoundError(f"找不到圖片檔案: {path} (key='{key}')")
 
         img_surface = pg.image.load(path).convert_alpha()
         cls.__img_map[key] = img_surface

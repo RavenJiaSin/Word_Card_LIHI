@@ -13,7 +13,7 @@ CANVAS_HEIGHT = 1080
 deltaTick = 0
 canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
-background_color = (30,30,30)
+background_color = (100,155,255)
 
 def change_state(state:State):
     pg.event.post(pg.event.Event(Event_Manager.EVENT_CHANGE_STATE, {"state":state}))

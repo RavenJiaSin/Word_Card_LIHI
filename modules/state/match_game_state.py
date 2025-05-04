@@ -7,6 +7,7 @@ from ..object import Group
 from ..manager import Font_Manager
 
 
+
 class Match_Game_State(State):
     """小遊戲頁面。繼承自`State`。
 
@@ -26,6 +27,7 @@ class Match_Game_State(State):
         self.ui_sprites.add(menu_button)
 
         self.match_game = Match_Game()
+
     
     # overrride
     def handle_event(self):
@@ -44,6 +46,6 @@ class Match_Game_State(State):
         self.ui_sprites.draw(game.canvas)
 
     def go_to_menu():
-        game.background_color = (30,30,30)
+        game.background_color = (100,155,255)
         from .menu_state import Menu_State
         game.change_state(Menu_State())
