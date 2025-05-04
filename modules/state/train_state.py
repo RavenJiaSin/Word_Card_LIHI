@@ -224,7 +224,7 @@ class Train_State(State):
         # 重新放置卡片
         for idx, card_data in enumerate(self.choice):
             scale = 2.3 if idx == self.selected_card_index else 2
-            y_pos = 850 if idx == self.selected_card_index else 1000
+            y_pos = 950 if idx == self.selected_card_index else 1000
             card = Card(
                 pos=(game.CANVAS_WIDTH // 2 - 90 * self.hand_card_num + 250 * idx, y_pos),
                 scale=scale,
