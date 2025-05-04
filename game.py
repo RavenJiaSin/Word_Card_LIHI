@@ -5,7 +5,7 @@ from modules.manager import Event_Manager
 
 FPS = 60
 
-FULLSCREEN = True
+FULLSCREEN = False
 MOUSE_SCALE = 1 if FULLSCREEN else 1.5
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
