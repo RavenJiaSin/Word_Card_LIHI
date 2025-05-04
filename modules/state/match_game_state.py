@@ -20,7 +20,7 @@ class Match_Game_State(State):
     def __init__(self):
         self.ui_sprites = Group()
 
-        menu_button = Text_Button(pos=(100,100), scale=1, text='返回', font_size=40)
+        menu_button = Text_Button(pos=(100,100), text='首頁')
         
         menu_button.setClick(lambda:Match_Game_State.go_to_menu())
         self.ui_sprites.add(menu_button)

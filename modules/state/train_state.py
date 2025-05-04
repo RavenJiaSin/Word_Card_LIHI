@@ -39,7 +39,7 @@ class Train_State(State):
         self.hand_card_num = 6 #手牌數量
         self.current_card_num = 0 #目前手牌數量
         #按鈕設定
-        menu_button = Text_Button(pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), scale=1, text='MENU', font_size=70)
+        menu_button = Text_Button(pos=(game.CANVAS_WIDTH - 120, game.CANVAS_HEIGHT - 80), text='MENU')
         menu_button.setClick(lambda: game.change_state(Menu_State()))
         self.all_sprites.add(menu_button)
         self.difficulty_select()
@@ -48,7 +48,7 @@ class Train_State(State):
     #.........................設定返回主畫面按鈕............................#
     #######################################################################
     def setMenuButton(self):
-        menu_button = Text_Button(pos=(100,100), scale=1, text='Menu', font_size=40)
+        menu_button = Text_Button(pos=(100,100), text='Menu')
         menu_button.setClick(lambda:self.check_go_to_menu())
         self.all_sprites.add(menu_button)
         
@@ -56,9 +56,9 @@ class Train_State(State):
         self.current_result_text= "Are you sure to go back to menu?"
         self.IsAnswering = False
         self.back_to_menu = True
-        self.checkbtnY = Text_Button(pos=(game.CANVAS_WIDTH/2-200, game.CANVAS_HEIGHT/2), scale=1, text="Yes", font_size=70)
+        self.checkbtnY = Text_Button(pos=(game.CANVAS_WIDTH/2-200, game.CANVAS_HEIGHT/2), text="Yes")
         self.checkbtnY.setClick(lambda: self.go_to_menu())
-        self.checkbtnN = Text_Button(pos=(game.CANVAS_WIDTH/2+200, game.CANVAS_HEIGHT/2), scale=1, text="No", font_size=70)
+        self.checkbtnN = Text_Button(pos=(game.CANVAS_WIDTH/2+200, game.CANVAS_HEIGHT/2), text="No")
         self.checkbtnN.setClick(lambda : self.cancel_go_to_menu())
         self.check_group.add(self.checkbtnY, self.checkbtnN)
         self.all_sprites.add(self.checkbtnY, self.checkbtnN)
@@ -91,7 +91,7 @@ class Train_State(State):
         self.difficulty_buttons = []
         self.level = 0
         for i in range(3):
-            btn = Text_Button(pos=(game.CANVAS_WIDTH/2, 400 + i*200), scale=1, text="LEVEL"+str(i+1), font_size=70)
+            btn = Text_Button(pos=(game.CANVAS_WIDTH/2, 400 + i*200), text="LEVEL"+str(i+1))
             btn.setClick(lambda level=i+1: self.question_type_select(level))
             self.difficulty_buttons.append(btn)
             self.all_sprites.add(btn)
@@ -104,17 +104,17 @@ class Train_State(State):
         self.setMenuButton()
         self.difficulty_buttons = []
         self.question_type = 0
-        btn1 = Text_Button(pos=(game.CANVAS_WIDTH/2, 400), scale=1, text="單字中翻英", font_size=70)
+        btn1 = Text_Button(pos=(game.CANVAS_WIDTH/2, 400), text="單字中翻英")
         btn1.setClick(lambda type=0: self.start_game(type, level))
         self.difficulty_buttons.append(btn1)
         self.all_sprites.add(btn1)
 
-        btn2 = Text_Button(pos=(game.CANVAS_WIDTH/2, 600), scale=1, text="單字英翻中", font_size=70)
+        btn2 = Text_Button(pos=(game.CANVAS_WIDTH/2, 600), text="單字英翻中")
         btn2.setClick(lambda type=1: self.start_game(type, level))
         self.difficulty_buttons.append(btn2)
         self.all_sprites.add(btn2)
 
-        btn3 = Text_Button(pos=(game.CANVAS_WIDTH/2, 800), scale=1, text="例句填空", font_size=70)
+        btn3 = Text_Button(pos=(game.CANVAS_WIDTH/2, 800), text="例句填空")
         btn3.setClick(lambda type=2: self.start_game(type, level))
         self.difficulty_buttons.append(btn3)
         self.all_sprites.add(btn3)
@@ -218,9 +218,7 @@ class Train_State(State):
                 self.current_translation_text = f"Translation: {self.question['translation']}"
             next_button = Text_Button(
                 pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-480),
-                scale=1,
                 text='Next',
-                font_size=70
             )
             next_button.setClick(lambda: self.load_question(type, self.level))
             self.all_sprites.add(next_button)

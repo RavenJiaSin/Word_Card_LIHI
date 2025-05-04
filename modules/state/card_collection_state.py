@@ -24,7 +24,7 @@ class Card_Collection_State(State):
         self.scroll_offset = 0  # 初始卷軸偏移
         self.card_list = []
 
-        menu_button = Text_Button(pos=(100, 100), scale=1, text='MENU', font_size=20)
+        menu_button = Text_Button(pos=(100, 100), text='首頁')
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.ui_sprites.add(menu_button)
 

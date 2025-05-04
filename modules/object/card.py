@@ -41,7 +41,7 @@ class Card(Button):
 
         # 先畫單字圖片
         try:
-            tmp = Image_Manager.get(self.__id)
+            tmp = Image_Manager.get(self.__id, True)
             width = tmp.get_width()
             height = tmp.get_height()
             img_surf = pg.transform.smoothscale(tmp, (60*self.scale, height*60/width*self.scale)) 
