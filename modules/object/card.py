@@ -13,9 +13,6 @@ class Card(Button):
         __id (str): 卡片名稱。    
     """
 
-    __black = (36,36,36)
-    __grey = (200,200,200)
-
     def __init__(self, pos=(0,0), scale:float=1, id:str='card'):
         db = VocabularyDB()
         self.__data = db.find_vocabulary(voc=id)[0] # [('922_apple'), 'apple', 'n.', '蘋果', 1]
@@ -38,14 +35,20 @@ class Card(Button):
         
         surfs = []
         font_size = int(12*self.scale)
-
-        # 先畫單字圖片
+        # 先畫卡片背景
+        background = Image_Manager.get('card_background')
+        img_surf = pg.transform.smoothscale(background, (background.get_width()*self.scale, background.get_width()*self.scale))
+        img_rect = img_surf.get_rect(center=(self.width/2, 95*self.scale))
+        surfs.append((img_surf, img_rect))
+        
+        # 再畫單字圖片
+        tmp = None
         try:
             tmp = Image_Manager.get(self.__id, True)
             width = tmp.get_width()
             height = tmp.get_height()
-            img_surf = pg.transform.smoothscale(tmp, (60*self.scale, height*60/width*self.scale)) 
-            img_rect = img_surf.get_rect(center=(self.width/2, 75*self.scale))
+            img_surf = pg.transform.smoothscale(tmp, (64*self.scale, height*64/width*self.scale)) 
+            img_rect = img_surf.get_rect(center=(self.width/2, 98*self.scale))
             surfs.append((img_surf, img_rect)) 
         except:
             pass
@@ -53,40 +56,31 @@ class Card(Button):
         # 再畫卡片模板
         surfs.append((card_img, card_img.get_rect()))
         
+        white_color = (219, 215, 205)
+        black_color = (36,36,36)
+
         # 畫單字
-        word_surf = Font_Manager.get_text_surface(self.__id, font_size, self.__black)
-        word_rect = word_surf.get_rect(center=(self.width/2,27*self.scale))
+        word_surf = Font_Manager.get_text_surface(self.__id, font_size, black_color)
+        word_rect = word_surf.get_rect(center=(self.width/2,29*self.scale))
         surfs.append((word_surf, word_rect))
 
-        # 畫中文翻譯
-        ch_word_surf = Font_Manager.get_text_surface(self.__data['Translation'], font_size, self.__grey)
-        ch_word_rect = ch_word_surf.get_rect(center=(75*self.scale,13*self.scale))
+        # 畫翻譯
+        ch_word_surf = Font_Manager.get_text_surface(self.__data['Translation'].split(';')[0].split(',')[0], font_size, black_color)
+        ch_word_rect = ch_word_surf.get_rect(center=(self.width/2,44*self.scale))
         surfs.append((ch_word_surf, ch_word_rect))
 
-        # 畫熟練度(目前hard code為99)
-        prof_surf = Font_Manager.get_text_surface('99', font_size, self.__black)
-        prof_rect = prof_surf.get_rect(center=(22*self.scale, 13*self.scale))
+        # 畫熟練度(目前hard code為100)
+        prof_surf = Font_Manager.get_text_surface('100', font_size, white_color)
+        prof_rect = prof_surf.get_rect(center=(25*self.scale, 14*self.scale))
         surfs.append((prof_surf, prof_rect))
 
-        # 畫英文短句描述(目前hard code為描述蘋果)
-        sent_surf = Font_Manager.get_text_surface('a round fruit', font_size, self.__black)
-        sent_rect = sent_surf.get_rect(center=(self.width/2, 124*self.scale))
-        surfs.append((sent_surf, sent_rect))
-
-        # 句子垂直距離
-        sent_gap = 15 * self.scale 
-
-        # 畫中文短句描述(目前hard code為描述蘋果)
-        ch_sent = '一種圓形的水果,又香又甜好好吃'
-        ch_sent = ch_sent.split(',')
-        for i, ch in enumerate(ch_sent):
-            ch_surf = Font_Manager.get_text_surface(ch, font_size, self.__black)
-            ch_rect = ch_surf.get_rect(center=(self.width/2, i*sent_gap + sent_rect.centery+sent_gap))
-            surfs.append((ch_surf, ch_rect))
+        # 畫詞性
+        pof_surf = Font_Manager.get_text_surface(self.__data['Part_of_speech'], font_size, white_color)
+        pof_rect = pof_surf.get_rect(center=(87*self.scale, 14*self.scale))
+        surfs.append((pof_surf, pof_rect))
 
         # 更新image
         self.image.blits(surfs) 
-
 
     def get_id(self) -> str:
         return self.__id

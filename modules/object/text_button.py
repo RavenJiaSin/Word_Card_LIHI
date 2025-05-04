@@ -16,7 +16,7 @@ class Text_Button(Button):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), img=None, text='text', font_color = (20,20,20), font_size=60):
+    def __init__(self, pos:tuple=(0,0), img=None, text='text', font_color = (230,230,230), font_size=60):
         super().__init__(pos=pos, scale=1, img=img)
                 
         font = Font_Manager.get_font(font_size)
