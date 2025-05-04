@@ -120,7 +120,7 @@ class Train_State(State):
         self.difficulty_buttons.append(btn2)
         self.all_sprites.add(btn2)
 
-        btn3 = Text_Button(pos=(game.CANVAS_WIDTH/2, 800), text="例句填空")
+        btn3 = Text_Button(pos=(game.CANVAS_WIDTH/2, 800), text="例句填空", font_size=70)
         btn3.setClick(lambda type=2: self.start_game(type, level))
         self.difficulty_buttons.append(btn3)
         self.all_sprites.add(btn3)
@@ -246,7 +246,6 @@ class Train_State(State):
 
         self.confirm_button = Text_Button(
             pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 480),
-            scale=1,
             text='Confirm',
             font_size=70
         )
@@ -344,7 +343,6 @@ class Train_State(State):
         
         review_button = Text_Button(
         pos=(game.CANVAS_WIDTH//2, game.CANVAS_HEIGHT - 100),
-        scale=1,
         text='Review',
         font_size=70
         )
@@ -385,18 +383,18 @@ class Train_State(State):
 
         # 上一題按鈕
         if i > 0:
-            prev_btn = Text_Button(pos=(100, game.CANVAS_HEIGHT - 100), scale=1, text="Back", font_size=60)
+            prev_btn = Text_Button(pos=(100, game.CANVAS_HEIGHT - 100), text="Back", font_size=60)
             prev_btn.setClick(lambda: self.review_nav(-1))
             self.all_sprites.add(prev_btn)
 
         # 下一題按鈕
         if i < self.question_num - 1:
-            next_btn = Text_Button(pos=(game.CANVAS_WIDTH - 100, game.CANVAS_HEIGHT - 100), scale=1, text="Next", font_size=60)
+            next_btn = Text_Button(pos=(game.CANVAS_WIDTH - 100, game.CANVAS_HEIGHT - 100), text="Next", font_size=60)
             next_btn.setClick(lambda: self.review_nav(1))
             self.all_sprites.add(next_btn)
 
         # 離開回顧
-        exit_btn = Text_Button(pos=(game.CANVAS_WIDTH//2, game.CANVAS_HEIGHT - 100), scale=1, text="Exit Review", font_size=60)
+        exit_btn = Text_Button(pos=(game.CANVAS_WIDTH//2, game.CANVAS_HEIGHT - 100), text="Exit Review", font_size=60)
         exit_btn.setClick(self.exit_review)
         self.all_sprites.add(exit_btn)
     

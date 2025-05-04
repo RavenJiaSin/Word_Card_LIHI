@@ -15,7 +15,8 @@ class Card(Button):
 
     def __init__(self, pos=(0,0), scale:float=1, id:str='card'):
         db = VocabularyDB()
-        self.__data = db.find_vocabulary(voc=id)[0] # [('922_apple'), 'apple', 'n.', '蘋果', 1]
+        self.__data = db.find_vocabulary(voc=id)[0]
+  
         try:
             self.__id = self.__data['Vocabulary']
         except:
@@ -42,16 +43,16 @@ class Card(Button):
         surfs.append((img_surf, img_rect))
         
         # 再畫單字圖片
-        tmp = None
         try:
-            tmp = Image_Manager.get(self.__id, True)
+            db = VocabularyDB()
+            tmp = Image_Manager.get_from_path(db.get_image(self.__data['ID']))
             width = tmp.get_width()
             height = tmp.get_height()
-            img_surf = pg.transform.smoothscale(tmp, (64*self.scale, height*64/width*self.scale)) 
+            img_surf = pg.transform.smoothscale(tmp, (95*self.scale, height*95/width*self.scale)) 
             img_rect = img_surf.get_rect(center=(self.width/2, 98*self.scale))
             surfs.append((img_surf, img_rect)) 
         except:
-            pass
+            ...
 
         # 再畫卡片模板
         surfs.append((card_img, card_img.get_rect()))
