@@ -48,7 +48,7 @@ class Train_State(State):
     #.........................設定返回主畫面按鈕............................#
     #######################################################################
     def setMenuButton(self):
-        menu_button = Text_Button(pos=(100,100), text='Menu')
+        menu_button = Text_Button(pos=(100,100), text='首頁')
         menu_button.setClick(lambda:self.check_go_to_menu())
         self.all_sprites.add(menu_button)
         

@@ -40,10 +40,7 @@ class Match_Game_State(State):
     # override
     def render(self):
         Font_Manager.draw_text(game.canvas, "連連看", 70, game.CANVAS_WIDTH/2, 100)
-        scores = self.match_game.getScore()
-        Font_Manager.draw_text(game.canvas, "藍方:"+str(scores[0])+"分", 60, game.CANVAS_WIDTH/2 - 400, 100)
-        Font_Manager.draw_text(game.canvas, "紅方:"+str(scores[1])+"分", 60, game.CANVAS_WIDTH/2 + 400, 100)
-        self.match_game.getSpriteGroup().draw(game.canvas)
+        self.match_game.render()
         self.ui_sprites.draw(game.canvas)
 
     def go_to_menu():

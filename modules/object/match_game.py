@@ -1,8 +1,9 @@
 import pygame as pg
 import random
 import game
+from ..manager.font_manager import Font_Manager
 from .match_card import Match_Card
-from modules.database import VocabularyDB
+from ..database import VocabularyDB
 from ..manager import Event_Manager
 from ..object import Group
 
@@ -26,7 +27,7 @@ class Match_Game:
         __layer (int): 繪畫圖層, 當新的配對出現則加一, 使其顯示在最上層
     """
 
-    def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(530,270), col_spacing:int=280, row_spacing:int=230):
+    def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(510,270), col_spacing:int=300, row_spacing:int=220):
         grid = [[(top_left[0] + c * col_spacing, top_left[1] + r * row_spacing) for c in range(cols)] for r in range(rows)]
         self.__first_chosen_card = None
         self.__second_chosen_card = None
@@ -42,7 +43,7 @@ class Match_Game:
         i = 0
         for row in grid:
             for pos in row:
-                card = Match_Card(pos=pos, scale=1.6, word=words[i])
+                card = Match_Card(pos=pos, scale=1.8, word=words[i])
                 i += 1
                 self.__all_cards.add(card, layer=0)
 
@@ -120,13 +121,17 @@ class Match_Game:
             else:
                 self.__pending_wrong_time = current_time + 800
                 self.__set_all_card_flip(False)
-                
 
-    def getScore(self) -> tuple:
-        return (self.__blue_score, self.__red_score)
-
-    def getSpriteGroup(self) -> pg.sprite.LayeredUpdates:
-        return self.__all_cards
+    def render(self):
+        if self.__blue_turn:
+            blue_color = (240,240,50)
+            red_color = (255,255,255)
+        else:
+            blue_color = (255,255,255)
+            red_color = (240,240,50)
+        Font_Manager.draw_text(game.canvas, "藍方:"+str(self.__blue_score)+"分", 60, game.CANVAS_WIDTH/2 - 400, 100, blue_color)
+        Font_Manager.draw_text(game.canvas, "紅方:"+str(self.__red_score)+"分", 60, game.CANVAS_WIDTH/2 + 400, 100, red_color)
+        self.__all_cards.draw(game.canvas)
     
     def __getWords(self, n) -> list:
         db = VocabularyDB()
