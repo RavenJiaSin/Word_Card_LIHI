@@ -1,4 +1,5 @@
 import sqlite3
+import os
 
 class VocabularyDB:
     def __init__(self, db_path="vocs_data/vocs.db"):
@@ -22,18 +23,18 @@ class VocabularyDB:
 
     def find_vocabulary(self, voc=None, column=None, part_of_speech=None, level=None, length=None):
         """
-        valid_columns = {"ID", "Vocabulary", "Part_of_speech", "Translation", "Level"}\n
+        valid_columns = {"id", "vocabulary", "part_of_speech", "translation", "level"}\n
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}\n
         valid_levels = {1, 2, 3, 4, 5, 6}
         """
         # 定義有效的欄位、詞性和等級
-        valid_columns = {"ID", "Vocabulary", "Part_of_speech", "Translation", "Level"}
+        valid_columns = {"id", "vocabulary", "part_of_speech", "translation", "level"}
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}
         valid_levels = {1, 2, 3, 4, 5, 6}
 
         try:
             # 檢查傳入的欄位是否有效
-            if column is not None and column not in valid_columns:
+            if column is not None and column.lower() not in valid_columns:
                 raise ValueError(f"Invalid column name: {column} in {str(valid_columns)}")
 
             # 檢查詞性和等級是否有效
@@ -128,6 +129,13 @@ class VocabularyDB:
                 return [dict(row) for row in rows]
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
+            return None
+        
+    def get_image(self, voc_id):
+        image_path = f"vocs_data/vocs_img/{voc_id}.png"
+        if os.path.exists(image_path):
+            return image_path
+        else:
             return None
 
         
