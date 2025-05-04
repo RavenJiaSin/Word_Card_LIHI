@@ -11,11 +11,16 @@ class Card(Button):
 
     Attributes:
         __id (str): 卡片名稱。    
+        __data (map): 卡片的資料。 
+        __show_eng (bool): 是否顯示英文   
+        __show_chi (bool): 是否顯示中文   
     """
 
-    def __init__(self, pos=(0,0), scale:float=1, id:str='card'):
+    def __init__(self, pos=(0,0), scale:float=1, id:str='card', show_eng:bool=True, show_chi:bool=True):
         db = VocabularyDB()
         self.__data = db.find_vocabulary(voc=id)[0]
+        self.__show_eng = show_eng
+        self.__show_chi = show_chi
   
         try:
             self.__id = self.__data['Vocabulary']
@@ -60,15 +65,23 @@ class Card(Button):
         white_color = (219, 215, 205)
         black_color = (36,36,36)
 
-        # 畫單字
-        word_surf = Font_Manager.get_text_surface(self.__id, font_size, black_color)
-        word_rect = word_surf.get_rect(center=(self.width/2,29*self.scale))
-        surfs.append((word_surf, word_rect))
+        # 畫英文
+        if self.__show_eng:
+            word_surf = Font_Manager.get_text_surface(self.__id, font_size, black_color)
+            if not self.__show_chi:
+                word_rect = word_surf.get_rect(center=(self.width/2,36*self.scale))
+            else:
+                word_rect = word_surf.get_rect(center=(self.width/2,29*self.scale))
+            surfs.append((word_surf, word_rect))
 
-        # 畫翻譯
-        ch_word_surf = Font_Manager.get_text_surface(self.__data['Translation'].split(';')[0].split(',')[0], font_size, black_color)
-        ch_word_rect = ch_word_surf.get_rect(center=(self.width/2,44*self.scale))
-        surfs.append((ch_word_surf, ch_word_rect))
+        # 畫中文
+        if self.__show_chi:
+            ch_word_surf = Font_Manager.get_text_surface(self.__data['Translation'].split(';')[0].split(',')[0], font_size, black_color)
+            if not self.__show_eng:
+                ch_word_rect = ch_word_surf.get_rect(center=(self.width/2,36*self.scale))
+            else:
+                ch_word_rect = ch_word_surf.get_rect(center=(self.width/2,44*self.scale))
+            surfs.append((ch_word_surf, ch_word_rect))
 
         # 畫熟練度(目前hard code為100)
         prof_surf = Font_Manager.get_text_surface('100', font_size, white_color)

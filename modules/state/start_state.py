@@ -1,3 +1,4 @@
+import random
 import pygame as pg
 import game
 from .state import State
@@ -5,6 +6,7 @@ from ..object import Text_Button
 from ..manager import Font_Manager
 from ..object import Card
 from ..object import Group
+from modules.database import VocabularyDB
 
 class Start_State(State):
     """初始狀態。繼承自`State`。
@@ -21,7 +23,9 @@ class Start_State(State):
 
         self.all_sprites.add(enter_button)
         self.all_sprites.add(quit_button)
-        self.apple_card = Card((300, game.CANVAS_HEIGHT/2), 3, 'apple')
+        db = VocabularyDB()
+        random_word = random.sample(db.find_vocabulary(column='Vocabulary')[0:900], 1)[0]['Vocabulary']
+        self.apple_card = Card((300, game.CANVAS_HEIGHT/2), 3, random_word, False)
         self.apple_card.setWiggle()
         self.all_sprites.add(self.apple_card)
     
