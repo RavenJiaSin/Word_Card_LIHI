@@ -201,18 +201,19 @@ class Train_State(State):
     ########################################################################
     #卡片打出動畫
     def play_card(self, qtype, index):
-        if self.selected_card_index == index:
-            # 再次點擊同張卡片 → 還原大小、移除確認按鈕
-            self.selected_card_index = None
-            self.reposition_cards()
-            if self.confirm_button:
-                self.all_sprites.remove(self.confirm_button)
-                self.confirm_button = None
-        else:
-            # 點擊新卡片 → 全部重排、放大選取卡片、生成確認按鈕
-            self.selected_card_index = index
-            self.reposition_cards()  # 重繪所有卡片
-            self.generate_confirm_button(qtype, index)
+        if self.IsAnswering:
+            if self.selected_card_index == index:
+                # 再次點擊同張卡片 → 還原大小、移除確認按鈕
+                self.selected_card_index = None
+                self.reposition_cards()
+                if self.confirm_button:
+                    self.all_sprites.remove(self.confirm_button)
+                    self.confirm_button = None
+            else:
+                # 點擊新卡片 → 全部重排、放大選取卡片、生成確認按鈕
+                self.selected_card_index = index
+                self.reposition_cards()  # 重繪所有卡片
+                self.generate_confirm_button(qtype, index)
 
     def reposition_cards(self):
         # 移除原有卡片
@@ -473,15 +474,13 @@ class Train_State(State):
         if self.current_question_text:
             font = pg.font.Font("res\\font\\SWEISANSCJKTC-REGULAR.TTF", 60)
             self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 100, 180, game.CANVAS_WIDTH - 200)
-
-
-        
+       
         if self.result_shown:
             result_lines = self.current_result_text.split('\n')
             for idx, line in enumerate(result_lines):
-                Font_Manager.draw_text(game.canvas, line, 50, game.CANVAS_WIDTH//2, 350 + idx * 60)
+                Font_Manager.draw_text(game.canvas, line, 50, game.CANVAS_WIDTH//2, 300 + idx * 60)
             if self.current_translation_text:
-                Font_Manager.draw_text(game.canvas, self.current_translation_text, 50, game.CANVAS_WIDTH//2, 450 + len(result_lines) * 60)
+                Font_Manager.draw_text(game.canvas, self.current_translation_text, 50, game.CANVAS_WIDTH//2, 350 + len(result_lines) * 60)
         self.all_sprites.draw(game.canvas)
         
         if self.back_to_menu:
