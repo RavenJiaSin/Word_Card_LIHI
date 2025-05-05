@@ -20,7 +20,7 @@ def create_userDB():
     );
     ''')
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS card_info(
+    CREATE TABLE IF NOT EXISTS card_collection(
         card_id       INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id       INTEGER NOT NULL,
         voc_id        TEXT NOT NULL,
