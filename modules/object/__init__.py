@@ -5,3 +5,4 @@ from .text_button import Text_Button
 from .card import Card
 from .carousel import Carousel
 from .match_game import Match_Game
+from .card_info import Card_Info
