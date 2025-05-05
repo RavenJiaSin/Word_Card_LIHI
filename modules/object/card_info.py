@@ -9,7 +9,7 @@ class Card_Info(Object):
         img = Image_Manager.get('card_info').copy()
         surfs = []
         db = VocabularyDB()
-        data = db.get_example_sentences(voc_id=db.find_vocabulary(vocabulary=id)[0]['ID'])[0]
+        data = db.get_example_sentences(voc_id=id)[0]
         data_list = ['sentence','translation']
         current_height = 33
         for k in data_list:
