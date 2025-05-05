@@ -9,7 +9,7 @@ class VocabularyDB:
         return sqlite3.connect(self.db_path)
 
     # 列出資料庫中所有單字及其屬性
-    def get_all(self):
+    def get_all(self) -> list[dict]:
         try:
             with self._connect() as conn:
                 conn.row_factory = sqlite3.Row
@@ -21,58 +21,49 @@ class VocabularyDB:
             print(f"[ERROR] Failed to fetch all records: {e}")
             return None
 
-    def find_vocabulary(self, voc=None, column=None, part_of_speech=None, level=None, length=None):
+    def find_vocabulary(self, column=None, **kwargs) -> list[dict]:
         """
+        根據提供的條件從 vocs_raw 查詢資料。\n
+        column: 指定要回傳的欄位（例如 'vocabulary'），不指定則為 SELECT *\n
+        其餘查詢條件以 key=value 的方式傳入（如 vocabulary="apple", level=2 等）\n
         valid_columns = {"id", "vocabulary", "part_of_speech", "translation", "level"}\n
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}\n
-        valid_levels = {1, 2, 3, 4, 5, 6}
+        valid_levels = {1, 2, 3, 4, 5, 6}\n
+        filterable_fields = {"id", "vocabulary", "part_of_speech", "level", "length"}\n
         """
-        # 定義有效的欄位、詞性和等級
         valid_columns = {"id", "vocabulary", "part_of_speech", "translation", "level"}
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}
         valid_levels = {1, 2, 3, 4, 5, 6}
 
+        # 驗證 column 欄位
+        if column is not None and column.lower() not in valid_columns:
+            raise ValueError(f"Invalid column name: {column}")
+
+        # 建立 SQL 查詢
+        select_clause = f"SELECT {column}" if column else "SELECT *"
+        query = f"{select_clause} FROM vocs_raw WHERE 1=1"
+        params = []
+
+        # 欲支援查詢的欄位清單（白名單）
+        filterable_fields = {"id", "vocabulary", "part_of_speech", "level", "length"}
+
         try:
-            # 檢查傳入的欄位是否有效
-            if column is not None and column.lower() not in valid_columns:
-                raise ValueError(f"Invalid column name: {column} in {str(valid_columns)}")
-
-            # 檢查詞性和等級是否有效
-            if part_of_speech is not None and part_of_speech not in valid_pos:
-                raise ValueError(f"Invalid part_of_speech: {part_of_speech} in {str(valid_pos)}")
-
-            if level is not None and level not in valid_levels:
-                raise ValueError(f"Invalid level: {level} in {str(valid_levels)}")
-
-            # 建立查詢語句和參數
-            query = "SELECT * FROM vocs_raw WHERE 1=1"
-            params = []
-
-            # 如果有提供column，則選擇指定的欄位
-            if column is not None:
-                query = f"SELECT {column} FROM vocs_raw WHERE 1=1"
+            for key, value in kwargs.items():
+                key=key.lower()
+                if key not in filterable_fields:
+                    raise ValueError(f"Invalid filter column: {key}")
                 
-            # 如果有提供voc，則添加條件
-            if voc is not None:
-                query += " AND Vocabulary = ?"
-                params.append(voc)
+                if key == "part_of_speech" and value not in valid_pos:
+                    raise ValueError(f"Invalid part_of_speech: {value}")
+                elif key == "level" and value not in valid_levels:
+                    raise ValueError(f"Invalid level: {value}")
+                elif key == "length":
+                    query += " AND LENGTH(vocabulary) = ?"
+                    params.append(value)
+                else:
+                    query += f" AND {key.capitalize()} = ?"
+                    params.append(value)
 
-            # 如果有提供詞性，則添加條件
-            if part_of_speech is not None:
-                query += " AND Part_of_speech = ?"
-                params.append(part_of_speech)
-
-            # 如果有提供等級，則添加條件
-            if level is not None:
-                query += " AND Level = ?"
-                params.append(level)
-
-            # 如果有提供長度，則添加條件
-            if length is not None:
-                query += " AND LENGTH(Vocabulary) = ?"
-                params.append(length)
-
-            # 執行查詢
             with self._connect() as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
@@ -84,6 +75,7 @@ class VocabularyDB:
             print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
             return None
 
+
         
     # 查詢欄位合法值
     def get_valid_conditions(self):
@@ -94,7 +86,7 @@ class VocabularyDB:
         }
     
     # 查詢例句(use ID)
-    def get_example_sentences(self, voc_id=None, column=None):
+    def get_example_sentences(self, voc_id=None, column=None) -> list[dict]:
         """
         valid_columns = {"example_id", "voc_id", "sentence", "translation"}
         """
@@ -131,7 +123,7 @@ class VocabularyDB:
             print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
             return None
         
-    def get_image(self, voc_id):
+    def get_image(self, voc_id) -> str:
         image_path = f"vocs_data/vocs_img/{voc_id}.png"
         if os.path.exists(image_path):
             return image_path
