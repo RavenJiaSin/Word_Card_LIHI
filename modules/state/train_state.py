@@ -155,7 +155,9 @@ class Train_State(State):
                 card = Card(
                     pos=(game.CANVAS_WIDTH // 2 - 90 * self.hand_card_num + 250 * idx, 1000),
                     scale=2,
-                    id=card_data['Vocabulary']
+                    id=card_data['Vocabulary'],
+                    show_eng=(self.question_type != 1),  
+                    show_chi=(self.question_type != 0)  
                 )
                 card.setClick(lambda i=idx: self.play_card(self.question_type, i))
                 self.all_sprites.add(card)
@@ -227,7 +229,9 @@ class Train_State(State):
             card = Card(
                 pos=(game.CANVAS_WIDTH // 2 - 90 * self.hand_card_num + 250 * idx, y_pos),
                 scale=scale,
-                id=card_data['Vocabulary']
+                id=card_data['Vocabulary'],
+                show_eng=(self.question_type != 1),  
+                show_chi=(self.question_type != 0)  
             )
             card.setClick(lambda i=idx: self.play_card(self.question_type, i))
             self.all_sprites.add(card)
@@ -454,7 +458,9 @@ class Train_State(State):
                 card = Card(
                     pos=(game.CANVAS_WIDTH // 2 - 90 * self.hand_card_num + 250 * (self.current_card_num - 1), 1000),
                     scale=2,
-                    id=card_data['Vocabulary']
+                    id=card_data['Vocabulary'],
+                    show_eng=(self.question_type != 1),  
+                    show_chi=(self.question_type != 0)  
                 )
                 card.setClick(lambda i=self.current_card_num - 1: self.play_card(self.question_type, i))
                 self.all_sprites.add(card)
