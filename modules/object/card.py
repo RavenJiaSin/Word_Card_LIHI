@@ -18,7 +18,7 @@ class Card(Button):
 
     def __init__(self, pos=(0,0), scale:float=1, id:str='card', show_eng:bool=True, show_chi:bool=True):
         db = VocabularyDB()
-        self.__data = db.find_vocabulary(voc=id)[0]
+        self.__data = db.find_vocabulary(vocabulary=id)[0]
         self.__show_eng = show_eng
         self.__show_chi = show_chi
   
