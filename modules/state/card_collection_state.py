@@ -11,9 +11,29 @@ from ..manager import Font_Manager
 from modules.database import VocabularyDB
 
 class Card_Collection_State(State):
+    """遊戲中卡片收藏頁面的狀態管理類別。
+
+    管理詞彙卡片的顯示、篩選、滾動與互動功能。
+    
+    Attributes:
+        db (VocabularyDB): 詞彙資料庫物件，用於取得所有詞彙。
+        current_vocab_index (int): 當前詞彙的索引。
+        vocab_list (List[dict]): 包含所有詞彙資料的清單。
+        background_cards (pygame.sprite.Group): 背景卡片群組。
+        ui_sprites (pygame.sprite.Group): 所有 UI 元件的群組（按鈕等）。
+        foreground_card (Card or None): 被選中的卡片（如果有的話）。
+        foreground_card_info (dict or None): 被選中卡片的詳細資訊。
+        scroll_offset (int): 滾動卷軸的偏移量。
+        toggle_button_list (List[Toggle_Button]): 所有篩選器按鈕的列表。
+        background_top (int): 背景卡片顯示區域的上邊界。
+        background_bottom (int): 背景卡片顯示區域的下邊界。
+        card_width (int): 卡片的寬度間距。
+        card_height (int): 卡片的高度間距。
+        cards_per_row (int): 每一列要顯示的卡片數量。
+        total_rows (int): 總列數，用於初始化卡片。
+    """
 
     def __init__(self):
-
         self.db = VocabularyDB()
         self.current_vocab_index = 0
         self.vocab_list = self.db.get_all()
@@ -25,13 +45,15 @@ class Card_Collection_State(State):
         self.foreground_card_info = None
 
         self.scroll_offset = 0  # 初始卷軸偏移
-
+        
+        # 建立返回首頁按鈕
         menu_button = Text_Button(pos=(100, 100), text='首頁')
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.ui_sprites.add(menu_button)
 
         self.toggle_button_list = []
-        #詞性篩選器按鈕
+
+        # 詞性篩選器按鈕
         partofspeech_labels = ['n.', 'v.', 'adj.', 'adv.', 'prep.', 'conj.','']
         toggle_start_x = 70
         toggle_start_y = 250
@@ -42,17 +64,17 @@ class Card_Collection_State(State):
             self.ui_sprites.add(btn)
             self.toggle_button_list.append(btn)
 
-        #等級篩選器按鈕
+        # 等級篩選器按鈕 Level 1~6
         toggle_start_x = 150
         toggle_start_y = 250
-
-        for i in range(6):  # Level 1~6
+        for i in range(6):
             level = i + 1
             btn = Toggle_Button(pos=(toggle_start_x, toggle_start_y+i*gap), scale=0.3, label=str(level))
             btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
             self.ui_sprites.add(btn)
             self.toggle_button_list.append(btn)
 
+        # 設定卡片顯示範圍與版面
         self.background_top = 200
         self.background_bottom = game.CANVAS_HEIGHT - 50
         self.card_width = 300
