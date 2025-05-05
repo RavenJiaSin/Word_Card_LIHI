@@ -19,7 +19,12 @@ class Card(Button):
     def __init__(self, pos=(0,0), scale:float=1, id:str='1003_card', show_eng:bool=True, show_chi:bool=True):
         db = VocabularyDB()
         self.__id = id
-        self.__data = db.find_vocabulary(id=self.__id)[0]
+        tmp = db.find_vocabulary(id=id)
+        self.__data = {}
+        if len(tmp) != 1:
+            print(f'Card id matches {len(tmp)} vocabulary')
+        else:
+            self.__data = db.find_vocabulary(id=id)[0]
         self.__show_eng = show_eng
         self.__show_chi = show_chi
             
@@ -63,7 +68,7 @@ class Card(Button):
 
         # 畫英文
         if self.__show_eng:
-            word_surf = Font_Manager.get_text_surface(self.__data['Vocabulary'], font_size, black_color)
+            word_surf = Font_Manager.get_text_surface(self.__data.get('Vocabulary', 'None'), font_size, black_color)
             if not self.__show_chi:
                 word_rect = word_surf.get_rect(center=(self.width/2,36*self.scale))
             else:
@@ -72,7 +77,7 @@ class Card(Button):
 
         # 畫中文
         if self.__show_chi:
-            ch_word_surf = Font_Manager.get_text_surface(self.__data['Translation'].split(';')[0].split(',')[0], font_size, black_color)
+            ch_word_surf = Font_Manager.get_text_surface(self.__data.get('Translation', '無').split(';')[0].split(',')[0], font_size, black_color)
             if not self.__show_eng:
                 ch_word_rect = ch_word_surf.get_rect(center=(self.width/2,36*self.scale))
             else:
@@ -85,7 +90,7 @@ class Card(Button):
         surfs.append((prof_surf, prof_rect))
 
         # 畫詞性
-        pof_surf = Font_Manager.get_text_surface(self.__data['Part_of_speech'], font_size, white_color)
+        pof_surf = Font_Manager.get_text_surface(self.__data.get('Part_of_speech', 'error'), font_size, white_color)
         pof_rect = pof_surf.get_rect(center=(87*self.scale, 14*self.scale))
         surfs.append((pof_surf, pof_rect))
 
