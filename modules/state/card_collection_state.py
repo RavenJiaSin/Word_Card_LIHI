@@ -19,18 +19,18 @@ class Card_Collection_State(State):
         self.vocab_list = self.db.get_all()
 
         self.level1_avail = True
-        self.level2_avail = False
-        self.level3_avail = False
-        self.level4_avail = False
-        self.level5_avail = False
-        self.level6_avail = False
+        self.level2_avail = True
+        self.level3_avail = True
+        self.level4_avail = True
+        self.level5_avail = True
+        self.level6_avail = True
         self.noun_avail = True
-        self.verb_avail = False
-        self.adj_avail = False
-        self.prep_avail = False
-        self.conj_avail = False
-        self.adv_avail = False
-        self.null_avail = False
+        self.verb_avail = True
+        self.adj_avail = True
+        self.prep_avail = True
+        self.conj_avail = True
+        self.adv_avail = True
+        self.null_avail = True
 
         from . import Menu_State  # 在這邊import是為了避免circular import
         self.background_cards = Group()
