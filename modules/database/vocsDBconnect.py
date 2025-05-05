@@ -29,6 +29,7 @@ class VocabularyDB:
         valid_columns = {"id", "vocabulary", "part_of_speech", "translation", "level"}\n
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}\n
         valid_levels = {1, 2, 3, 4, 5, 6}\n
+        filterable_fields = {"id", "vocabulary", "part_of_speech", "level", "length"}\n
         """
         valid_columns = {"id", "vocabulary", "part_of_speech", "translation", "level"}
         valid_pos = {'adj.', '', 'v.', 'adv.', 'prep.', 'conj.', 'n.'}
@@ -44,13 +45,14 @@ class VocabularyDB:
         params = []
 
         # 欲支援查詢的欄位清單（白名單）
-        filterable_fields = {"vocabulary", "part_of_speech", "level", "length"}
+        filterable_fields = {"id", "vocabulary", "part_of_speech", "level", "length"}
 
         try:
             for key, value in kwargs.items():
+                key=key.lower()
                 if key not in filterable_fields:
                     raise ValueError(f"Invalid filter column: {key}")
-
+                
                 if key == "part_of_speech" and value not in valid_pos:
                     raise ValueError(f"Invalid part_of_speech: {value}")
                 elif key == "level" and value not in valid_levels:

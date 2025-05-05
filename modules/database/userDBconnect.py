@@ -82,8 +82,8 @@ class UserDB:
                 print(f"[INFO] Updated user_id={user_id} with {kwargs}")
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to update user: {e}")
-
-    def 
+            
+    def add_card_to_user(self, user_id: int, voc_id: str):
 
 
 
