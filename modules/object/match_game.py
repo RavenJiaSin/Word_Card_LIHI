@@ -137,7 +137,7 @@ class Match_Game:
         db = VocabularyDB()
         words = db.find_vocabulary(column='Vocabulary', length=random.randrange(5,8))
         random_words = [(word['Vocabulary'], 'eng') for word in random.sample(words, n)]
-        random_words_trans = [db.find_vocabulary(voc=word[0])[0]['Translation'] for word in random_words]
+        random_words_trans = [db.find_vocabulary(vocabulary=word[0])[0]['Translation'] for word in random_words]
         random_words_trans = [(chinese.split(';')[0].split(',')[0], 'chi') for chinese in random_words_trans]
         self.__ans = {eng[0]: chi[0] for eng, chi in zip(random_words, random_words_trans)}
 
