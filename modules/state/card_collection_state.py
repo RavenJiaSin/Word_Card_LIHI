@@ -21,20 +21,6 @@ class Card_Collection_State(State):
 
         self.filter_ui_visible = False  # 篩選器畫面是否顯示
 
-        self.level1_avail = True
-        self.level2_avail = True
-        self.level3_avail = True
-        self.level4_avail = True
-        self.level5_avail = True
-        self.level6_avail = True
-        self.noun_avail = True
-        self.verb_avail = True
-        self.adj_avail = True
-        self.prep_avail = True
-        self.conj_avail = True
-        self.adv_avail = True
-        self.null_avail = True
-
         from . import Menu_State  # 在這邊import是為了避免circular import
         self.background_cards = Group()
         self.ui_sprites = Group()
@@ -90,36 +76,27 @@ class Card_Collection_State(State):
 
     def apply_filter(self):
         self.filter_ui_visible = False
-        #self.regenerate_cards()
+        self.background_cards.empty()
+        self.current_vocab_index = 0
+
+        self.scroll_offset = 0
+
+        self.generate_row(0)
+        self.generate_row(1)
+        self.total_rows = 2
 
     def vocab_filter(self,vocab_data):
-        type_filters = {
-            'n.': self.noun_avail,
-            'v.': self.verb_avail,
-            'adj.': self.adj_avail,
-            'prep.': self.prep_avail,
-            'conj.': self.conj_avail,
-            'adv.': self.adv_avail,
-            '': self.null_avail
-        }
-
-        level_filters = {
-            1:self.level1_avail,
-            2:self.level2_avail,
-            3:self.level3_avail,
-            4:self.level4_avail,
-            5:self.level5_avail,
-            6:self.level6_avail
-        }
-
-        type_filter_active = any(type_filters.values())
-        level_filter_active = any(level_filters.values())
+        part = vocab_data['Part_of_speech']
+        level = vocab_data['Level']
+        
+        type_filter_active = any(btn.get() for btn in self.toggle_buttons.values())
+        level_filter_active = any(btn.get() for btn in self.toggle_buttons_level.values())
 
         if (not type_filter_active) or (not level_filter_active):
             return False
 
-        type_cond = type_filters.get(vocab_data['Part_of_speech'], False)
-        level_cond = level_filters.get(vocab_data['Level'], False)
+        type_cond = self.toggle_buttons[part].get()
+        level_cond = self.toggle_buttons_level[level].get()
 
         return type_cond and level_cond
 
@@ -132,12 +109,9 @@ class Card_Collection_State(State):
             voc_data = self.vocab_list[self.current_vocab_index]
 
             passed = self.vocab_filter(voc_data)
-        for col in range(self.cards_per_row):
-        
-            voc_id = self.db.find_vocabulary()[self.current_vocab_index]['ID'] # 或你要其他欄位
 
             if passed:
-                voc_id = voc_data['Vocabulary']
+                voc_id = voc_data['ID']
                 x = 330 + col * self.card_width
                 y = 350 + row_index * self.card_height
                 card = Card(pos=(x, y), scale=2,id=voc_id)
@@ -146,7 +120,7 @@ class Card_Collection_State(State):
                 self.background_cards.add(card)
                 col += 1
 
-            self.current_vocab_index += 1    
+            self.current_vocab_index += 1   
 
     def enlarge_card(self, card_id):
         if self.foreground_card:

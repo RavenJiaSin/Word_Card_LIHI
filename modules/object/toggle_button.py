@@ -20,8 +20,8 @@ class Toggle_Button(Button):
             on_img = Image_Manager.get('toggle_button_on')
         self.__off_img = pg.transform.smoothscale(off_img, (off_img.get_width()*scale, off_img.get_height()*scale))
         self.__on_img = pg.transform.smoothscale(on_img, (on_img.get_width()*scale, on_img.get_height()*scale))
-        super().__init__(pos, 1, self.__off_img)
-        self.__on = False
+        super().__init__(pos, 1, self.__on_img)
+        self.__on = True
         self.setClick(lambda:self.toggle())
     
     def toggle(self):
