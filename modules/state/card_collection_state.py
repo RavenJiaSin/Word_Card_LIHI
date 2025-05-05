@@ -15,6 +15,21 @@ class Card_Collection_State(State):
 
         self.db = VocabularyDB()
         self.current_vocab_index = 0
+        self.vocab_list = self.db.get_all()
+
+        self.level1_avail = True
+        self.level2_avail = False
+        self.level3_avail = False
+        self.level4_avail = False
+        self.level5_avail = False
+        self.level6_avail = False
+        self.noun_avail = True
+        self.verb_avail = False
+        self.adj_avail = False
+        self.prep_avail = False
+        self.conj_avail = False
+        self.adv_avail = False
+        self.null_avail = False
 
         from . import Menu_State  # 在這邊import是為了避免circular import
         self.background_cards = Group()
@@ -35,19 +50,56 @@ class Card_Collection_State(State):
         self.generate_row(0)
         self.generate_row(1)
 
+    def vocab_filter(self,vocab_data):
+        type_filters = {
+            'n.': self.noun_avail,
+            'v.': self.verb_avail,
+            'adj.': self.adj_avail,
+            'prep.': self.prep_avail,
+            'conj.': self.conj_avail,
+            'adv.': self.adv_avail,
+            '': self.null_avail
+        }
+
+        level_filters = {
+            1:self.level1_avail,
+            2:self.level2_avail,
+            3:self.level3_avail,
+            4:self.level4_avail,
+            5:self.level5_avail,
+            6:self.level6_avail
+        }
+
+        type_filter_active = any(type_filters.values())
+        level_filter_active = any(level_filters.values())
+
+        if (not type_filter_active) or (not level_filter_active):
+            return False
+
+        type_cond = type_filters.get(vocab_data['Part_of_speech'], False)
+        level_cond = level_filters.get(vocab_data['Level'], False)
+
+        return type_cond and level_cond
+
     def generate_row(self, row_index):
+
+        col = 0
+
         """生成一整排卡片,row_index從0開始"""
+        while col < self.cards_per_row and self.current_vocab_index < len(self.vocab_list):
+            voc_data = self.vocab_list[self.current_vocab_index]
 
-        for col in range(self.cards_per_row):
-        
-            voc_id = self.db.find_vocabulary(column='Vocabulary')[self.current_vocab_index]['Vocabulary'] # 或你要其他欄位
+            passed = self.vocab_filter(voc_data)
 
-            x = 330 + col * self.card_width
-            y = 350 + row_index * self.card_height
-            card = Card(pos=(x, y), scale=2,id=voc_id)
-            card.ori_y = y
-            card.setClick(partial(self.enlarge_card, card.get_id()))
-            self.background_cards.add(card)
+            if passed:
+                voc_id = voc_data['Vocabulary']
+                x = 330 + col * self.card_width
+                y = 350 + row_index * self.card_height
+                card = Card(pos=(x, y), scale=2,id=voc_id)
+                card.ori_y = y
+                card.setClick(partial(self.enlarge_card, card.get_id()))
+                self.background_cards.add(card)
+                col += 1
 
             self.current_vocab_index += 1    
 
@@ -90,10 +142,11 @@ class Card_Collection_State(State):
         if self.foreground_card:
             self.foreground_card.update()
 
-        max_original_y = max(card.ori_y for card in self.background_cards)
-        if max_original_y + self.scroll_offset < game.CANVAS_HEIGHT:
-            self.total_rows += 1
-            self.generate_row(self.total_rows - 1)
+        if self.background_cards:
+            max_original_y = max(card.ori_y for card in self.background_cards)
+            if max_original_y + self.scroll_offset < game.CANVAS_HEIGHT:
+                self.total_rows += 1
+                self.generate_row(self.total_rows - 1)
 
     # override
     def render(self):
