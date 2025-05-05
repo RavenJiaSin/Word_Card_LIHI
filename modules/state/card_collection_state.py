@@ -6,6 +6,7 @@ from ..object import Text_Button
 from ..object import Card
 from ..object import Group
 from ..object import Card_Info
+from ..object import Toggle_Button
 from functools import partial
 from ..manager import Font_Manager
 from modules.database import VocabularyDB
@@ -17,6 +18,8 @@ class Card_Collection_State(State):
         self.db = VocabularyDB()
         self.current_vocab_index = 0
         self.vocab_list = self.db.get_all()
+
+        self.filter_ui_visible = False  # 篩選器畫面是否顯示
 
         self.level1_avail = True
         self.level2_avail = True
@@ -35,6 +38,7 @@ class Card_Collection_State(State):
         from . import Menu_State  # 在這邊import是為了避免circular import
         self.background_cards = Group()
         self.ui_sprites = Group()
+        self.filter_ui_sprites = Group()  # 裡面放 toggle_button 等 UI
         self.foreground_card = None
         self.foreground_card_info = None
 
@@ -44,6 +48,35 @@ class Card_Collection_State(State):
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.ui_sprites.add(menu_button)
 
+        filter_button = Text_Button(pos=(300, 100),text='篩選器',font_size=40)
+        filter_button.setClick(lambda: self.toggle_filter_ui(True))
+        self.ui_sprites.add(filter_button)
+
+        #詞性篩選器按鈕
+        self.toggle_buttons = {}
+
+        type_labels = ['n.', 'v.', 'adj.', 'adv.', 'prep.', 'conj.','']
+        type_start_x = 270
+        type_y = game.CANVAS_HEIGHT/2 - 200
+        for i, label in enumerate(type_labels):
+            btn = Toggle_Button(pos=(type_start_x + i * 230, type_y), scale=1)
+            self.toggle_buttons[label] = btn
+            self.filter_ui_sprites.add(btn)
+
+        #等級篩選器按鈕
+        self.toggle_buttons_level = {}
+
+        level_y = game.CANVAS_HEIGHT/2 + 200
+        for i in range(6):  # Level 1~6
+            level = i + 1
+            btn = Toggle_Button(pos=(350 + i * 250, level_y), scale=1)
+            self.toggle_buttons_level[level] = btn
+            self.filter_ui_sprites.add(btn)
+
+        apply_button = Text_Button(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT-100), text='完成')
+        apply_button.setClick(lambda: self.apply_filter())
+        self.filter_ui_sprites.add(apply_button)
+
         self.card_width = 300
         self.card_height = 400
         self.cards_per_row = 5
@@ -51,6 +84,13 @@ class Card_Collection_State(State):
         self.total_rows = 2
         self.generate_row(0)
         self.generate_row(1)
+
+    def toggle_filter_ui(self, show: bool):
+        self.filter_ui_visible = show
+
+    def apply_filter(self):
+        self.filter_ui_visible = False
+        #self.regenerate_cards()
 
     def vocab_filter(self,vocab_data):
         type_filters = {
@@ -115,6 +155,10 @@ class Card_Collection_State(State):
 
     # override
     def handle_event(self):    
+        if self.filter_ui_visible:
+            self.filter_ui_sprites.handle_event()
+            return
+
         # 有放大卡，檢查點擊位置，不在卡片上就關掉
         if self.foreground_card:
             self.foreground_card.handle_event()
@@ -138,6 +182,9 @@ class Card_Collection_State(State):
                     
     # override
     def update(self):
+        if self.filter_ui_visible:
+            self.filter_ui_sprites.update()
+
         self.background_cards.update()
        
         for card in self.background_cards:
@@ -161,6 +208,7 @@ class Card_Collection_State(State):
 
         self.render_background()
         self.render_foreground()
+        self.render_filter_ui()
         
     def render_background(self):
         show_card_top = 150
@@ -195,3 +243,17 @@ class Card_Collection_State(State):
         dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面，製造聚焦效果
         dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
         game.canvas.blits([(dark_overlay, (0, 0)), (self.foreground_card.image, self.foreground_card.rect), (self.foreground_card_info.image, self.foreground_card_info.rect)])  # 把暗幕以及放大卡片畫上去
+
+    def render_filter_ui(self):
+        if self.filter_ui_visible:
+            overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), pg.SRCALPHA)
+            overlay.fill((0, 0, 0, 180))
+            game.canvas.blit(overlay, (0, 0))
+
+            # 篩選器 UI
+            self.filter_ui_sprites.draw(game.canvas)
+
+            for label, button in self.toggle_buttons.items():
+                Font_Manager.draw_text(game.canvas,label,40,button.rect.centerx,button.rect.bottom + 10)
+            for level,button in self.toggle_buttons_level.items():
+                Font_Manager.draw_text(game.canvas,str(level),40,button.rect.centerx,button.rect.bottom + 10)
