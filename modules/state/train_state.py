@@ -96,8 +96,8 @@ class Train_State(State):
         self.setMenuButton()
         self.difficulty_buttons = []
         self.level = 0
-        for i in range(3):
-            btn = Text_Button(pos=(game.CANVAS_WIDTH/2, 400 + i*200), text="LEVEL"+str(i+1))
+        for i in range(6):
+            btn = Text_Button(pos=(game.CANVAS_WIDTH/2-300+600*(i%2), 400 + i//2*200), text="LEVEL"+str(i+1))
             btn.setClick(lambda level=i+1: self.question_type_select(level))
             self.difficulty_buttons.append(btn)
             self.all_sprites.add(btn)
@@ -283,10 +283,14 @@ class Train_State(State):
                     self.voc_list.remove(answer_card)
             self.current_card_num = len(self.choice)
             self.result_shown = True
-            if qtype == 2:
-                self.current_translation_text = f"Translation: {self.question['translation']}"
+
+            if qtype == 2 and self.question:
+                self.current_translation_text = f"Translation: {self.question.get('translation', '')}"
+            else:
+                self.current_translation_text = ""
+
             next_button = Text_Button(
-                pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-480),
+                pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 480),
                 text='Next',
             )
             next_button.setClick(lambda: self.load_question(qtype, self.level))
@@ -350,16 +354,22 @@ class Train_State(State):
             self.setMenuButton()
             self.result_shown = True  # 啟用翻譯與回饋顯示用
             i = self.review_index
-
             self.current_title_text = f"Review - Question {i+1}"
-            
+
             if self.question_type == 0:
-                self.current_question_text = next((c['Translation'] for c in self.choice_history[i] if c['Vocabulary'] == self.answer_history[i]),"[Translation Not Found]")
+                self.current_question_text = next(
+                    (c['Translation'] for c in self.choice_history[i] if c['Vocabulary'] == self.answer_history[i]),
+                    "[Translation Not Found]"
+                )
             elif self.question_type == 1:
                 self.current_question_text = self.answer_history[i]
             elif self.question_type == 2:
-                self.current_question_text = self.question_history[i]['sentence'].replace(self.answer_history[i], '_____')
-                self.current_translation_text = f"Translation: {self.question_history[i]['translation']}"
+                question = self.question_history[i]
+                if question and 'sentence' in question:
+                    self.current_question_text = question['sentence'].replace(self.answer_history[i], '_____')
+                else:
+                    self.current_question_text = "[No example sentence found]"
+                self.current_translation_text = f"Translation: {question.get('translation', '')}" if question else ""
             else:
                 self.current_translation_text = ""
 
