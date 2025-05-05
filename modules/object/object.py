@@ -48,11 +48,11 @@ class Object(pg.sprite.Sprite):
         self.__move()
         self.rect.center = (int(self.x), int(self.y))
 
-    def moveTo(self, target:tuple, time:int):
+    def moveTo(self, target:tuple, ms:int):
         # .__move_XXX only declared and used in move function. Do not call them from outside
         self.__move_start_pos = self.rect.center
         self.__move_total_movement = (target[0] - self.rect.centerx, target[1] - self.rect.centery)
-        self.__move_total_frames = time * game.FPS
+        self.__move_total_frames = int(ms / 1000 * game.FPS)
         self.__move_cur_frame = 0
         self.__ori_wiggle = self.__is_wiggle
         self.stopWiggle()

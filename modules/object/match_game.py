@@ -92,19 +92,19 @@ class Match_Game:
                 if self.__blue_turn:
                     self.__blue_score += 1
                     if(self.__first_chosen_card.get_word()[1] == 'eng'):
-                        self.__first_chosen_card.moveTo((150, 300), 1)
-                        self.__second_chosen_card.moveTo((150, 500), 1)
+                        self.__first_chosen_card.moveTo((150, 300), 1000)
+                        self.__second_chosen_card.moveTo((150, 500), 1000)
                     else:
-                        self.__second_chosen_card.moveTo((150, 300), 1)
-                        self.__first_chosen_card.moveTo((150, 500), 1)
+                        self.__second_chosen_card.moveTo((150, 300), 1000)
+                        self.__first_chosen_card.moveTo((150, 500), 1000)
                 else:
                     self.__red_score += 1
                     if(self.__first_chosen_card.get_word()[1] == 'eng'):
-                        self.__first_chosen_card.moveTo((1750, 300), 1)
-                        self.__second_chosen_card.moveTo((1750, 500), 1)
+                        self.__first_chosen_card.moveTo((1750, 300), 1000)
+                        self.__second_chosen_card.moveTo((1750, 500), 1000)
                     else:
-                        self.__second_chosen_card.moveTo((1750, 300), 1)
-                        self.__first_chosen_card.moveTo((1750, 500), 1)
+                        self.__second_chosen_card.moveTo((1750, 300), 1000)
+                        self.__first_chosen_card.moveTo((1750, 500), 1000)
                 self.__first_chosen_card = None
                 self.__second_chosen_card = None
                 self.__set_all_card_flip(True)

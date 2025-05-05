@@ -34,7 +34,8 @@ class Game:
 
             event_list = pg.event.get()
             for e in event_list:
-                if e.type == pg.QUIT:
+                if ((e.type == pg.QUIT) or
+                    (e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE)):
                     self.__isRunning = False
                     break
                 if e.type == Event_Manager.EVENT_CHANGE_STATE:

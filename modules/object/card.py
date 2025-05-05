@@ -18,9 +18,9 @@ class Card(Button):
 
     def __init__(self, pos=(0,0), scale:float=1, id:str='card'):
         db = VocabularyDB()
-        self.__data = db.find_vocabulary(voc=id)[0] # [('922_apple'), 'apple', 'n.', '蘋果', 1]
+        self.data = db.find_vocabulary(voc=id)[0] # [('922_apple'), 'apple', 'n.', '蘋果', 1]
         try:
-            self.__id = self.__data['Vocabulary']
+            self.__id = self.data['Vocabulary']  # TODO: 可能重複，需改成真的 voc_id ?
         except:
             self.__id = 'Not Found'
             
@@ -59,7 +59,7 @@ class Card(Button):
         surfs.append((word_surf, word_rect))
 
         # 畫中文翻譯
-        ch_word_surf = Font_Manager.get_text_surface(self.__data['Translation'], font_size, self.__grey)
+        ch_word_surf = Font_Manager.get_text_surface(self.data['Translation'], font_size, self.__grey)
         ch_word_rect = ch_word_surf.get_rect(center=(75*self.scale,13*self.scale))
         surfs.append((ch_word_surf, ch_word_rect))
 
