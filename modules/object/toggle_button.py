@@ -3,6 +3,16 @@ from .button import Button
 from ..manager import Image_Manager
 
 class Toggle_Button(Button):
+    """切換按鈕物件。繼承自Button。
+
+    可以切換on/off的按鈕，直接拿來用即可，不需要`setClick`
+    透過`get()`取得目前狀態
+
+    Attributes:
+        __on (bool): 狀態布林值。    
+        __off_img (pg.Surface): off的圖片
+        __on_img  (pg.Surface): on的圖片
+    """
     def __init__(self, pos = (0,0), scale = 1, on_img=None, off_img=None):
         if off_img == None:
             off_img = Image_Manager.get('toggle_button_off')
