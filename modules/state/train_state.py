@@ -22,7 +22,7 @@ class Train_State(State):
         self.current_question_text = ""
         self.current_result_text = ""
         self.current_translation_text = ""
-        self.current_result_text= ""
+        self.back_to_menu_text= ""
         #flag設定
         self.back_to_menu = False
         self.result_shown = False
@@ -60,7 +60,7 @@ class Train_State(State):
         self.all_sprites.add(menu_button)
         
     def check_go_to_menu(self):
-        self.current_result_text= "Are you sure to go back to menu?"
+        self.back_to_menu_text= "Are you sure to go back to menu?"
         self.IsAnswering = False
         self.back_to_menu = True
         self.checkbtnY = Text_Button(pos=(game.CANVAS_WIDTH/2-200, game.CANVAS_HEIGHT/2), text="Yes")
@@ -76,7 +76,7 @@ class Train_State(State):
     def cancel_go_to_menu(self):
         self.back_to_menu = False
         self.IsAnswering = True
-        self.current_result_text = ""
+        self.back_to_menu_text = ""
         self.all_sprites.remove(self.checkbtnY)
         self.all_sprites.remove(self.checkbtnN)
         self.check_group.remove(self.checkbtnY)
@@ -105,25 +105,26 @@ class Train_State(State):
     #選擇題型
     #0:單字中翻英 1:單字英翻中 2:例句填空
     def question_type_select(self, level):
-        from ..state import Menu_State
-        self.all_sprites.empty()
-        self.setMenuButton()
-        self.difficulty_buttons = []
-        self.question_type = 0
-        btn1 = Text_Button(pos=(game.CANVAS_WIDTH/2, 400), text="單字中翻英")
-        btn1.setClick(lambda type=0: self.start_game(type, level))
-        self.difficulty_buttons.append(btn1)
-        self.all_sprites.add(btn1)
+        if not self.back_to_menu:
+            from ..state import Menu_State
+            self.all_sprites.empty()
+            self.setMenuButton()
+            self.difficulty_buttons = []
+            self.question_type = 0
+            btn1 = Text_Button(pos=(game.CANVAS_WIDTH/2, 400), text="單字中翻英")
+            btn1.setClick(lambda type=0: self.start_game(type, level))
+            self.difficulty_buttons.append(btn1)
+            self.all_sprites.add(btn1)
 
-        btn2 = Text_Button(pos=(game.CANVAS_WIDTH/2, 600), text="單字英翻中")
-        btn2.setClick(lambda type=1: self.start_game(type, level))
-        self.difficulty_buttons.append(btn2)
-        self.all_sprites.add(btn2)
+            btn2 = Text_Button(pos=(game.CANVAS_WIDTH/2, 600), text="單字英翻中")
+            btn2.setClick(lambda type=1: self.start_game(type, level))
+            self.difficulty_buttons.append(btn2)
+            self.all_sprites.add(btn2)
 
-        btn3 = Text_Button(pos=(game.CANVAS_WIDTH/2, 800), text="例句填空", font_size=70)
-        btn3.setClick(lambda type=2: self.start_game(type, level))
-        self.difficulty_buttons.append(btn3)
-        self.all_sprites.add(btn3)
+            btn3 = Text_Button(pos=(game.CANVAS_WIDTH/2, 800), text="例句填空", font_size=70)
+            btn3.setClick(lambda type=2: self.start_game(type, level))
+            self.difficulty_buttons.append(btn3)
+            self.all_sprites.add(btn3)
 
     ########################################################################
     #.............................載入題目..................................#
@@ -202,7 +203,7 @@ class Train_State(State):
     ########################################################################
     #卡片打出動畫
     def play_card(self, qtype, index):
-        if self.IsAnswering:
+        if self.IsAnswering and not self.back_to_menu:
             if self.selected_card_index == index:
                 # 再次點擊同張卡片 → 還原大小、移除確認按鈕
                 self.selected_card_index = None
@@ -293,114 +294,97 @@ class Train_State(State):
     
     #顯示結果
     def show_result(self):
-        from ..state import Menu_State
-        self.all_sprites.empty()
-        self.setMenuButton()
-        self.current_title_text = "Result"
-        self.current_question_text = ""
-        self.current_translation_text = ""
-        type_str = ["單字中翻英", "單字英翻中", "例句填空"]
-        accuracy = round(self.score / self.question_num * 100, 1)
-        lines = [
-            f"Your score: {self.score}/{self.question_num}",
-            f"Accuracy: {accuracy}%",
-            f"Question qtype: {type_str[self.question_type]}",
-            ""
-        ]
+        if not self.back_to_menu:
+            from ..state import Menu_State
+            self.all_sprites.empty()
+            self.setMenuButton()
+            self.current_title_text = "Result"
+            self.current_question_text = ""
+            self.current_translation_text = ""
+            type_str = ["單字中翻英", "單字英翻中", "例句填空"]
+            accuracy = round(self.score / self.question_num * 100, 1)
+            lines = [
+                f"Your score: {self.score}/{self.question_num}",
+                f"Accuracy: {accuracy}%",
+                f"Question qtype: {type_str[self.question_type]}",
+                ""
+            ]
 
-        # 錯題分析
-        wrong_list = []
-        for i in range(self.question_num):
-            correct = self.answer_history[i]
-            selected = self.selected_history[i]
-            if correct != selected:
-                wrong_list.append(f"Q{i+1}. Correct: {correct} | Your Answer: {selected}")
+            # 錯題分析
+            wrong_list = []
+            for i in range(self.question_num):
+                correct = self.answer_history[i]
+                selected = self.selected_history[i]
+                if correct != selected:
+                    wrong_list.append(f"Q{i+1}. Correct: {correct} | Your Answer: {selected}")
 
-        if wrong_list:
-            lines.append("Wrong Answers:")
-            lines.extend(wrong_list)
-        else:
-            lines.append("Perfect! All correct.")
+            if wrong_list:
+                lines.append("Wrong Answers:")
+                lines.extend(wrong_list)
+            else:
+                lines.append("Perfect! All correct.")
 
-        # 用 \n 串成 self.current_result_text 供 render 顯示
-        self.current_result_text = "\n".join(lines)
-
-        #在terminal顯示歷史紀錄
-        print("\n================= Quiz Summary =================")
-        for i in range(self.question_num):
-            print(f"\n[Question {i+1}]")
+            # 用 \n 串成 self.current_result_text 供 render 顯示
+            self.current_result_text = "\n".join(lines)
             
-            # 題目
-            if self.question_type == 0:
-                prompt = next((c['Translation'] for c in self.choice_history[i] if c['Vocabulary'] == self.answer_history[i]),"[Translation Not Found]")
-            elif self.question_type == 1:
-                prompt = self.answer_history[i]
-            elif self.question_type == 2:
-                prompt = self.question_history[i]['sentence'].replace(self.answer_history[i], '_____')
-            
-            print(f"  - Question         : {prompt}")
-            print(f"  - Correct Answer : {self.answer_history[i]}")
-            print(f"  - Your Answer    : {self.selected_history[i]}")
-            result = '✓ Correct' if self.selected_history[i] == self.answer_history[i] else '✗ Wrong'
-            print(f"  - Result         : {result}")
-        print("================================================\n")
-        
-        review_button = Text_Button(
-        pos=(game.CANVAS_WIDTH//2, game.CANVAS_HEIGHT - 100),
-        text='Review',
-        font_size=70
-        )
-        review_button.setClick(self.review_answers)
-        self.all_sprites.add(review_button)
+            review_button = Text_Button(
+            pos=(game.CANVAS_WIDTH//2, game.CANVAS_HEIGHT - 100),
+            text='Review',
+            font_size=70
+            )
+            review_button.setClick(self.review_answers)
+            self.all_sprites.add(review_button)
 
     ########################################################################
     #...........................回顧答題紀錄................................#
     ########################################################################
     def review_answers(self):
-        self.is_reviewing = True
-        self.review_index = 0
-        self.show_review_question()
+        if not self.back_to_menu:
+            self.is_reviewing = True
+            self.review_index = 0
+            self.show_review_question()
     
     def show_review_question(self):
-        self.all_sprites.empty()
-        self.setMenuButton()
-        self.result_shown = True  # 啟用翻譯與回饋顯示用
-        i = self.review_index
+        if not self.back_to_menu:
+            self.all_sprites.empty()
+            self.setMenuButton()
+            self.result_shown = True  # 啟用翻譯與回饋顯示用
+            i = self.review_index
 
-        self.current_title_text = f"Review - Question {i+1}"
-        
-        if self.question_type == 0:
-            self.current_question_text = next((c['Translation'] for c in self.choice_history[i] if c['Vocabulary'] == self.answer_history[i]),"[Translation Not Found]")
-        elif self.question_type == 1:
-            self.current_question_text = self.answer_history[i]
-        elif self.question_type == 2:
-            self.current_question_text = self.question_history[i]['sentence'].replace(self.answer_history[i], '_____')
-            self.current_translation_text = f"Translation: {self.question_history[i]['translation']}"
-        else:
-            self.current_translation_text = ""
+            self.current_title_text = f"Review - Question {i+1}"
+            
+            if self.question_type == 0:
+                self.current_question_text = next((c['Translation'] for c in self.choice_history[i] if c['Vocabulary'] == self.answer_history[i]),"[Translation Not Found]")
+            elif self.question_type == 1:
+                self.current_question_text = self.answer_history[i]
+            elif self.question_type == 2:
+                self.current_question_text = self.question_history[i]['sentence'].replace(self.answer_history[i], '_____')
+                self.current_translation_text = f"Translation: {self.question_history[i]['translation']}"
+            else:
+                self.current_translation_text = ""
 
-        self.current_result_text = (
-            f"Correct Answer: {self.answer_history[i]}\n"
-            f"Your Answer: {self.selected_history[i]}\n"
-            f"{'✓ Correct' if self.selected_history[i] == self.answer_history[i] else '✗ Wrong'}"
-        )
+            self.current_result_text = (
+                f"Correct Answer: {self.answer_history[i]}\n"
+                f"Your Answer: {self.selected_history[i]}\n"
+                f"{'✓ Correct' if self.selected_history[i] == self.answer_history[i] else '✗ Wrong'}"
+            )
 
-        # 上一題按鈕
-        if i > 0:
-            prev_btn = Text_Button(pos=(100, game.CANVAS_HEIGHT - 100), text="Back", font_size=60)
-            prev_btn.setClick(lambda: self.review_nav(-1))
-            self.all_sprites.add(prev_btn)
+            # 上一題按鈕
+            if i > 0:
+                prev_btn = Text_Button(pos=(100, game.CANVAS_HEIGHT - 100), text="Back", font_size=60)
+                prev_btn.setClick(lambda: self.review_nav(-1))
+                self.all_sprites.add(prev_btn)
 
-        # 下一題按鈕
-        if i < self.question_num - 1:
-            next_btn = Text_Button(pos=(game.CANVAS_WIDTH - 100, game.CANVAS_HEIGHT - 100), text="Next", font_size=60)
-            next_btn.setClick(lambda: self.review_nav(1))
-            self.all_sprites.add(next_btn)
+            # 下一題按鈕
+            if i < self.question_num - 1:
+                next_btn = Text_Button(pos=(game.CANVAS_WIDTH - 100, game.CANVAS_HEIGHT - 100), text="Next", font_size=60)
+                next_btn.setClick(lambda: self.review_nav(1))
+                self.all_sprites.add(next_btn)
 
-        # 離開回顧
-        exit_btn = Text_Button(pos=(game.CANVAS_WIDTH//2, game.CANVAS_HEIGHT - 100), text="Exit Review", font_size=60)
-        exit_btn.setClick(self.exit_review)
-        self.all_sprites.add(exit_btn)
+            # 離開回顧
+            exit_btn = Text_Button(pos=(game.CANVAS_WIDTH//2, game.CANVAS_HEIGHT - 100), text="Exit Review", font_size=60)
+            exit_btn.setClick(self.exit_review)
+            self.all_sprites.add(exit_btn)
     
     # 顯示回顧題目
     def review_nav(self, direction: int):
@@ -415,11 +399,12 @@ class Train_State(State):
 
     #遊戲開始
     def start_game(self, qtype, level):
-        self.all_sprites.empty()
-        self.setMenuButton()
-        self.question_type = qtype
-        self.level = level
-        self.load_question(qtype, level)
+        if not self.back_to_menu:
+            self.all_sprites.empty()
+            self.setMenuButton()
+            self.question_type = qtype
+            self.level = level
+            self.load_question(qtype, level)
 
     #####################################################################
     #..............................工具.................................#
@@ -488,5 +473,5 @@ class Train_State(State):
             dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面
             dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
             game.canvas.blit(dark_overlay, (0, 0))  # 把暗幕畫上去
-            Font_Manager.draw_text(game.canvas, self.current_result_text, 50, game.CANVAS_WIDTH//2, 350)
+            Font_Manager.draw_text(game.canvas, self.back_to_menu_text, 50, game.CANVAS_WIDTH//2, 350)
             self.check_group.draw(game.canvas)
