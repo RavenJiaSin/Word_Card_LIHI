@@ -25,10 +25,10 @@ class Start_State(State):
         self.all_sprites.add(quit_button)
 
         db = VocabularyDB()
-        random_word = random.sample(db.find_vocabulary(column='Vocabulary')[0:900], 1)[0]['Vocabulary']
-        self.apple_card = Card((300, game.CANVAS_HEIGHT/2), 3, random_word)
-        self.apple_card.setWiggle()
-        self.all_sprites.add(self.apple_card)
+        random_word = random.sample(db.find_vocabulary()[0:900], 1)[0]['ID']
+        self.tmp_card = Card((300, game.CANVAS_HEIGHT/2), 3, random_word)
+        self.tmp_card.setWiggle()
+        self.all_sprites.add(self.tmp_card)
     # override 
     def handle_event(self):
         self.all_sprites.handle_event()

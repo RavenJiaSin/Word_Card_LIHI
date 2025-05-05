@@ -132,6 +132,9 @@ class Card_Collection_State(State):
             voc_data = self.vocab_list[self.current_vocab_index]
 
             passed = self.vocab_filter(voc_data)
+        for col in range(self.cards_per_row):
+        
+            voc_id = self.db.find_vocabulary()[self.current_vocab_index]['ID'] # 或你要其他欄位
 
             if passed:
                 voc_id = voc_data['Vocabulary']

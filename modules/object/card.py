@@ -10,22 +10,18 @@ class Card(Button):
     由於不同頁面可能需要的卡片功能不同，在創建時呼叫`setClick()`可以自定義。
 
     Attributes:
-        __id (str): 卡片名稱。    
+        __id (str): 卡片id。    
         __data (map): 卡片的資料。 
         __show_eng (bool): 是否顯示英文   
         __show_chi (bool): 是否顯示中文   
     """
 
-    def __init__(self, pos=(0,0), scale:float=1, id:str='card', show_eng:bool=True, show_chi:bool=True):
+    def __init__(self, pos=(0,0), scale:float=1, id:str='1003_card', show_eng:bool=True, show_chi:bool=True):
         db = VocabularyDB()
-        self.__data = db.find_vocabulary(vocabulary=id)[0]
+        self.__id = id
+        self.__data = db.find_vocabulary(id=self.__id)[0]
         self.__show_eng = show_eng
         self.__show_chi = show_chi
-  
-        try:
-            self.__id = self.__data['Vocabulary']
-        except:
-            self.__id = 'Not Found'
             
         super().__init__(pos=pos, scale=scale, img=Image_Manager.get('card_template'))
         self.setClick(lambda:print('Clicked Card:', self.__id))
@@ -67,7 +63,7 @@ class Card(Button):
 
         # 畫英文
         if self.__show_eng:
-            word_surf = Font_Manager.get_text_surface(self.__id, font_size, black_color)
+            word_surf = Font_Manager.get_text_surface(self.__data['Vocabulary'], font_size, black_color)
             if not self.__show_chi:
                 word_rect = word_surf.get_rect(center=(self.width/2,36*self.scale))
             else:
