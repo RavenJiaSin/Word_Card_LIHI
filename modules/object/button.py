@@ -1,7 +1,8 @@
 from typing import Callable
 import pygame as pg
-from .object import Object
 import game
+from .object import Object
+from ..manager import Image_Manager
 
 class Button(Object):
     """按鈕物件。繼承自Object。
@@ -17,6 +18,8 @@ class Button(Object):
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
     def __init__(self, pos:tuple=(0,0), scale:float=1, img=None):
+        if img == None:
+            img = Image_Manager.get('button')
         super().__init__(pos=pos, scale=scale, img=img)
         self.__click = lambda:None
         self.__isPressed = False
@@ -24,8 +27,6 @@ class Button(Object):
         self.scale_for_transform = 1                    # 當前縮放倍率
         self.__ori_w = self.width
         self.__ori_h = self.height
-        self.width *= self.scale_for_transform
-        self.height *= self.scale_for_transform
 
         self.__ori_image = self.image
         self.ori_scale = self.scale_for_transform       # Card會用到，不加底線
@@ -94,6 +95,7 @@ class Button(Object):
         self.image = self.__ori_image
         self.rect.size = self.__ori_image.get_rect().size
         self.__ori_w, self.__ori_h = self.rect.size
+        self.width, self.height = self.rect.size
         self.rect.center = center
         
     def set_color(self, color):

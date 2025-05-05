@@ -1,8 +1,9 @@
 import pygame as pg
 import random
 import game
+from ..manager.font_manager import Font_Manager
 from .match_card import Match_Card
-from modules.database import VocabularyDB
+from ..database import VocabularyDB
 from ..manager import Event_Manager
 from ..object import Group
 
@@ -26,7 +27,7 @@ class Match_Game:
         __layer (int): 繪畫圖層, 當新的配對出現則加一, 使其顯示在最上層
     """
 
-    def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(530,270), col_spacing:int=280, row_spacing:int=230):
+    def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(510,270), col_spacing:int=300, row_spacing:int=220):
         grid = [[(top_left[0] + c * col_spacing, top_left[1] + r * row_spacing) for c in range(cols)] for r in range(rows)]
         self.__first_chosen_card = None
         self.__second_chosen_card = None
@@ -42,7 +43,7 @@ class Match_Game:
         i = 0
         for row in grid:
             for pos in row:
-                card = Match_Card(pos=pos, scale=1.6, word=words[i])
+                card = Match_Card(pos=pos, scale=1.8, word=words[i])
                 i += 1
                 self.__all_cards.add(card, layer=0)
 
@@ -53,7 +54,7 @@ class Match_Game:
             if event.type == Event_Manager.EVENT_MATCH_CARD_FLIP:
                 card = event.dict['card']
                 if not card.get_show_back():
-                    card.can_press = False
+                    card.can_flip = False
                     if self.__first_chosen_card == None:
                         self.__first_chosen_card = card
                     else:
@@ -68,8 +69,8 @@ class Match_Game:
         if self.__pending_wrong_time is not None:
             if current_time >= self.__pending_wrong_time:
                 self.__pending_wrong_time = None
-                self.__first_chosen_card.can_press = True
-                self.__second_chosen_card.can_press = True
+                self.__first_chosen_card.can_flip = True
+                self.__second_chosen_card.can_flip = True
                 self.__first_chosen_card.flip()
                 self.__second_chosen_card.flip()
                 self.__first_chosen_card = None
@@ -120,19 +121,23 @@ class Match_Game:
             else:
                 self.__pending_wrong_time = current_time + 800
                 self.__set_all_card_flip(False)
-                
 
-    def getScore(self) -> tuple:
-        return (self.__blue_score, self.__red_score)
-
-    def getSpriteGroup(self) -> pg.sprite.LayeredUpdates:
-        return self.__all_cards
+    def render(self):
+        if self.__blue_turn:
+            blue_color = (240,240,50)
+            red_color = (255,255,255)
+        else:
+            blue_color = (255,255,255)
+            red_color = (240,240,50)
+        Font_Manager.draw_text(game.canvas, "藍方:"+str(self.__blue_score)+"分", 60, game.CANVAS_WIDTH/2 - 400, 100, blue_color)
+        Font_Manager.draw_text(game.canvas, "紅方:"+str(self.__red_score)+"分", 60, game.CANVAS_WIDTH/2 + 400, 100, red_color)
+        self.__all_cards.draw(game.canvas)
     
     def __getWords(self, n) -> list:
         db = VocabularyDB()
         words = db.find_vocabulary(column='Vocabulary', length=random.randrange(5,8))
         random_words = [(word['Vocabulary'], 'eng') for word in random.sample(words, n)]
-        random_words_trans = [db.find_vocabulary(voc=word[0])[0]['Translation'] for word in random_words]
+        random_words_trans = [db.find_vocabulary(vocabulary=word[0])[0]['Translation'] for word in random_words]
         random_words_trans = [(chinese.split(';')[0].split(',')[0], 'chi') for chinese in random_words_trans]
         self.__ans = {eng[0]: chi[0] for eng, chi in zip(random_words, random_words_trans)}
 
@@ -143,7 +148,7 @@ class Match_Game:
     def __set_all_card_flip(self, can_flip):
         for card in self.__all_cards:
             if card not in self.__paired_cards:
-                card.can_press = can_flip
+                card.can_flip = can_flip
 
     def __change_player_turn(self):
         self.__blue_turn = not self.__blue_turn

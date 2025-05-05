@@ -16,10 +16,11 @@ class Text_Button(Button):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), scale:int=1, img=None, text='text', font_size=12, font_color = (200,200,200)):
-        super().__init__(pos=pos, scale=scale, img=img)
+    def __init__(self, pos:tuple=(0,0), img=None, text='text', font_color = (230,230,230), font_size=60):
+        super().__init__(pos=pos, scale=1, img=img)
                 
         font = Font_Manager.get_font(font_size)
         text_surface = font.render(text, True, font_color)
+        self.set_ori_image(pg.transform.scale(self.image, (text_surface.get_width()+40,self.height)))
         text_rect = text_surface.get_rect(center=(self.width / 2,self.height / 2))
         self.image.blit(text_surface, text_rect)
