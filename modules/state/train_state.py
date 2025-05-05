@@ -178,7 +178,11 @@ class Train_State(State):
         self.IsAnswering = True
         self.current_title_text = "Question " + str(self.question_count)
         self.answer_index = random.randint(0, self.current_card_num - 1)
-        self.answer = self.choice[self.answer_index]['Vocabulary']
+        if self.question_type == 1:
+            self.answer = self.choice[self.answer_index]['Translation']
+        else:
+            self.answer = self.choice[self.answer_index]['Vocabulary']
+        
         self.answer_history.append(self.answer)
         self.choice_history.append(self.choice[:])
 
@@ -263,7 +267,10 @@ class Train_State(State):
     ########################################################################
     def check_answer(self, qtype, index):
         if not self.result_shown and self.IsAnswering:
-            selected = self.choice[index]['Vocabulary']
+            if qtype == 1:
+                selected = self.choice[index]['Translation']
+            else:
+                selected = self.choice[index]['Vocabulary']
             self.selected_history.append(selected)
             self.IsAnswering = False
             removed_card = self.choice[index]
@@ -362,7 +369,10 @@ class Train_State(State):
                     "[Translation Not Found]"
                 )
             elif self.question_type == 1:
-                self.current_question_text = self.answer_history[i]
+                self.current_question_text = next(
+                    (c['Vocabulary'] for c in self.choice_history[i] if c['Translation'] == self.answer_history[i]),
+                    "[Vocabulary Not Found]"
+                )
             elif self.question_type == 2:
                 question = self.question_history[i]
                 if question and 'sentence' in question:
