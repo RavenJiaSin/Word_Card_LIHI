@@ -42,7 +42,7 @@ class Card_Collection_State(State):
 
         for col in range(self.cards_per_row):
         
-            voc_id = self.db.find_vocabulary(column='Vocabulary')[self.current_vocab_index]['Vocabulary'] # 或你要其他欄位
+            voc_id = self.db.find_vocabulary()[self.current_vocab_index]['ID'] # 或你要其他欄位
 
             x = 330 + col * self.card_width
             y = 350 + row_index * self.card_height
