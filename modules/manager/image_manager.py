@@ -7,7 +7,7 @@ class Image_Manager:
     @classmethod
     def get(cls, key: str):
         if key in cls.__img_map:
-            return cls.__img_map[key]
+            return cls.__img_map[key].copy()
 
         path = os.path.join('res/image', key + '.png')
         if not os.path.exists(path):
@@ -15,7 +15,7 @@ class Image_Manager:
 
         img_surface = pg.image.load(path).convert_alpha()
         cls.__img_map[key] = img_surface
-        return img_surface
+        return img_surface.copy()
 
     @classmethod
     def get_from_path(cls, path: str):
