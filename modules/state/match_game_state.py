@@ -31,9 +31,9 @@ class Match_Game_State(State):
         self.choose_text = Text_Object(pos=(game.CANVAS_WIDTH/2, 300), text="選擇卡片數量", font_size= 80, font_color=(255,255,5))
         self.ui_sprites.add(self.choose_text)
 
-        self.difficulty_button_map = {'easy':(Text_Button(pos=(game.CANVAS_WIDTH/2-500, game.CANVAS_HEIGHT/2), text='3x4', font_color=(0,255,0)), 3),
+        self.difficulty_button_map = {'easy':(Text_Button(pos=(game.CANVAS_WIDTH/2-500, game.CANVAS_HEIGHT/2), text='4x3', font_color=(0,255,0)), 3),
                                       'medium':(Text_Button(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), text='4x4', font_color=(200,200,0)), 4),
-                                      'hard':(Text_Button(pos=(game.CANVAS_WIDTH/2+500, game.CANVAS_HEIGHT/2), text='5x4', font_color=(255,0,0)),5)}
+                                      'hard':(Text_Button(pos=(game.CANVAS_WIDTH/2+500, game.CANVAS_HEIGHT/2), text='4x5', font_color=(255,0,0)),5)}
         
         [(btn[0].setWiggle(), btn[0].setClick(lambda cols=btn[1]:self.start_match_game(cols)), self.ui_sprites.add(btn[0])) for btn in self.difficulty_button_map.values()]
 
