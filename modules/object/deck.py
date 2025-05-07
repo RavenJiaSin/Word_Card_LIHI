@@ -12,7 +12,7 @@ class Deck():
             card = Card(
                     pos=(self.center_x, self.center_y + idx),
                     scale=1.5,
-                    id=card_data['Vocabulary']
+                    id=card_data['ID']
                 )
             card.can_press = False
             self.__cards.add(card)

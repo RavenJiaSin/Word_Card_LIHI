@@ -51,7 +51,7 @@ class Hand():
         '''
         for i  in range(len(self.__cards)):
             card = self.__cards[i]
-            if card != None and card.data['ID'] == ID:
+            if card != None and card.get_data()['ID'] == ID:
                 self.__cards[i] = None
     
     def get_card_at(self, idx) -> Card:

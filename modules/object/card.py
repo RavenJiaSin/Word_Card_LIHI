@@ -99,3 +99,6 @@ class Card(Button):
 
     def get_id(self) -> str:
         return self.__id
+    
+    def get_data(self) -> dict:
+        return self.__data

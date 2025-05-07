@@ -52,7 +52,7 @@ class Object(pg.sprite.Sprite):
         # .__move_XXX only declared and used in move function. Do not call them from outside
         self.__move_start_pos = self.rect.center
         self.__move_total_movement = (target[0] - self.rect.centerx, target[1] - self.rect.centery)
-        self.__move_total_frames = int(ms / 1000 * game.FPS)
+        self.__move_total_frames = max(int(ms / 1000 * game.FPS), 1)  # 最少1幀，這樣才能移動
         self.__move_cur_frame = 0
         self.__ori_wiggle = self.__is_wiggle
         self.stopWiggle()
