@@ -25,6 +25,7 @@ def create_userDB():
         user_id       INTEGER NOT NULL,
         voc_id        TEXT NOT NULL,
         proficiency   INTEGER DEFAULT 0,             -- 熟練度
+        times_drawn   INTEGER DEFAULT 1,            -- 此卡牌被抽到的次數
         correct_count INTEGER DEFAULT 0,             -- 回答正確次數
         wrong_count   INTEGER DEFAULT 0,             -- 回答錯誤次數
         last_review   TEXT,                          -- 上次複習時間（可用於記憶曲線）
