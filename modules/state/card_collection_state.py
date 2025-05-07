@@ -6,6 +6,7 @@ from ..object import Card
 from ..object import Group
 from ..object import Card_Info
 from ..object import Toggle_Button
+from ..object import Confirm_Quit_Object
 from functools import partial
 from ..manager import Font_Manager
 from modules.database import VocabularyDB
@@ -47,8 +48,9 @@ class Card_Collection_State(State):
         self.scroll_offset = 0  # 初始卷軸偏移
         
         # 建立返回首頁按鈕
+        self.confirm_quit_object = Confirm_Quit_Object(lambda:game.change_state(Menu_State()))
         menu_button = Text_Button(pos=(100, 100), text='首頁')
-        menu_button.setClick(lambda:game.change_state(Menu_State()))
+        menu_button.setClick(lambda: self.confirm_quit_object.set_show(True))
         self.ui_sprites.add(menu_button)
 
         self.toggle_button_list = []
@@ -137,6 +139,8 @@ class Card_Collection_State(State):
 
     # override
     def handle_event(self):   
+        self.confirm_quit_object.handle_event()
+
         # 有放大卡，檢查點擊位置，不在卡片上就關掉
         if self.foreground_card:
             self.foreground_card.handle_event()
@@ -160,6 +164,8 @@ class Card_Collection_State(State):
                     
     # override
     def update(self):
+        self.confirm_quit_object.update()
+
         self.background_cards.update()
        
         for card in self.background_cards:
@@ -183,6 +189,8 @@ class Card_Collection_State(State):
 
         self.render_background()
         self.render_foreground()
+
+        self.confirm_quit_object.render()
         
     def render_background(self):
         # 進行卡片畫面截斷
