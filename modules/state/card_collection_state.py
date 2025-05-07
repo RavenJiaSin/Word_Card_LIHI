@@ -1,34 +1,82 @@
 import pygame as pg
 import game
 from .state import State
-from ..object import Button
 from ..object import Text_Button
 from ..object import Card
 from ..object import Group
 from ..object import Card_Info
+from ..object import Toggle_Button
 from functools import partial
 from ..manager import Font_Manager
 from modules.database import VocabularyDB
 
 class Card_Collection_State(State):
+    """遊戲中卡片收藏頁面的狀態管理類別。
+
+    管理詞彙卡片的顯示、篩選、滾動與互動功能。
+    
+    Attributes:
+        db (VocabularyDB): 詞彙資料庫物件，用於取得所有詞彙。
+        current_vocab_index (int): 當前詞彙的索引。
+        vocab_list (List[dict]): 包含所有詞彙資料的清單。
+        background_cards (pygame.sprite.Group): 背景卡片群組。
+        ui_sprites (pygame.sprite.Group): 所有 UI 元件的群組（按鈕等）。
+        foreground_card (Card or None): 被選中的卡片（如果有的話）。
+        foreground_card_info (dict or None): 被選中卡片的詳細資訊。
+        scroll_offset (int): 滾動卷軸的偏移量。
+        toggle_button_list (List[Toggle_Button]): 所有篩選器按鈕的列表。
+        background_top (int): 背景卡片顯示區域的上邊界。
+        background_bottom (int): 背景卡片顯示區域的下邊界。
+        card_width (int): 卡片的寬度間距。
+        card_height (int): 卡片的高度間距。
+        cards_per_row (int): 每一列要顯示的卡片數量。
+        total_rows (int): 總列數，用於初始化卡片。
+    """
 
     def __init__(self):
-
         self.db = VocabularyDB()
         self.current_vocab_index = 0
+        self.vocab_list = self.db.get_all()
 
-        from . import Menu_State  # 在這邊import是為了避免circular import
+        from . import Menu_State
         self.background_cards = Group()
         self.ui_sprites = Group()
         self.foreground_card = None
         self.foreground_card_info = None
 
         self.scroll_offset = 0  # 初始卷軸偏移
-
+        
+        # 建立返回首頁按鈕
         menu_button = Text_Button(pos=(100, 100), text='首頁')
         menu_button.setClick(lambda:game.change_state(Menu_State()))
         self.ui_sprites.add(menu_button)
 
+        self.toggle_button_list = []
+
+        # 詞性篩選器按鈕
+        partofspeech_labels = ['n.', 'v.', 'adj.', 'adv.', 'prep.', 'conj.','']
+        toggle_start_x = 70
+        toggle_start_y = 250
+        gap = 100
+        for i, label in enumerate(partofspeech_labels):
+            btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+i*gap), scale=0.3, label=label)
+            btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
+            self.ui_sprites.add(btn)
+            self.toggle_button_list.append(btn)
+
+        # 等級篩選器按鈕 Level 1~6
+        toggle_start_x = 150
+        toggle_start_y = 250
+        for i in range(6):
+            level = i + 1
+            btn = Toggle_Button(pos=(toggle_start_x, toggle_start_y+i*gap), scale=0.3, label=str(level))
+            btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
+            self.ui_sprites.add(btn)
+            self.toggle_button_list.append(btn)
+
+        # 設定卡片顯示範圍與版面
+        self.background_top = 200
+        self.background_bottom = game.CANVAS_HEIGHT - 50
         self.card_width = 300
         self.card_height = 400
         self.cards_per_row = 5
@@ -37,21 +85,47 @@ class Card_Collection_State(State):
         self.generate_row(0)
         self.generate_row(1)
 
+    def apply_filter(self):
+        self.filter_ui_visible = False
+        self.background_cards.empty()
+        self.current_vocab_index = 0
+
+        for i in range(self.total_rows):
+            self.generate_row(i)
+
+    def is_pass_vocab_filter(self, vocab_data) -> bool:
+        part = vocab_data['Part_of_speech']
+        level = vocab_data['Level']
+
+        # 從篩選按鈕中找到label為part的，回傳這個按鈕的狀態，找不到按鈕則預設為True
+        part_cond = next((btn.get_state() for btn in self.toggle_button_list if btn.get_label() == part), True)
+
+        # 從篩選按鈕中找到label為level的，回傳這個按鈕的狀態，找不到按鈕則預設為True
+        level_cond = next((btn.get_state() for btn in self.toggle_button_list if btn.get_label() == str(level)), True)
+
+        return part_cond and level_cond
+
     def generate_row(self, row_index):
+
+        col = 0
+
         """生成一整排卡片,row_index從0開始"""
+        while col < self.cards_per_row and self.current_vocab_index < len(self.vocab_list):
+            voc_data = self.vocab_list[self.current_vocab_index]
 
-        for col in range(self.cards_per_row):
-        
-            voc_id = self.db.find_vocabulary()[self.current_vocab_index]['ID'] # 或你要其他欄位
+            passed = self.is_pass_vocab_filter(voc_data)
 
-            x = 330 + col * self.card_width
-            y = 350 + row_index * self.card_height
-            card = Card(pos=(x, y), scale=2,id=voc_id)
-            card.ori_y = y
-            card.setClick(partial(self.enlarge_card, card.get_id()))
-            self.background_cards.add(card)
+            if passed:
+                voc_id = voc_data['ID']
+                x = 400 + col * self.card_width
+                y = 380 + row_index * self.card_height
+                card = Card(pos=(x, y), scale=2,id=voc_id)
+                card.ori_y = y
+                card.setClick(partial(self.enlarge_card, card.get_id()))
+                self.background_cards.add(card)
+                col += 1
 
-            self.current_vocab_index += 1    
+            self.current_vocab_index += 1   
 
     def enlarge_card(self, card_id):
         if self.foreground_card:
@@ -62,7 +136,7 @@ class Card_Collection_State(State):
             self.foreground_card_info = Card_Info((game.CANVAS_WIDTH/2+360, 500), 3, card_id)
 
     # override
-    def handle_event(self):    
+    def handle_event(self):   
         # 有放大卡，檢查點擊位置，不在卡片上就關掉
         if self.foreground_card:
             self.foreground_card.handle_event()
@@ -96,10 +170,11 @@ class Card_Collection_State(State):
             self.foreground_card.update()
             self.foreground_card_info.update()
 
-        max_original_y = max(card.ori_y for card in self.background_cards)
-        if max_original_y + self.scroll_offset < game.CANVAS_HEIGHT:
-            self.total_rows += 1
-            self.generate_row(self.total_rows - 1)
+        if self.background_cards:
+            max_original_y = max(card.ori_y for card in self.background_cards)
+            if max_original_y + self.scroll_offset < game.CANVAS_HEIGHT:
+                self.total_rows += 1
+                self.generate_row(self.total_rows - 1)
 
     # override
     def render(self):
@@ -110,18 +185,15 @@ class Card_Collection_State(State):
         self.render_foreground()
         
     def render_background(self):
-        show_card_top = 150
-        show_card_bottom = game.CANVAS_HEIGHT - 50
-
         # 進行卡片畫面截斷
         background_cards_list = []
         for card in self.background_cards:
             # 卡片在顯示區域中
-            if card.rect.bottom > show_card_top and card.rect.top < show_card_bottom:
+            if card.rect.bottom > self.background_top and card.rect.top < self.background_bottom:
 
                 visible_rect = card.rect.clip(pg.Rect(
-                0, show_card_top,
-                game.CANVAS_WIDTH, show_card_bottom - show_card_top
+                0, self.background_top,
+                game.CANVAS_WIDTH, self.background_bottom - self.background_top
                 ))
                 
                 if visible_rect.width > 0 and visible_rect.height > 0:

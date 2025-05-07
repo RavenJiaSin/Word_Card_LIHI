@@ -82,8 +82,36 @@ class UserDB:
                 print(f"[INFO] Updated user_id={user_id} with {kwargs}")
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to update user: {e}")
-            
-    def add_card_to_user(self, user_id: int, voc_id: str):
+
+    def add_card_to_user(self, user_id: int, voc_id: str) -> None:
+        """
+        將一張新卡牌加入使用者的 card_collection，如果尚未擁有該卡牌。
+        """
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                # 檢查使用者是否已擁有這張卡牌
+                cursor.execute(
+                    "SELECT 1 FROM card_collection WHERE user_id = ? AND voc_id = ?",
+                    (user_id, voc_id)
+                )
+                if cursor.fetchone():
+                    print(f"[INFO] User {user_id} already owns card {voc_id}.")
+                    return
+
+                # 插入新卡牌資料
+                cursor.execute(
+                    """
+                    INSERT INTO card_collection (user_id, voc_id)
+                    VALUES (?, ?)
+                    """,
+                    (user_id, voc_id)
+                )
+                conn.commit()
+                print(f"[INFO] Card {voc_id} added to user {user_id}.")
+        except sqlite3.Error as e:
+            print(f"[ERROR] Failed to add card to user: {e}")
+        
 
 
 

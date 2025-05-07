@@ -35,7 +35,7 @@ class Card(Button):
     def __set_image(self):
 
         # 先取得卡片模板    
-        card_img = self.image.copy() 
+        card_img = self.image.copy()
 
         # 將自身圖片清空
         self.image.fill((0,0,0,0)) 

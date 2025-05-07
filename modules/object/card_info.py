@@ -31,6 +31,7 @@ class Card_Info(Object):
         Args:
             text: 要顯示的句子 (全中文或全英文)。
             max_width: 每行允許的最大像素寬度。
+            font_size: 字體大小
 
         Returns:
             list[str]: 每行字串的 list。

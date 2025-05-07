@@ -19,6 +19,7 @@ class Match_Game:
         __second_chosen_card (Card): 第二個被選取的卡片
         __pending_wrong_time (int):  配對錯誤而將卡片翻回去背面的tick時間(預設等待 800 ms)
         __pending_right_time (int):  配對成功而將卡片移動的tick時間(預設等待 800 ms)
+        __pending_finish_time (int): 遊戲結束重製前等待的tick時間(預設等待 1000 ms)
         __blue_turn (bool): 是否為藍方回合
         __blue_score (int): 藍方分數
         __red_score(int): 紅方分數
@@ -27,32 +28,47 @@ class Match_Game:
         __layer (int): 繪畫圖層, 當新的配對出現則加一, 使其顯示在最上層
     """
 
-    def __init__(self, cols:int=4, rows:int=4, top_left:tuple=(510,270), col_spacing:int=300, row_spacing:int=220):
+    def __init__(self, cols:int=5, rows:int=4, pos:tuple=(0,0), col_spacing:int=270, row_spacing:int=200):
+        total_card_width = (cols-1) * col_spacing
+        total_card_height = (rows-1) * row_spacing
+        top_left = pos[0]-total_card_width//2, pos[1]-total_card_height//2
+
         grid = [[(top_left[0] + c * col_spacing, top_left[1] + r * row_spacing) for c in range(cols)] for r in range(rows)]
         self.__first_chosen_card = None
         self.__second_chosen_card = None
         self.__pending_wrong_time = None
         self.__pending_right_time = None
+        self.__pending_finish_time = None
         self.__blue_turn = True
         self.__blue_score = 0
         self.__red_score = 0
         self.__all_cards = Group()
         self.__paired_cards = Group()
         self.__layer = 0
+
         words = self.__getWords((cols*rows / 2).__ceil__())
+        random.shuffle(words)
         i = 0
         for row in grid:
             for pos in row:
-                card = Match_Card(pos=pos, scale=1.8, word=words[i])
+                card = Match_Card(pos=pos, scale=1.5, word=words[i])
                 i += 1
                 self.__all_cards.add(card, layer=0)
 
+        self.__ori_background_color = game.background_color
         game.background_color = (50,50,100)
+
+    def __del__(self):
+        game.background_color = self.__ori_background_color
+
 
     def handle_event(self):
         for event in game.event_list:
             if event.type == Event_Manager.EVENT_MATCH_CARD_FLIP:
-                card = event.dict['card']
+                card = event.dict.get('card', None)
+                if card == None:
+                    print("Match_Game.handle_event: event.dict has no 'card' key")
+                    return
                 if not card.get_show_back():
                     card.can_flip = False
                     if self.__first_chosen_card == None:
@@ -110,6 +126,21 @@ class Match_Game:
                 self.__second_chosen_card = None
                 self.__set_all_card_flip(True)
             return
+        
+        # 所有卡片配對完成，結算勝者並跳出遊戲(會先等待上面的800ms跑完才過來這邊，但總體等待時間依然為設置的時間)
+        if self.__pending_finish_time is not None:
+            if current_time >= self.__pending_finish_time:
+                self.__pending_finish_time = None
+                winner = ''
+                if self.__blue_score > self.__red_score:
+                    winner = '藍方'
+                elif self.__red_score > self.__blue_score:
+                    winner = '紅方'
+                else:
+                    winner = '大家都'
+                self.__paired_cards.empty()
+                pg.event.post(pg.event.Event(Event_Manager.EVENT_MATCH_GAME_FINISH, {'winner': winner}))
+            return
 
         # 選擇兩張卡片翻開後，如果配對成功，則放入__correct_cards中鎖定(不能再次翻開)
         if self.__first_chosen_card and self.__second_chosen_card:
@@ -121,6 +152,10 @@ class Match_Game:
             else:
                 self.__pending_wrong_time = current_time + 800
                 self.__set_all_card_flip(False)
+
+        if len(self.__paired_cards) == len(self.__all_cards):
+            self.__pending_finish_time = current_time + 1000
+
 
     def render(self):
         if self.__blue_turn:
@@ -142,7 +177,6 @@ class Match_Game:
         self.__ans = {eng[0]: chi[0] for eng, chi in zip(random_words, random_words_trans)}
 
         mixed_words = random_words + random_words_trans
-        random.shuffle(mixed_words)
         return mixed_words
     
     def __set_all_card_flip(self, can_flip):
