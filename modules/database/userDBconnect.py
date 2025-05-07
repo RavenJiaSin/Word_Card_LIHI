@@ -111,6 +111,87 @@ class UserDB:
                 print(f"[INFO] Card {voc_id} added to user {user_id}.")
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to add card to user: {e}")
+
+    def get_card_info(self, user_id: int = None, voc_id: str = None, column: str = None) -> list[dict]:
+        """
+        查詢 card_collection 表中指定 user_id, voc_id 的資訊或特定欄位。\n
+        例如 print(user_db.get_card_info(user_id = 1, voc_id = '0_able', column = 'correct_count'))\n
+        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
+        """
+        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}
+        
+        try:
+            if column is not None and column.lower() not in valid_columns:
+                raise ValueError(f"Invalid column name: {column} in {str(valid_columns)}")
+            
+            query = "SELECT * FROM card_collection WHERE 1=1"
+            params = []
+
+            # 如果有提供column，則選擇指定的欄位
+            if column is not None:
+                query = f"SELECT {column} FROM card_collection WHERE 1=1"
+
+            # 如果有提供user_id，則添加條件
+            if user_id is not None:
+                query += " AND user_id = ?"
+                params.append(user_id)
+            
+            # 如果有提供voc_id，則添加條件
+            if voc_id is not None:
+                query += " AND voc_id = ?"
+                params.append(voc_id)
+
+
+            # 執行查詢
+            with self._connect() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute(query, tuple(params))
+                rows = cursor.fetchall()
+                return [dict(row) for row in rows]
+        
+        except (sqlite3.Error, ValueError) as e:
+            print(f"[ERROR] Failed to find card info: {e}")
+            return None
+    
+    def update_card_info(self, user_id: int, voc_id: str, **kwargs):
+        """
+        更新 card_collection 表中指定 user_id, voc_id 的欄位。\n
+        例如：update_card_info(1, 0_able, correct_count=2)\n
+        valid_columns = {"proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
+        """
+        if not kwargs:
+            print("[WARN] No fields to update.")
+            return
+        valid_columns = {"proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}
+        for key in kwargs:
+            if key not in valid_columns:
+                print(f"[ERROR] Invalid column: {key}")
+                return
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+
+                # 先確認該使用者是否擁有這張卡
+                cursor.execute(
+                    "SELECT 1 FROM card_collection WHERE user_id = ? AND voc_id = ?",
+                    (user_id, voc_id)
+                )
+                if not cursor.fetchone():
+                    print(f"[WARN] User {user_id} does not own card {voc_id}. Update aborted.")
+                    return
+
+                # 組合 SQL 更新語句
+                fields = ', '.join([f"{key}=?" for key in kwargs])
+                values = list(kwargs.values()) + [user_id, voc_id]
+                sql = f"UPDATE card_collection SET {fields} WHERE user_id = ? AND voc_id = ?"
+
+                cursor.execute(sql, values)
+                conn.commit()
+                print(f"[INFO] Updated card {voc_id} for user {user_id}: {kwargs}")
+        except sqlite3.Error as e:
+            print(f"[ERROR] Failed to update user: {e}")
+
         
 
 
