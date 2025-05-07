@@ -60,7 +60,7 @@ class Confirm_Quit_Object():
     def render(self):
         if self.__is_show:
             dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面
-            dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
+            dark_overlay.fill((0, 0, 0, 200))  # RGBA，最後一個值是透明度（0~255）
             game.canvas.blit(dark_overlay, (0, 0))  # 把暗幕畫上去
             self.__ui_sprites.draw(game.canvas)
 
