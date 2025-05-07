@@ -11,7 +11,7 @@ vocs_db = VocabularyDB()
 print(vocs_db.find_vocabulary(id = '922_apple'))
 
 # 查詢特定單字的特定欄位
-# print(vocs_db.find_vocabulary(vocabulary='apple',column='ID'))
+print(vocs_db.find_vocabulary(vocabulary='bad'))
 
 # 查詢長度為5的單字
 # print(vocs_db.find_vocabulary(column='Vocabulary', length=5 ))

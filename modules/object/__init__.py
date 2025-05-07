@@ -7,3 +7,5 @@ from .carousel import Carousel
 from .match_game import Match_Game
 from .card_info import Card_Info
 from .toggle_button import Toggle_Button
+from .text_object import Text_Object
+from .confirm_quit_object import Confirm_Quit_Object
