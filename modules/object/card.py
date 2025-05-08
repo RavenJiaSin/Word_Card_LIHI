@@ -58,9 +58,10 @@ class Card(Button):
             width = word_img_surf.get_width()
             height = word_img_surf.get_height()
             word_img_surf = pg.transform.smoothscale(word_img_surf, (95*scale, height*95/width*scale)) 
-            background_rect = word_img_surf.get_rect(center=(img_center_x, 98*scale))
-            surfs.append((background_surf, background_rect)) 
+            word_img_rect = word_img_surf.get_rect(center=(img_center_x, 98*scale))
+            surfs.append((word_img_surf, word_img_rect)) 
         except:
+            print('No img found')
             ...
 
         # 再畫卡片模板
