@@ -39,7 +39,7 @@ class Card(Button):
         card_template_img = pg.transform.smoothscale(card_template_img, (card_template_img.get_width()*scale, card_template_img.get_height()*scale))
 
         # 將自身圖片清空
-        img = pg.surface.Surface(card_template_img.get_size())
+        img = pg.Surface(card_template_img.get_size(), flags=pg.SRCALPHA)
         img.fill((0,0,0,0))
         img_center_x = img.get_rect().centerx
         
