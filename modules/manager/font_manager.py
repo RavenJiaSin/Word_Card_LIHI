@@ -22,12 +22,12 @@ class Font_Manager:
         key = size
         if key not in cls.__font_map:
             path = os.path.join('res/font', cls.__default_font + '.ttf')
-            cls.__font_map[key] = pg.font.Font(path, size)
+            cls.__font_map[key] = pg.font.Font(path, int(size))
         return cls.__font_map[key]
     
     @classmethod
     def get_text_surface(cls, text:str, text_size:int=12, text_color=(255,255,255)) -> pg.surface.Surface:
-        font = Font_Manager.get_font(text_size)
+        font = Font_Manager.get_font(int(text_size))
         surface = font.render(text, True, text_color)
         return surface
 
