@@ -45,11 +45,12 @@ class Button(Object):
                 if self.rect.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個按下事件只會讓一個 button 被按下 
                     self.__isPressed = True
+                    self.hit_box = self.rect.copy()
             if e.type == pg.MOUSEBUTTONUP and e.button == 1 and self.__isPressed:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
                 self.__isPressed = False
-                if self.rect.collidepoint(scaled_pos):
+                if self.hit_box.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個放開事件只會讓一個 button 被放開
                     self.__click()
 
@@ -89,7 +90,7 @@ class Button(Object):
     def rotate(self, angle):
         self.image = pg.transform.rotate(self.image, angle)
 
-    def set_ori_image(self, img):
+    def set_ori_image(self, img:pg.surface.Surface):
         center = self.rect.center
         self.__ori_image = img
         self.image = self.__ori_image
