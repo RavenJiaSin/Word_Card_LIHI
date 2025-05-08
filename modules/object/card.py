@@ -28,40 +28,44 @@ class Card(Button):
         self.__show_eng = show_eng
         self.__show_chi = show_chi
             
-        super().__init__(pos=pos, scale=scale, img=Image_Manager.get('card_template'))
+        img = self.__get_image(scale)
+        super().__init__(pos=pos, scale=1, img=img)
         self.setClick(lambda:print('Clicked Card:', self.__id))
-        self.__set_image()
 
-    def __set_image(self):
+    def __get_image(self, scale) -> pg.surface.Surface:
 
         # 先取得卡片模板    
-        card_img = self.image.copy()
+        card_template_img = Image_Manager.get('card_template')
+        card_template_img = pg.transform.smoothscale(card_template_img, (card_template_img.get_width()*scale, card_template_img.get_height()*scale))
 
         # 將自身圖片清空
-        self.image.fill((0,0,0,0)) 
+        img = pg.Surface(card_template_img.get_size(), flags=pg.SRCALPHA)
+        img.fill((0,0,0,0))
+        img_center_x = img.get_rect().centerx
         
         surfs = []
-        font_size = int(12*self.scale)
+        font_size = int(12*scale)
         # 先畫卡片背景
-        background = Image_Manager.get('card_background')
-        img_surf = pg.transform.smoothscale(background, (background.get_width()*self.scale, background.get_width()*self.scale))
-        img_rect = img_surf.get_rect(center=(self.width/2, 95*self.scale))
-        surfs.append((img_surf, img_rect))
+        background_surf = Image_Manager.get('card_background')
+        background_surf = pg.transform.smoothscale(background_surf, (background_surf.get_width()*scale, background_surf.get_width()*scale))
+        background_rect = background_surf.get_rect(center=(img_center_x, 95*scale))
+        surfs.append((background_surf, background_rect))
         
         # 再畫單字圖片
         try:
             db = VocabularyDB()
-            tmp = Image_Manager.get_from_path(db.get_image(self.__data['ID']))
-            width = tmp.get_width()
-            height = tmp.get_height()
-            img_surf = pg.transform.smoothscale(tmp, (95*self.scale, height*95/width*self.scale)) 
-            img_rect = img_surf.get_rect(center=(self.width/2, 98*self.scale))
-            surfs.append((img_surf, img_rect)) 
+            word_img_surf = Image_Manager.get_from_path(db.get_image(self.__data.get('ID', 'None')))
+            width = word_img_surf.get_width()
+            height = word_img_surf.get_height()
+            word_img_surf = pg.transform.smoothscale(word_img_surf, (95*scale, height*95/width*scale)) 
+            word_img_rect = word_img_surf.get_rect(center=(img_center_x, 98*scale))
+            surfs.append((word_img_surf, word_img_rect)) 
         except:
+            print('No img found')
             ...
 
         # 再畫卡片模板
-        surfs.append((card_img, card_img.get_rect()))
+        surfs.append((card_template_img, card_template_img.get_rect()))
         
         white_color = (219, 215, 205)
         black_color = (36,36,36)
@@ -70,32 +74,34 @@ class Card(Button):
         if self.__show_eng:
             word_surf = Font_Manager.get_text_surface(self.__data.get('Vocabulary', 'None'), font_size, black_color)
             if not self.__show_chi:
-                word_rect = word_surf.get_rect(center=(self.width/2,36*self.scale))
+                word_rect = word_surf.get_rect(center=(img_center_x,36*scale))
             else:
-                word_rect = word_surf.get_rect(center=(self.width/2,29*self.scale))
+                word_rect = word_surf.get_rect(center=(img_center_x,29*scale))
             surfs.append((word_surf, word_rect))
 
         # 畫中文
         if self.__show_chi:
             ch_word_surf = Font_Manager.get_text_surface(self.__data.get('Translation', '無').split(';')[0].split(',')[0], font_size, black_color)
             if not self.__show_eng:
-                ch_word_rect = ch_word_surf.get_rect(center=(self.width/2,36*self.scale))
+                ch_word_rect = ch_word_surf.get_rect(center=(img_center_x,36*scale))
             else:
-                ch_word_rect = ch_word_surf.get_rect(center=(self.width/2,44*self.scale))
+                ch_word_rect = ch_word_surf.get_rect(center=(img_center_x,44*scale))
             surfs.append((ch_word_surf, ch_word_rect))
 
         # 畫熟練度(目前hard code為100)
         prof_surf = Font_Manager.get_text_surface('100', font_size, white_color)
-        prof_rect = prof_surf.get_rect(center=(25*self.scale, 14*self.scale))
+        prof_rect = prof_surf.get_rect(center=(25*scale, 14*scale))
         surfs.append((prof_surf, prof_rect))
 
         # 畫詞性
         pof_surf = Font_Manager.get_text_surface(self.__data.get('Part_of_speech', 'error'), font_size, white_color)
-        pof_rect = pof_surf.get_rect(center=(87*self.scale, 14*self.scale))
+        pof_rect = pof_surf.get_rect(center=(87*scale, 14*scale))
         surfs.append((pof_surf, pof_rect))
 
         # 更新image
-        self.image.blits(surfs) 
+        img.blits(surfs) 
+
+        return img
 
     def get_id(self) -> str:
         return self.__id
