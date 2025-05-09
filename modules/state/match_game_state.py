@@ -29,7 +29,7 @@ class Match_Game_State(State):
         menu_button = Text_Button(pos=(100,100), text='首頁')
         menu_button.setClick(lambda:self.confirm_quit_Object.set_show(True))
 
-        self.choose_text_object = Text_Object(pos=(game.CANVAS_WIDTH/2, 300), text="選擇卡片數量", font_size= 80, font_color=(255,255,5))
+        self.choose_text_object = Text_Object(pos=(game.CANVAS_WIDTH/2, 400), text="選擇卡片數量", font_size= 80, font_color=(220,220,10))
         
         self.ui_sprites = Group()
         self.ui_sprites.add(menu_button)
@@ -76,7 +76,7 @@ class Match_Game_State(State):
         [btn[0].kill() for btn in self.difficulty_button_map.values()]
 
     def show_match_game_result(self, winner):
-        self.result_text = Text_Object((game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), winner+'獲勝!', 80)
+        self.result_text = Text_Object((game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2), winner+'獲勝!', 80, (240,240,50))
         self.replay_button = Text_Button(pos=(game.CANVAS_WIDTH/2, game.CANVAS_HEIGHT/2+200), text='重玩')
         self.replay_button.setClick(lambda:self.quit_match_game())
         self.ui_sprites.add(self.result_text)

@@ -221,4 +221,4 @@ class Card_Collection_State(State):
         
         dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面，製造聚焦效果
         dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
-        game.canvas.blits([(dark_overlay, (0, 0)), (self.foreground_card.image, self.foreground_card.rect), (self.foreground_card_info.image, self.foreground_card_info.rect)])  # 把暗幕以及放大卡片畫上去
+        game.canvas.blits([(dark_overlay, (0, 0)), (self.foreground_card.image, self.foreground_card.rect), (self.foreground_card_info.image, self.foreground_card_info.rect)])  # 把暗幕、放大卡片、卡片資訊畫上去
