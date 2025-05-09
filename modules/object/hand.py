@@ -99,7 +99,7 @@ class Hand():
             if card != None:
                 card.update()
 
-    def draw(self, surface:pg.Surface):
+    def render(self):
         for card in self.__cards:
             if card != None:
-                surface.blit(card.image, card.rect)
+                game.canvas.blit(card.image, card.rect)

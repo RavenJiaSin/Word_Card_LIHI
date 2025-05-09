@@ -402,12 +402,12 @@ class Train_State(State):
             self.hand.handle_event()
 
     def update(self):
-        self.draw_cards_from_deck_animation()
-        self.all_sprites.update()
-        if self.deck != None:
-            self.deck.update()
-        if self.hand != None:
-            self.hand.update()
+            self.draw_cards_from_deck_animation()
+            self.all_sprites.update()
+            if self.deck != None:
+                self.deck.update()
+            if self.hand != None:
+                self.hand.update()
 
     def render(self):
         Font_Manager.draw_text(game.canvas, self.current_title_text, 70, game.CANVAS_WIDTH/2, 100)
@@ -427,7 +427,7 @@ class Train_State(State):
             self.deck.render()
 
         if self.hand:
-            self.hand.draw(game.canvas)
+            self.hand.render()
 
         if self.back_to_menu:
             dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面
