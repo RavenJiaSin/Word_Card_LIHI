@@ -10,13 +10,7 @@ from ..manager import Font_Manager
 
 
 class Train_Select_Level_State(State):
-    """首頁狀態。繼承自`State`。
-
-    在結構子中，創建`all_sprites`(sprite.Group)，以管理所有首頁會出現的`Object`物件，其他頁面都可以參照這個做法。
-
-    覆寫`update()`時，呼叫`all_sprites.update()`，此時會呼叫我們在`Object`中覆寫的`update()`。
-
-    覆寫`render()`時，呼叫`game.draw_text()`，可以寫文字，並且呼叫`all_sprites.draw()`，此時會根據Object中的rect的資訊，畫出Object中的image。
+    """練功坊選擇等級頁面，繼承自`State`
 
     Attributes:
         all_sprites (pg.sprite.Group): 管理所有Object物件。

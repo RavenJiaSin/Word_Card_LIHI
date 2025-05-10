@@ -10,7 +10,7 @@ from ..manager import Train_Enum
 
 
 class Train_Result_State(State):
-    """結算頁面，繼承自`State`
+    """練功坊結算頁面，繼承自`State`
 
     顯示答題總覽與各題複習
 
