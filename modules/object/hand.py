@@ -90,9 +90,18 @@ class Hand():
                 card.stopWiggle()
     
     def handle_event(self):
-        for card in self.__cards:
+        for i in range(len(self.__cards)):
+            card = self.__cards[i]
             if card != None:
-                card.handle_event() 
+                card.handle_event()
+                if not card.can_press:  # 如果不能點擊就不做hover動畫
+                    continue
+                # hover 動畫
+                if card.mouse_enter:
+                    x, y = self.__cards_pos[i]
+                    card.moveTo((x, y - 100), 100, False)
+                if card.mouse_exit:
+                    card.moveTo(self.__cards_pos[i], 100, False)
 
     def update(self):
         for card in self.__cards:
