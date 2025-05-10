@@ -91,14 +91,18 @@ class Train_Result_State(State):
             elif self.mode == Train_Enum.SENTENCE:
                 text_ans = f"{self.history[Train_Enum.ANSWER][i]['Vocabulary']} {self.history[Train_Enum.ANSWER][i]['Translation']}"
                 text_sel = f"{self.history[Train_Enum.SELECTED][i]['Vocabulary']} {self.history[Train_Enum.SELECTED][i]['Translation']}"
-            ## 答案
-            color = (50, 50, 240)
-            width = font.size(text_ans)[0]
-            Font_Manager.draw_text(game.canvas, text_ans, font_size, x_left + width // 2, y, color)
+            
+            ## 選擇
+            color = (50, 240, 50) if self.is_correct[i] else (230, 20, 20)
+            width = font.size(text_sel)[0]
+            Font_Manager.draw_text(game.canvas, text_sel, font_size, x_left + width // 2, y, color)
             if self.mode == Train_Enum.SENTENCE:
                 y += font.get_linesize()
             else:
                 x_left += width
+            
+            # 答對就不顯示正解
+            if self.is_correct[i]: continue
 
             ## 間隔符
             if self.mode != Train_Enum.SENTENCE:
@@ -108,10 +112,10 @@ class Train_Result_State(State):
                 Font_Manager.draw_text(game.canvas, text_arrow, font_size, x_left + width // 2, y, color)
                 x_left += width
 
-            ## 選擇
-            color = (50, 240, 50) if self.is_correct[i] else (230, 20, 20)
-            width = font.size(text_sel)[0]
-            Font_Manager.draw_text(game.canvas, text_sel, font_size, x_left + width // 2, y, color)
+            ## 答案
+            color = (50, 50, 240)
+            width = font.size(text_ans)[0]
+            Font_Manager.draw_text(game.canvas, text_ans, font_size, x_left + width // 2, y, color)
             x_left += width
 
     # override
