@@ -46,7 +46,7 @@ class Train_Play_State(State):
         self.voc_list = self.db.find_vocabulary(level=level)
         self.mode = mode
         self.deck = Deck((game.CANVAS_WIDTH - 200, 200), random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num))
-        self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), game.CANVAS_WIDTH // 1.5, self.hand_card_num)
+        self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
 
         # === UI ===
         self.all_sprites = Group()
@@ -145,7 +145,6 @@ class Train_Play_State(State):
             self.is_drawing_cards = False
             self.load_question()  # 沒牌可抽就直接下一題
             return
-        self.hand.deactivate()
         now = pg.time.get_ticks()
         if now - self.card_draw_start_time >= self.card_draw_interval:
             # 等最後一張跑完再繼續
@@ -154,10 +153,10 @@ class Train_Play_State(State):
                 self.load_question()  # 抽滿了就下一題
                 return
             card = self.deck.draw_a_card()
-            card.can_press = True
             card.moveTo(self.hand.first_empty_slot_pos(), self.card_draw_interval)
             card.setClick(lambda: self.check_answer(card.get_data()))
             self.hand.add_card(card)
+            self.hand.deactivate()
             self.card_draw_start_time = now
 
     ########## 工具 ##########
