@@ -3,6 +3,7 @@ import pygame as pg
 import game
 from .object import Object
 from ..manager import Image_Manager
+from ..manager import Event_Manager
 
 class Button(Object):
     """按鈕物件。繼承自Object。
@@ -56,6 +57,12 @@ class Button(Object):
                 if self.hit_box.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個放開事件只會讓一個 button 被放開
                     self.__click()
+            if e.type == Event_Manager.EVENT_SHAKE:
+                x, y = self.rect.center
+                delta = 5
+                self.moveTo((x, y - delta), 30, False)
+                # self.moveTo((x + delta, y + delta), 50, False)
+                self.moveTo((x, y), 30, False)
 
     def check_hover(self):
         mx, my = pg.mouse.get_pos()

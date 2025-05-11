@@ -4,13 +4,12 @@ import game
 from .state import State
 from ..object import Text_Button
 from ..object import Group
-from ..object import Confirm_Quit_Object
+from ..object import Confirm_Quit_Object, Card
 from ..object import Deck, Hand
 from ..manager import Font_Manager
 from ..manager import Train_Enum
+from ..manager import Event_Manager
 from modules.database import VocabularyDB
-
-
 
 class Train_Play_State(State):
     """練功坊答題狀態。繼承自`State`。
@@ -34,8 +33,12 @@ class Train_Play_State(State):
         self.hand_card_num = 6     #手牌數量
         self.current_card_num = 0  #目前手牌數量
         # 動畫
+        self.is_drawing_cards = False
+        self.is_playing_a_card = False
         self.card_draw_start_time = 0
-        self.card_draw_interval = 350  # 毫秒
+        self.card_play_start_time = 0
+        self.card_draw_interval = 350  # 毫秒，抽牌時間
+        self.card_play_interval = 500  # 毫秒，出卡時間
 
         # 題目與答題記錄，以 card.__data 的格式存放
         self.history = dict({Train_Enum.QUESTION: [], 
@@ -60,7 +63,7 @@ class Train_Play_State(State):
 
         # 下一題
         self.next_button = Text_Button(
-            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-480),
+            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-300),
             text='Next'
         )
         self.next_button.setClick(self.next_btn_func)
@@ -100,11 +103,9 @@ class Train_Play_State(State):
 
         self.history[Train_Enum.QUESTION].append(self.current_question_text)
 
-    def check_answer(self, selected_card_data:dict):
-
-        self.hand.deactivate()
+    def check_answer(self):
+        selected_card_data = self.__selected_card.get_data()
         self.history[Train_Enum.SELECTED].append(selected_card_data)
-        self.hand.remove_card_by_ID(selected_card_data['ID'])
 
         if selected_card_data['ID'] == self.answer_data['ID']:
             # self.voc_list.remove(selected_card.data)
@@ -119,11 +120,12 @@ class Train_Play_State(State):
         # if self.mode == self.ENG2CHI:
         #     self.current_translation_text = f"Translation: {self.question['translation']}"
         
-        self.all_sprites.add(self.next_button)
+        self.all_sprites.add(self.next_button,)
 
     def next_btn_func(self):
         self.showing_result = False
         self.next_question()
+        self.__selected_card.kill()
         self.next_button.kill()
 
     ########## 動畫 ##########
@@ -154,10 +156,31 @@ class Train_Play_State(State):
                 return
             card = self.deck.draw_a_card()
             card.moveTo(self.hand.first_empty_slot_pos(), self.card_draw_interval)
-            card.setClick(lambda: self.check_answer(card.get_data()))
+            card.setClick(lambda: self.play_a_card_from_hand(card))
             self.hand.add_card(card)
             self.hand.deactivate()
             self.card_draw_start_time = now
+
+    def play_a_card_from_hand(self, card:Card):
+        self.is_playing_a_card = True
+        card.moveTo((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT // 2), self.card_play_interval, True)
+        self.__selected_card = card
+        self.hand.remove_card_by_ID(card.get_data()['ID'])
+        self.hand.deactivate()
+        self.all_sprites.add(card)
+        self.card_play_start_time = pg.time.get_ticks()
+ 
+    def play_a_card_from_hand_animation(self):
+        '''
+        等動畫結束並接著對答案
+        '''
+        if not self.is_playing_a_card:
+            return
+        now = pg.time.get_ticks()
+        if now - self.card_play_start_time >= self.card_play_interval:
+            self.is_playing_a_card = False
+            pg.event.post(pg.event.Event(Event_Manager.EVENT_SHAKE))
+            self.check_answer()
 
     ########## 工具 ##########
 
@@ -183,16 +206,17 @@ class Train_Play_State(State):
     # override
     def handle_event(self):
         self.confirm_quit_object.handle_event()
+        self.all_sprites.handle_event()
         if self.deck != None:
             self.deck.handle_event()
         if self.hand != None:
             self.hand.handle_event()
-        self.all_sprites.handle_event()
 
     # override
     def update(self):
         self.confirm_quit_object.update()
         self.draw_cards_from_deck_animation()
+        self.play_a_card_from_hand_animation()
         if self.deck != None:
             self.deck.update()
         if self.hand != None:
