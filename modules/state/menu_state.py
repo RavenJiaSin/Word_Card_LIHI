@@ -1,6 +1,6 @@
 import pygame as pg
 import game
-from .state import State
+from . import State
 from ..object.card import Card
 from ..object import Text_Button
 from ..object import Carousel
@@ -31,17 +31,17 @@ class Menu_State(State):
         button_x = 300
 
         train_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 1.5), text='練功坊')
-        from .train_state import Train_State
-        train_button.setClick(lambda:game.change_state(Train_State()))
+        from . import Train_Select_Level_State
+        train_button.setClick(lambda:game.change_state(Train_Select_Level_State()))
         self.all_sprites.add(train_button)
 
         match_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 2.5), text='連連看')
-        from .match_game_state import Match_Game_State
+        from . import Match_Game_State
         match_button.setClick(lambda:game.change_state(Match_Game_State()))
         self.all_sprites.add(match_button)
 
         card_collection_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 3.5), text='卡牌庫')
-        from .card_collection_state import Card_Collection_State
+        from . import Card_Collection_State
         card_collection_button.setClick(lambda:game.change_state(Card_Collection_State()))
         self.all_sprites.add(card_collection_button)
 

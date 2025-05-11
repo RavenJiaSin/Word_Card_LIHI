@@ -5,4 +5,7 @@ from .match_game_state import Match_Game_State
 from .start_state import Start_State
 from .start_state import Start_State
 from .card_collection_state import Card_Collection_State
-from .train_state import Train_State
+from .train_select_level_state import Train_Select_Level_State
+from .train_select_mode_state import Train_Select_Mode_State
+from .train_play_state import Train_Play_State
+from .train_result_state import Train_Result_State
