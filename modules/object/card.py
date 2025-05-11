@@ -61,7 +61,7 @@ class Card(Button):
             word_img_rect = word_img_surf.get_rect(center=(img_center_x, 98*scale))
             surfs.append((word_img_surf, word_img_rect)) 
         except:
-            print('No img found')
+            print(f'No img found: ID({self.__id})')
             ...
 
         # 再畫卡片模板
