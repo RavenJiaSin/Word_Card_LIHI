@@ -34,6 +34,9 @@ class Button(Object):
         self.__press_scale_speed = 0.45                 # 點擊時每幀縮放變化的速度
 
         self.can_press = True
+        self.is_hover = False
+        self.mouse_enter = False
+        self.mouse_exit = False
 
     # override
     def handle_event(self):
@@ -53,12 +56,27 @@ class Button(Object):
                 if self.hit_box.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個放開事件只會讓一個 button 被放開
                     self.__click()
+            if e.type == pg.MOUSEMOTION:
+                mx, my = e.pos
+                scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
+                if self.hit_box.collidepoint(scaled_pos):
+                    self.mouse_enter = not self.is_hover  # 還沒hover過的話，觸發進入flag
+                    self.mouse_exit = False
+                    self.is_hover = True
+                else:
+                    self.mouse_exit = self.is_hover  # 上一幀還hover的話，觸發離開flag
+                    self.mouse_enter = False         # 重要，沒加會錯，我猜是因為一幀內出去又離開會來不及把它用上面那個變False
+                    self.is_hover = False
 
+                # if self.mouse_enter:
+                #     print('enter')
+                # if self.mouse_exit:
+                #     print('exit')
 
     # override
     def update(self):
         self.__pressed_effect()
-        super().update()    
+        super().update()
 
     def setClick(self,func:Callable[[], None] = lambda: None):
         """設定`_click`

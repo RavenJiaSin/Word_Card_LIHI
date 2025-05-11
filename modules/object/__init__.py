@@ -5,6 +5,8 @@ from .text_button import Text_Button
 from .card import Card
 from .carousel import Carousel
 from .match_game import Match_Game
+from .deck import Deck
+from .hand import Hand
 from .card_info import Card_Info
 from .toggle_button import Toggle_Button
 from .text_object import Text_Object

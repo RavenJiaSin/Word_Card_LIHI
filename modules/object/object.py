@@ -29,6 +29,7 @@ class Object(pg.sprite.Sprite):
             self.image = pg.transform.smoothscale(img, (width*scale,height*scale))
         self.rect = self.image.get_rect()
         self.rect.center = pos
+        self.hit_box = self.rect.copy()
         self.width = float(self.rect.width)
         self.height = float(self.rect.height)
         self.scale = scale
@@ -48,11 +49,15 @@ class Object(pg.sprite.Sprite):
         self.__move()
         self.rect.center = (int(self.x), int(self.y))
 
-    def moveTo(self, target:tuple, time:int):
+    def moveTo(self, target:tuple, ms:int, hitbox_follow:bool=True):
+        '''
+        設定目標位置，在指定時間內移動過去。可決定 hitbox 是否跟著移動
+        '''
         # .__move_XXX only declared and used in move function. Do not call them from outside
+        self.__move_hitbox_follow = hitbox_follow
         self.__move_start_pos = self.rect.center
         self.__move_total_movement = (target[0] - self.rect.centerx, target[1] - self.rect.centery)
-        self.__move_total_frames = time * game.FPS
+        self.__move_total_frames = max(int(ms / 1000 * game.FPS), 1)  # 最少1幀，這樣才能移動
         self.__move_cur_frame = 0
         self.__ori_wiggle = self.__is_wiggle
         self.stopWiggle()
@@ -64,7 +69,8 @@ class Object(pg.sprite.Sprite):
         self.__move_cur_frame += 1
         self.x = self.__move_start_pos[0] + (self.__move_total_movement[0] * (self.__move_cur_frame / self.__move_total_frames))
         self.y = self.__move_start_pos[1] + (self.__move_total_movement[1] * (self.__move_cur_frame / self.__move_total_frames))        
-        
+        if self.__move_hitbox_follow:
+            self.hit_box.center = (int(self.x), int(self.y))
         if self.__move_cur_frame == self.__move_total_frames:
             self.__is_moving = False
             if self.__ori_wiggle:
