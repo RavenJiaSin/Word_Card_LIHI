@@ -116,9 +116,9 @@ class UserDB:
         """
         查詢 card_collection 表中指定 user_id, voc_id 的資訊或特定欄位。\n
         例如 print(user_db.get_card_info(user_id = 1, voc_id = '0_able', column = 'correct_count'))\n
-        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
+        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
         """
-        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}
+        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}
         
         try:
             if column is not None and column.lower() not in valid_columns:
@@ -158,12 +158,12 @@ class UserDB:
         """
         更新 card_collection 表中指定 user_id, voc_id 的欄位。\n
         例如：update_card_info(1, 0_able, correct_count=2)\n
-        valid_columns = {"proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
+        valid_columns = {"proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
         """
         if not kwargs:
             print("[WARN] No fields to update.")
             return
-        valid_columns = {"proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}
+        valid_columns = {"proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}
         for key in kwargs:
             if key not in valid_columns:
                 print(f"[ERROR] Invalid column: {key}")
