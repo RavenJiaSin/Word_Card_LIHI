@@ -8,7 +8,7 @@ class UserDB:
     def _connect(self):
         return sqlite3.connect(self.db_path)
 
-    def create_user(self, user_name, user_id = None):
+    def create_user(self, user_name: str, user_id: int = None):
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
@@ -19,7 +19,7 @@ class UserDB:
             print(f"[ERROR] Failed to create user: {e}")
         return None
     
-    def get_user_info(self, user_id, column = None):
+    def get_user_info(self, user_id: int, column: str = None):
         """
         valid_columns = {"user_id", "user_name", "total_time", "last_played", "daily_draws", "streak_days", "exp", "level", "joined_time"}
         """
@@ -116,9 +116,9 @@ class UserDB:
         """
         查詢 card_collection 表中指定 user_id, voc_id 的資訊或特定欄位。\n
         例如 print(user_db.get_card_info(user_id = 1, voc_id = '0_able', column = 'correct_count'))\n
-        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
+        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
         """
-        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}
+        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}
         
         try:
             if column is not None and column.lower() not in valid_columns:
@@ -153,17 +153,37 @@ class UserDB:
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find card info: {e}")
             return None
+        
+    def get_card_durability_below(self, user_id: int, durability: int) -> list[dict]:
+        """
+        查詢 card_collection 表中耐久度(durability) "<= N" 的卡牌。\n
+        例如 print(user_db.get_card_info(user_id = 1, durability = 5))\n
+        """
+        try:
+            query = "SELECT * FROM card_collection WHERE user_id = ? AND durability <= ?"
+            params = (user_id, durability)
+            with self._connect() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute(query, tuple(params))
+                rows = cursor.fetchall()
+                return [dict(row) for row in rows]
+        except (sqlite3.Error, ValueError) as e:
+            print(f"[ERROR] Failed to find card which durability below {durability}: {e}")
+            return None
+
+
     
     def update_card_info(self, user_id: int, voc_id: str, **kwargs):
         """
         更新 card_collection 表中指定 user_id, voc_id 的欄位。\n
         例如：update_card_info(1, 0_able, correct_count=2)\n
-        valid_columns = {"proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
+        valid_columns = {"proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
         """
         if not kwargs:
             print("[WARN] No fields to update.")
             return
-        valid_columns = {"proficiency", "last_review", "correct_count", "wrong_count", "time_drawn"}
+        valid_columns = {"proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}
         for key in kwargs:
             if key not in valid_columns:
                 print(f"[ERROR] Invalid column: {key}")
