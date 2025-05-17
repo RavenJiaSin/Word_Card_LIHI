@@ -64,7 +64,7 @@ class Object(pg.sprite.Sprite):
         movement['cur_frame'] = 0
         self.__movements.append(movement)
         self.__ori_wiggle = self.__is_wiggle
-        self.stopWiggle()
+        # self.stopWiggle() # nah. side effect is bad. Will not wiggle if setWiggle() is called while moving
 
     def __move(self):
         if len(self.__movements) == 0:
@@ -77,8 +77,6 @@ class Object(pg.sprite.Sprite):
             self.hit_box.center = (int(self.x), int(self.y))
         if cur_movement['cur_frame'] == cur_movement['total_frames']:
             self.__movements.remove(cur_movement)
-            if self.__ori_wiggle:
-                self.setWiggle()
 
     def setWiggle(self):
         """開始物件抖動,呼叫stopWiggle()停止

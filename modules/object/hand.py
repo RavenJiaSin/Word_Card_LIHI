@@ -54,7 +54,16 @@ class Hand():
             card = self.__cards[i]
             if card != None and card.get_data()['ID'] == ID:
                 self.__cards[i] = None
-    
+
+    def get_card_by_ID(self, ID:str):
+        '''
+        獲取指定 ID 的 Card，不存在則回傳None
+        '''
+        for card in self.__cards:
+            if card != None and card.get_data()['ID'] == ID:
+                return card
+        return None
+
     def get_card_at(self, idx) -> Card:
         '''
         回傳第 idx 張手牌，若為空則回傳 None
@@ -88,7 +97,6 @@ class Hand():
         for card in self.__cards:
             if card != None:
                 card.can_press = False
-                card.stopWiggle()
     
     def handle_event(self):
         for card in reversed(self.__cards):
@@ -122,4 +130,3 @@ class Hand():
         for card in self.__cards:
             if card != None:
                 game.canvas.blit(card.image, card.rect)
-                pg.draw.rect(game.canvas, (255,0,0), card.hit_box, 2)

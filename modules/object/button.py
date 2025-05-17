@@ -76,11 +76,6 @@ class Button(Object):
             self.mouse_enter = False         # 重要，沒加會錯，我猜是因為一幀內出去又離開會來不及把它用上面那個變False
             self.is_hover = False
 
-        if self.mouse_enter:
-            print('enter')
-        if self.mouse_exit:
-            print('exit')
-
     # override
     def update(self):
         self.check_hover()
