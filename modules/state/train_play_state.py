@@ -53,7 +53,7 @@ class Train_Play_State(State):
         self.db = VocabularyDB()
         self.voc_list = self.db.find_vocabulary(level=level)
         self.mode = mode
-        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num))
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num), self.mode)
         self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
 
         # === UI ===
