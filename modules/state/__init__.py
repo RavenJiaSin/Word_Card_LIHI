@@ -9,3 +9,4 @@ from .train_select_level_state import Train_Select_Level_State
 from .train_select_mode_state import Train_Select_Mode_State
 from .train_play_state import Train_Play_State
 from .train_result_state import Train_Result_State
+from .statistics_state import Statistics_State

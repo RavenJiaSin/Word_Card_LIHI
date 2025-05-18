@@ -46,7 +46,8 @@ class Menu_State(State):
         self.all_sprites.add(card_collection_button)
 
         statistic_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 4.5), text='統　計')
-        # statistic_button.setClick(lambda:game.change_state(Test_State()))
+        from . import Statistics_State
+        statistic_button.setClick(lambda:game.change_state(Statistics_State()))
         self.all_sprites.add(statistic_button)
 
         exit_button = Text_Button(pos=(game.CANVAS_WIDTH-100,game.CANVAS_HEIGHT-80), text='EXIT')
