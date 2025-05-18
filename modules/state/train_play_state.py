@@ -264,7 +264,7 @@ class Train_Play_State(State):
         # 題目
         if self.current_question_text:
             font = pg.font.Font("res\\font\\SWEISANSCJKTC-REGULAR.TTF", 60)
-            self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 200, 180, game.CANVAS_WIDTH - 200)
+            self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 200, 200, game.CANVAS_WIDTH - 400)
         # 卡堆
         if self.deck != None:
             self.deck.render()
