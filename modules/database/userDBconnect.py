@@ -220,7 +220,7 @@ class UserDB:
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to update user: {e}")
 
-    def update_durability(self, user_id: int, proficiency: int, delta: int):
+    def add_durability_for_proficiency(self, user_id: int, proficiency: int, delta: int):
         """
         更新 card_collection 表中指定 user_id, proficiency 的 durability\n
         durability 最小為 0，最大為 100\n
