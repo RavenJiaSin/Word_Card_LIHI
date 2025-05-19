@@ -120,7 +120,7 @@ class Hand():
                     self.__already_go_back[i] = False
                 # 不是這張被hover就回歸原位，只應在滑鼠離開時觸發一次，不能用exit
                 if self.__hovered_card_id != i and not self.__already_go_back[i]:
-                    card.moveTo(self.__cards_pos[i], 200, True)
+                    card.moveTo(self.__cards_pos[i], 200, False)
                     self.__already_go_back[i] = True
                 # 滑鼠離開當前 hover 的卡片時，讓出被 hover 的機會
                 if card.mouse_exit and self.__hovered_card_id == i:
@@ -130,3 +130,4 @@ class Hand():
         for card in self.__cards:
             if card != None:
                 game.canvas.blit(card.image, card.rect)
+                pg.draw.rect(game.canvas, (255,0,0), card.hit_box, 2)
