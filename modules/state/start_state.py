@@ -3,11 +3,10 @@ import pygame as pg
 import game
 from .state import State
 from ..manager import Font_Manager
-from ..object import Text_Button
 from ..object import Card
 from ..object import Group
-from ..object import Toggle_Button
-from modules.database import VocabularyDB
+from ..database import VocabularyDB
+from ..database import UserDB
 
 class Start_State(State):
     """初始狀態。繼承自`State`。

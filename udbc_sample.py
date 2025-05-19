@@ -15,7 +15,7 @@ print(user_db.get_user_info(user_id=3))
 # user_db.add_card_to_user(user_id = 1, voc_id='2222_able')
 
 # 查詢使用者有的卡牌資訊
-# print(user_db.get_card_info(user_id = 1, voc_id = '0_able'))
+print(user_db.get_card_info(user_id = 1, voc_id = '0_able'))
 
 # 修改user的卡牌資料
 user_db.update_card_info(user_id = 1, voc_id = '0_able', durability = 90)

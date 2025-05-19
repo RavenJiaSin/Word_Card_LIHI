@@ -5,7 +5,7 @@ import game
 class Card_Manager:
     user_db = UserDB()
     @classmethod
-    def player_get_card(cls, voc_id:str):
+    def player_add_card(cls, voc_id:str):
         cls.user_db.add_card_to_user(game.USER_ID, voc_id)
         cls.user_db.update_card_info(game.USER_ID, voc_id, proficiency=1, last_review=None, correct_count=0, wrong_count=0)
     
