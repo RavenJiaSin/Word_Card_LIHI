@@ -60,9 +60,9 @@ class Button(Object):
             if e.type == Event_Manager.EVENT_SHAKE:
                 x, y = self.rect.center
                 delta = 5
-                self.moveTo((x, y - delta), 30, False)
+                self.moveTo((x, y - delta), 50, False)
                 # self.moveTo((x + delta, y + delta), 50, False)
-                self.moveTo((x, y), 30, False)
+                self.moveTo((x, y), 50, False)
 
     def check_hover(self):
         mx, my = pg.mouse.get_pos()
