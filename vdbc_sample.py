@@ -8,10 +8,10 @@ vocs_db = VocabularyDB()
 
 
 # 查詢特定單字
-print(vocs_db.find_vocabulary(id = '922_apple'))
+# print(vocs_db.find_vocabulary(id = '922_apple'))
 
 # 查詢特定單字的特定欄位
-print(vocs_db.find_vocabulary(vocabulary='bad'))
+# print(vocs_db.find_vocabulary(vocabulary='bad'))
 
 # 查詢長度為5的單字
 # print(vocs_db.find_vocabulary(column='Vocabulary', length=5 ))
@@ -34,3 +34,6 @@ print(vocs_db.find_vocabulary(vocabulary='bad'))
 
 # 查詢圖片路徑:
 # print(vocs_db.get_image('0_able'))
+
+# valid_id = [id['ID'] for id in vocs_db.find_vocabulary(column='id')]
+# print(valid_id)

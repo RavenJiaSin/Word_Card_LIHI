@@ -1,18 +1,32 @@
 import game
 from ..object.group import Group
 from ..object.card import Card
+from ..manager import Train_Enum
 
 class Deck():
     # TODO: 看 cards_data 是不是只要傳 Vocabulary 的 string list 就好
-    def __init__(self, pos:tuple=(0,0), card_scale:float=1, cards_data:dict=None):
+    def __init__(self, pos:tuple=(0,0), card_scale:float=1, cards_data:dict=None, mode:int=0):
         self.center_x, self.center_y = pos
         self.__cards_data = cards_data
         self.__cards = Group()
+        
+        if mode == Train_Enum.CHI2ENG:
+            show_eng = True
+            show_chi = False
+        elif mode == Train_Enum.ENG2CHI:
+            show_eng = False
+            show_chi = True
+        elif mode == Train_Enum.SENTENCE:
+            show_eng = True
+            show_chi = False
+
         for idx, card_data in enumerate(self.__cards_data):
             card = Card(
                     pos=(self.center_x, self.center_y + idx),
                     scale=card_scale,
-                    id=card_data['ID']
+                    id=card_data['ID'],
+                    show_eng=show_eng,
+                    show_chi=show_chi
                 )
             card.can_press = False
             self.__cards.add(card)
