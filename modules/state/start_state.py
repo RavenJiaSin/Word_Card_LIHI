@@ -18,6 +18,9 @@ class Start_State(State):
         
         from ..state import Menu_State
         db = VocabularyDB()
+
+        from ..manager import Card_Manager
+        Card_Manager.player_get_card('2_adult', proficiency=0)
         
         start_card = Card((-500, game.CANVAS_HEIGHT/2), 3, db.find_vocabulary(Vocabulary='start')[0]['ID'])
         start_card.setWiggle()

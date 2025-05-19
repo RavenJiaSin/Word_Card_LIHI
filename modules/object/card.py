@@ -2,7 +2,9 @@ import pygame as pg
 from .button import Button
 from ..manager import Image_Manager
 from ..manager import Font_Manager
-from modules.database import VocabularyDB
+from ..database import VocabularyDB
+from ..database import UserDB
+import game
 
 class Card(Button):
     """卡片物件。繼承自Button。
@@ -88,8 +90,16 @@ class Card(Button):
                 ch_word_rect = ch_word_surf.get_rect(center=(img_center_x,44*scale))
             surfs.append((ch_word_surf, ch_word_rect))
 
-        # 畫熟練度(目前hard code為100)
-        prof_surf = Font_Manager.get_text_surface('100', font_size, white_color)
+
+        userdb = UserDB()
+        # 畫熟練度(目前hard code為1)
+        if len(userdb.get_card_info(game.USER_ID, self.__data.get('ID', 'None'))) != 0:
+            card_info = userdb.get_card_info(game.USER_ID, self.__data.get('ID', 'None'))[0]
+        else:
+            card_info = {'proficiency': 0, 'last_review': None, 'correct_count': 0, 'wrong_count': 0, 'times_drawn': 1}
+        
+
+        prof_surf = Font_Manager.get_text_surface(str(card_info['proficiency']), font_size, white_color)
         prof_rect = prof_surf.get_rect(center=(25*scale, 14*scale))
         surfs.append((prof_surf, prof_rect))
 
