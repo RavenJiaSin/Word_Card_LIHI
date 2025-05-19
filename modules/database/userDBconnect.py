@@ -2,11 +2,13 @@ import sqlite3
 import os
 from modules.database.vocsDBconnect import VocabularyDB
 
-vocs_db = VocabularyDB()
+
 
 class UserDB:
     def __init__(self, db_path="user_data/users.db"):
         self.db_path = db_path
+        vocs_db = VocabularyDB()
+        self.valid_id = [id['ID'] for id in vocs_db.find_vocabulary(column='id')]
 
     def _connect(self):
         return sqlite3.connect(self.db_path)
@@ -91,8 +93,7 @@ class UserDB:
         將一張新卡牌加入使用者的 card_collection，如果尚未擁有該卡牌。
         """
         try:
-            valid_id = valid_id = [id['ID'] for id in vocs_db.find_vocabulary(column='id')]
-            if voc_id not in valid_id:
+            if voc_id not in self.valid_id:
                 raise Exception('voc_id invalid')
             with self._connect() as conn:
                 cursor = conn.cursor()
