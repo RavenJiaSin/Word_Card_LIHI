@@ -35,7 +35,7 @@ class Train_Play_State(State):
         # 動畫
         self.card_draw_start_time = 0
         self.card_play_start_time = 0
-        self.card_draw_interval = 350  # 毫秒，抽牌時間
+        self.card_draw_interval = 80  # 毫秒，抽牌時間
         self.card_play_interval = 500  # 毫秒，出卡時間
 
         # flags
@@ -182,7 +182,10 @@ class Train_Play_State(State):
                 self.load_question()  # 抽滿了就下一題
                 return
             card = self.deck.draw_a_card()
-            card.moveTo(self.hand.first_empty_slot_pos(), self.card_draw_interval)
+            card.moveTo((game.CANVAS_WIDTH // 2, 500), self.card_draw_interval * 3, False)
+            endPos = self.hand.first_empty_slot_pos()
+            card.moveTo(endPos, self.card_draw_interval * 3, False)
+            card.moveTo(endPos, 0, True) # 只為了動hit_box
             card.setClick(lambda: self.play_a_card_from_hand(card))
             self.hand.add_card(card)
             self.hand.deactivate()
