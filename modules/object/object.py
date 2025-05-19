@@ -77,6 +77,9 @@ class Object(pg.sprite.Sprite):
             self.hit_box.center = (int(self.x), int(self.y))
         if cur_movement['cur_frame'] == cur_movement['total_frames']:
             self.__movements.remove(cur_movement)
+            if len(self.__movements) == 0 and self.__is_wiggle:
+                self.setWiggle()
+                    
 
     def setWiggle(self):
         """開始物件抖動,呼叫stopWiggle()停止
@@ -93,7 +96,7 @@ class Object(pg.sprite.Sprite):
     def __wiggle(self):
         """抖動物件
         """
-        if not self.__is_wiggle:
+        if not self.__is_wiggle or len(self.__movements) != 0:
             return
         
         wiggleHeight = 0.02
