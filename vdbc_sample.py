@@ -35,5 +35,5 @@ vocs_db = VocabularyDB()
 # 查詢圖片路徑:
 # print(vocs_db.get_image('0_able'))
 
-valid_id = [id['ID'] for id in vocs_db.find_vocabulary(column='id')]
-print(valid_id)
+# valid_id = [id['ID'] for id in vocs_db.find_vocabulary(column='id')]
+# print(valid_id)
