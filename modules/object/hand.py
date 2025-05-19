@@ -14,10 +14,11 @@ class Hand():
         self.center_x, self.center_y = pos
         self.__cards_num = cards_num  # 幾張手牌
         self.__cards = [None for i in range(cards_num)]  # 為了讓空位存在，所以不用 Group，而是用 List 管理 cards
-        card_interval = width // cards_num
+        card_interval = width // (cards_num - 1)
         self.__cards_pos = [(self.center_x - width // 2 + i * card_interval, self.center_y) for i in range(cards_num)]
         # self.__cards_pos = [(200, 200) for i in range(cards_num)]
-
+        self.__hovered_card_id = -1  # -1 表示沒有 card 被 hover
+        self.__already_go_back = [True for i in range(self.__cards_num)]
 
     def first_empty_slot_pos(self):
         '''
@@ -53,7 +54,16 @@ class Hand():
             card = self.__cards[i]
             if card != None and card.get_data()['ID'] == ID:
                 self.__cards[i] = None
-    
+
+    def get_card_by_ID(self, ID:str):
+        '''
+        獲取指定 ID 的 Card，不存在則回傳None
+        '''
+        for card in self.__cards:
+            if card != None and card.get_data()['ID'] == ID:
+                return card
+        return None
+
     def get_card_at(self, idx) -> Card:
         '''
         回傳第 idx 張手牌，若為空則回傳 None
@@ -87,26 +97,34 @@ class Hand():
         for card in self.__cards:
             if card != None:
                 card.can_press = False
-                card.stopWiggle()
     
     def handle_event(self):
-        for i in range(len(self.__cards)):
-            card = self.__cards[i]
+        for card in reversed(self.__cards):
             if card != None:
                 card.handle_event()
-                if not card.can_press:  # 如果不能點擊就不做hover動畫
-                    continue
-                # hover 動畫
-                if card.mouse_enter:
-                    x, y = self.__cards_pos[i]
-                    card.moveTo((x, y - 100), 100, False)
-                if card.mouse_exit:
-                    card.moveTo(self.__cards_pos[i], 100, False)
 
     def update(self):
-        for card in self.__cards:
+        for i, card in enumerate(reversed(self.__cards)):  # 上層先更新
+            i = self.__cards_num - i - 1
             if card != None:
                 card.update()
+                # hover 動畫
+                # 如果不能點擊就不做hover動畫
+                if not card.can_press:
+                    continue
+                # 沒其它上層卡被hover就hover這張，一次只會有一張卡被 hover
+                if self.__hovered_card_id < i and card.is_hover: 
+                    self.__hovered_card_id = i
+                    x, y = self.__cards_pos[i]
+                    card.moveTo((x, y - 100), 100, False)
+                    self.__already_go_back[i] = False
+                # 不是這張被hover就回歸原位，只應在滑鼠離開時觸發一次，不能用exit
+                if self.__hovered_card_id != i and not self.__already_go_back[i]:
+                    card.moveTo(self.__cards_pos[i], 200, True)
+                    self.__already_go_back[i] = True
+                # 滑鼠離開當前 hover 的卡片時，讓出被 hover 的機會
+                if card.mouse_exit and self.__hovered_card_id == i:
+                    self.__hovered_card_id = -1
 
     def render(self):
         for card in self.__cards:

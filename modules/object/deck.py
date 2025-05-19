@@ -4,14 +4,14 @@ from ..object.card import Card
 
 class Deck():
     # TODO: 看 cards_data 是不是只要傳 Vocabulary 的 string list 就好
-    def __init__(self,pos:tuple=(0,0), cards_data:dict=None):
+    def __init__(self, pos:tuple=(0,0), card_scale:float=1, cards_data:dict=None):
         self.center_x, self.center_y = pos
         self.__cards_data = cards_data
         self.__cards = Group()
         for idx, card_data in enumerate(self.__cards_data):
             card = Card(
                     pos=(self.center_x, self.center_y + idx),
-                    scale=1.5,
+                    scale=card_scale,
                     id=card_data['ID']
                 )
             card.can_press = False

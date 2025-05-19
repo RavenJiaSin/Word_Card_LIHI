@@ -2,15 +2,14 @@ import pygame as pg
 import random
 import game
 from .state import State
-from ..object import Text_Button
+from ..object import Object, Text_Button
 from ..object import Group
-from ..object import Confirm_Quit_Object
+from ..object import Confirm_Quit_Object, Card
 from ..object import Deck, Hand
-from ..manager import Font_Manager
+from ..manager import Font_Manager, Image_Manager
 from ..manager import Train_Enum
+from ..manager import Event_Manager
 from modules.database import VocabularyDB
-
-
 
 class Train_Play_State(State):
     """練功坊答題狀態。繼承自`State`。
@@ -23,11 +22,11 @@ class Train_Play_State(State):
     def __init__(self, level:int, mode:int):
 
         # === 變數 ===
-        self.showing_result = False
         # 文字設定
         self.current_question_text = ""
 
         # 數值設定
+        self.card_scale = 1.5      #卡牌大小
         self.score = 0             #分數
         self.question_num = 2      #題數
         self.question_count = 0    #目前題數
@@ -35,7 +34,16 @@ class Train_Play_State(State):
         self.current_card_num = 0  #目前手牌數量
         # 動畫
         self.card_draw_start_time = 0
-        self.card_draw_interval = 350  # 毫秒
+        self.card_play_start_time = 0
+        self.card_draw_interval = 350  # 毫秒，抽牌時間
+        self.card_play_interval = 500  # 毫秒，出卡時間
+
+        # flags
+        self.showing_result = False
+        self.showing_correct = False
+        self.showing_wrong = False
+        self.is_drawing_cards = False
+        self.is_playing_a_card = False
 
         # 題目與答題記錄，以 card.__data 的格式存放
         self.history = dict({Train_Enum.QUESTION: [], 
@@ -45,8 +53,8 @@ class Train_Play_State(State):
         self.db = VocabularyDB()
         self.voc_list = self.db.find_vocabulary(level=level)
         self.mode = mode
-        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num))
-        self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), game.CANVAS_WIDTH // 1.5, self.hand_card_num)
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num))
+        self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
 
         # === UI ===
         self.all_sprites = Group()
@@ -58,9 +66,13 @@ class Train_Play_State(State):
         menu_button.setClick(lambda: self.confirm_quit_object.set_show(True))
         self.all_sprites.add(menu_button)
 
+        # 對/錯 卡牌提示背景
+        self.correct_indicator = Object(scale=self.card_scale * 1.12, img=Image_Manager.get('card_green_glow'))
+        self.wrong_indicator = Object(scale=self.card_scale * 1.12, img=Image_Manager.get('card_red_glow'))
+
         # 下一題
         self.next_button = Text_Button(
-            pos=(game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT-480),
+            pos=(game.CANVAS_WIDTH // 2 + 250, game.CANVAS_HEIGHT - 450),
             text='Next'
         )
         self.next_button.setClick(self.next_btn_func)
@@ -100,20 +112,29 @@ class Train_Play_State(State):
 
         self.history[Train_Enum.QUESTION].append(self.current_question_text)
 
-    def check_answer(self, selected_card_data:dict):
-
-        self.hand.deactivate()
+    def check_answer(self):
+        selected_card_data = self.__selected_card.get_data()
         self.history[Train_Enum.SELECTED].append(selected_card_data)
-        self.hand.remove_card_by_ID(selected_card_data['ID'])
 
         if selected_card_data['ID'] == self.answer_data['ID']:
             # self.voc_list.remove(selected_card.data)
             self.score += 1
             self.current_result_text = "Correct!"
+            self.__correct_card = self.__selected_card
+            self.all_sprites.add(self.correct_indicator, layer=-1)
+            self.showing_correct = True
         else:
             self.current_result_text = f"Wrong! Correct Answer: {self.answer_data['Vocabulary']}"
             # TODO: Card移動到棄牌堆
-            self.hand.remove_card_by_ID(self.answer_data['ID'])
+            self.__correct_card = self.hand.get_card_by_ID(self.answer_data['ID'])
+            self.__correct_card.setWiggle()
+            self.hand.remove_card_by_ID(self.answer_data['ID'])  # 答錯以後，正確卡從手牌中移到桌面，才能顯示在上層
+            self.all_sprites.add(self.__correct_card, layer=0)
+            self.all_sprites.add(self.correct_indicator, layer=-1)
+            self.__wrong_card = self.__selected_card
+            self.all_sprites.add(self.wrong_indicator, layer=-1)
+            self.showing_correct = True
+            self.showing_wrong = True
 
         self.showing_result = True
         # if self.mode == self.ENG2CHI:
@@ -122,6 +143,14 @@ class Train_Play_State(State):
         self.all_sprites.add(self.next_button)
 
     def next_btn_func(self):
+        if self.showing_wrong:
+            self.wrong_indicator.kill()
+            self.showing_wrong = False
+        if self.showing_correct:
+            self.correct_indicator.kill()
+            self.showing_correct = False
+        self.__selected_card.kill()
+        self.__correct_card.kill()
         self.showing_result = False
         self.next_question()
         self.next_button.kill()
@@ -145,7 +174,6 @@ class Train_Play_State(State):
             self.is_drawing_cards = False
             self.load_question()  # 沒牌可抽就直接下一題
             return
-        self.hand.deactivate()
         now = pg.time.get_ticks()
         if now - self.card_draw_start_time >= self.card_draw_interval:
             # 等最後一張跑完再繼續
@@ -154,11 +182,33 @@ class Train_Play_State(State):
                 self.load_question()  # 抽滿了就下一題
                 return
             card = self.deck.draw_a_card()
-            card.can_press = True
             card.moveTo(self.hand.first_empty_slot_pos(), self.card_draw_interval)
-            card.setClick(lambda: self.check_answer(card.get_data()))
+            card.setClick(lambda: self.play_a_card_from_hand(card))
             self.hand.add_card(card)
+            self.hand.deactivate()
             self.card_draw_start_time = now
+
+    def play_a_card_from_hand(self, card:Card):
+        self.is_playing_a_card = True
+        card.moveTo((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT // 2), self.card_play_interval, True)
+        self.__selected_card = card
+        self.hand.deactivate()
+        self.hand.remove_card_by_ID(card.get_data()['ID'])
+        self.all_sprites.add(card)
+        self.card_play_start_time = pg.time.get_ticks()
+ 
+    def play_a_card_from_hand_animation(self):
+        '''
+        等動畫結束並接著對答案
+        '''
+        if not self.is_playing_a_card:
+            return
+        now = pg.time.get_ticks()
+        if now - self.card_play_start_time > self.card_play_interval:
+            self.is_playing_a_card = False
+            pg.event.post(pg.event.Event(Event_Manager.EVENT_SHAKE))
+            self.__selected_card.transform(scale=1)
+            self.check_answer()
 
     ########## 工具 ##########
 
@@ -184,20 +234,27 @@ class Train_Play_State(State):
     # override
     def handle_event(self):
         self.confirm_quit_object.handle_event()
+        self.all_sprites.handle_event()
         if self.deck != None:
             self.deck.handle_event()
         if self.hand != None:
             self.hand.handle_event()
-        self.all_sprites.handle_event()
 
     # override
     def update(self):
         self.confirm_quit_object.update()
         self.draw_cards_from_deck_animation()
+        self.play_a_card_from_hand_animation()
         if self.deck != None:
             self.deck.update()
         if self.hand != None:
             self.hand.update()
+        if self.showing_correct:
+            self.correct_indicator.x = self.__correct_card.x-1 # 不知道為什麼這樣比較對齊
+            self.correct_indicator.y = self.__correct_card.y-1
+        if self.showing_wrong:
+            self.wrong_indicator.x = self.__wrong_card.x-1
+            self.wrong_indicator.y = self.__wrong_card.y-1
         self.all_sprites.update()
 
     # override

@@ -30,11 +30,16 @@ def save_processed_ids(processed_ids):
 
 def generate_sentence(input_word, input_pos):
     prompt = f'''
-        Given the English word and its part of speech, generate only one grammatically correct and natural sentence that correctly uses the word in context. Do not include any explanation or extra text. Ensure the sentence is accurate and appropriate in meaning. Surround the generated sentence with '==' at the beginning and end, like this: ==Your sentence here==.
+        Given the English word and its part of speech, generate only one grammatically correct and natural sentence that correctly uses the word in its **base form** (原形) and part of speech. Do not include any explanation or extra text. Ensure the sentence is accurate in meaning and grammatically correct.
 
-        Try to use simple and commonly used English words in the sentence, except for the given word which must be used correctly according to its part of speech.
+        The generated sentence must:
+        - Contain the word "{input_word}" exactly as written (i.e., in its base form).
+        - Use it according to its part of speech: {input_pos}.
+        - Use simple and commonly known English words where possible (except for the given word).
 
-        After the English sentence, provide a Traditional Chinese translation on a new line, wrapped with '~~', like this: ~~你的句子翻譯~~.
+        Surround the English sentence with '==' at the beginning and end, like this: ==Your sentence here==.
+
+        On a new line, provide a Traditional Chinese translation, surrounded by '~~', like this: ~~你的句子翻譯~~.
 
         Example:
         Input: apple n.
@@ -42,7 +47,7 @@ def generate_sentence(input_word, input_pos):
         ==I ate an apple yesterday.==
         ~~我昨天吃了一顆蘋果。~~
 
-        Now, generate a sentence using the word {input_word} and its part of speech {input_pos}. Output only in the same format.
+        Now, generate a sentence using the word "{input_word}" and its part of speech "{input_pos}". Output only in the specified format.
     '''
     genai.configure(api_key = api_key)
     model = genai.GenerativeModel('gemini-1.5-flash')
