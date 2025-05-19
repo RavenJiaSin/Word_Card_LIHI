@@ -119,26 +119,17 @@ class Match_Game:
                 self.__first_chosen_card.setWiggle()
                 self.__second_chosen_card.setWiggle()
                 word = ''
+                if(self.__first_chosen_card.get_word()[1] == 'chi'):
+                    self.__first_chosen_card, self.__second_chosen_card = self.__second_chosen_card, self.__first_chosen_card
+                word = self.__first_chosen_card.get_word()[0]
                 if self.__blue_turn:
                     self.__blue_score += 1
-                    if(self.__first_chosen_card.get_word()[1] == 'eng'):
-                        word = self.__first_chosen_card.get_word()[0]
-                        self.__first_chosen_card.moveTo((-300, 300), 1)
-                        self.__second_chosen_card.moveTo((-300, 500), 1)
-                    else:
-                        word = self.__second_chosen_card.get_word()[0]
-                        self.__second_chosen_card.moveTo((-300, 300), 1)
-                        self.__first_chosen_card.moveTo((-300, 500), 1)
+                    self.__first_chosen_card.moveTo((-300, 500), 1000)
+                    self.__second_chosen_card.moveTo((-300, 500), 1000)
                 else:
                     self.__red_score += 1
-                    if(self.__first_chosen_card.get_word()[1] == 'eng'):
-                        word = self.__first_chosen_card.get_word()[0]
-                        self.__first_chosen_card.moveTo((game.CANVAS_WIDTH+300, 300), 1)
-                        self.__second_chosen_card.moveTo((game.CANVAS_WIDTH+300, 500), 1)
-                    else:
-                        word = self.__second_chosen_card.get_word()[0]
-                        self.__second_chosen_card.moveTo((game.CANVAS_WIDTH+300, 300), 1)
-                        self.__first_chosen_card.moveTo((game.CANVAS_WIDTH+300, 500), 1)
+                    self.__first_chosen_card.moveTo((game.CANVAS_WIDTH+300, 500), 1000)
+                    self.__second_chosen_card.moveTo((game.CANVAS_WIDTH+300, 500), 1000)
                 self.__first_chosen_card = None
                 self.__second_chosen_card = None
                 self.__set_all_card_flip(True)
@@ -216,10 +207,10 @@ class Match_Game:
         card = None
         if blue_turn:
             card = Card((-500, self.__blue_display_y), 2, id)
-            card.moveTo((140, self.__blue_display_y), 0.5)
+            card.moveTo((140, self.__blue_display_y), 500)
             self.__blue_display_y += 100
         else:
             card = Card((game.CANVAS_WIDTH+500, self.__red_display_y), 2, id)
-            card.moveTo((game.CANVAS_WIDTH-165, self.__red_display_y), 0.5)
+            card.moveTo((game.CANVAS_WIDTH-165, self.__red_display_y), 500)
             self.__red_display_y += 100
         self.__display_cards.add(card)

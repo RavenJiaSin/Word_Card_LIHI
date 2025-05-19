@@ -2,7 +2,10 @@ import pygame as pg
 from .button import Button
 from ..manager import Image_Manager
 from ..manager import Font_Manager
-from modules.database import VocabularyDB
+from ..manager import Card_Manager
+from ..database import VocabularyDB
+from ..database import UserDB
+import game
 
 class Card(Button):
     """卡片物件。繼承自Button。
@@ -61,7 +64,7 @@ class Card(Button):
             word_img_rect = word_img_surf.get_rect(center=(img_center_x, 98*scale))
             surfs.append((word_img_surf, word_img_rect)) 
         except:
-            print('No img found')
+            print(f'No img found: ID({self.__id})')
             ...
 
         # 再畫卡片模板
@@ -88,8 +91,17 @@ class Card(Button):
                 ch_word_rect = ch_word_surf.get_rect(center=(img_center_x,44*scale))
             surfs.append((ch_word_surf, ch_word_rect))
 
-        # 畫熟練度(目前hard code為100)
-        prof_surf = Font_Manager.get_text_surface('100', font_size, white_color)
+
+        user_db = UserDB()
+        card_info = user_db.get_card_info(game.USER_ID, self.__id)
+        # 畫熟練度(目前hard code為1)
+        if len(card_info) != 0:
+            card_info = card_info[0]
+        else:
+            card_info = {'proficiency': 0, 'last_review': None, 'correct_count': 1, 'wrong_count': 0, 'times_drawn': 1, 'durability': 0}
+        
+
+        prof_surf = Font_Manager.get_text_surface(str(card_info['proficiency']), font_size, white_color)
         prof_rect = prof_surf.get_rect(center=(25*scale, 14*scale))
         surfs.append((prof_surf, prof_rect))
 
@@ -97,6 +109,25 @@ class Card(Button):
         pof_surf = Font_Manager.get_text_surface(self.__data.get('Part_of_speech', 'error'), font_size, white_color)
         pof_rect = pof_surf.get_rect(center=(87*scale, 14*scale))
         surfs.append((pof_surf, pof_rect))
+
+        # 畫耐久度
+        dura_max_width = 80*scale
+        dura_current_width = card_info['durability'] / 100 * dura_max_width
+
+        dura_background_surf = pg.surface.Surface((dura_max_width, 4*scale), flags=pg.SRCALPHA)
+        dura_background_surf.fill((150,150,150,255))
+        dura_background_rect = dura_background_surf.get_rect(center=(img_center_x, 151*scale)) 
+        surfs.append((dura_background_surf, dura_background_rect))
+
+        dura_surf = pg.surface.Surface((dura_current_width, 4*scale), flags=pg.SRCALPHA)
+        if card_info['durability'] >= 80:
+            dura_surf.fill((20,255,20,255))
+        elif card_info['durability'] >= 40:
+            dura_surf.fill((255,255,20,255))
+        else:
+            dura_surf.fill((255,20,20,255))
+        dura_rect = dura_surf.get_rect(left=dura_background_rect.left, centery=151*scale) 
+        surfs.append((dura_surf, dura_rect))
 
         # 更新image
         img.blits(surfs) 
