@@ -3,11 +3,10 @@ import pygame as pg
 import game
 from .state import State
 from ..manager import Font_Manager
-from ..object import Text_Button
 from ..object import Card
 from ..object import Group
-from ..object import Toggle_Button
-from modules.database import VocabularyDB
+from ..database import VocabularyDB
+from ..database import UserDB
 
 class Start_State(State):
     """初始狀態。繼承自`State`。
@@ -18,7 +17,7 @@ class Start_State(State):
         
         from ..state import Menu_State
         db = VocabularyDB()
-        
+
         start_card = Card((-500, game.CANVAS_HEIGHT/2), 3, db.find_vocabulary(Vocabulary='start')[0]['ID'])
         start_card.setWiggle()
         start_card.moveTo((game.CANVAS_WIDTH/2-300, game.CANVAS_HEIGHT/2+100), 1000)
