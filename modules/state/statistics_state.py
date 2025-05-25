@@ -20,61 +20,71 @@ class Statistics_State(State):
         menu_button.setClick(lambda: self.confirm_quit_object.set_show(True))
         self.all_sprites.add(menu_button)
 
-        self.user_id = 1  # 假設目前登入的是 user_id = 1
+        self.user_id = 1
         self.user_db = UserDB()
-        self.stats = self.get_statistics()
-        
+        self.get_statistics_blocks()
 
-    def get_statistics(self):
+    def get_statistics_blocks(self):
         conn = sqlite3.connect("user_data/users.db")
         cur = conn.cursor()
-        today = datetime.date.today()
-        week_start = today - datetime.timedelta(days=6)
 
-        # 1. 練功坊遊玩次數（從 user_info.total_time 為依據）
-        cur.execute("SELECT total_time FROM user_info WHERE user_id = ?", (self.user_id,))
-        result = cur.fetchone()
-        play_count = 1 if result and result[0] > 0 else 0  # 若有遊玩過就算 1 次
+        # user_info
+        cur.execute("SELECT total_time, exp FROM user_info WHERE user_id = ?", (self.user_id,))
+        user_info = cur.fetchone()
+        total_time = user_info[0] if user_info else 0
+        exp = user_info[1] if user_info else 0
+        play_count = 1 if total_time > 0 else 0
+        time_minutes = round(total_time / 60, 1)
 
-        # 2. 練功坊實際完成次數（exp 為 0 表示尚未完成任務）
-        cur.execute("SELECT exp FROM user_info WHERE user_id = ?", (self.user_id,))
-        result = cur.fetchone()
-        complete_count = 1 if result and result[0] > 0 else 0
+        # card_collection
+        cur.execute("SELECT voc_id, correct_count, wrong_count FROM card_collection WHERE user_id = ?", (self.user_id,))
+        card_rows = cur.fetchall()
+        correct_total = wrong_total = 0
+        card_stats = []
+        for row in card_rows:
+            voc_id, correct, wrong = row
+            correct_total += correct
+            wrong_total += wrong
+            card_stats.append({"voc_id": voc_id, "correct": correct, "wrong": wrong, "total": correct + wrong})
 
-        # 3. 累積答題數（所有卡牌 correct + wrong 次數總和）
-        cur.execute("SELECT SUM(correct_count), SUM(wrong_count) FROM card_collection WHERE user_id = ?", (self.user_id,))
-        row = cur.fetchone()
-        correct_total = row[0] if row[0] else 0
-        wrong_total = row[1] if row[1] else 0
         total = correct_total + wrong_total
-
-        # 4. 總體正確率
         total_accuracy = round((correct_total / total) * 100, 1) if total > 0 else 0
-
-        # 5. 本週正確率（根據 last_review 在本週的卡牌）
-        cur.execute("""
-            SELECT correct_count, wrong_count FROM card_collection 
-            WHERE user_id = ? AND last_review >= ?
-        """, (self.user_id, week_start.isoformat()))
-        week_correct = 0
-        week_total = 0
-        for row in cur.fetchall():
-            week_correct += row[0]
-            week_total += row[0] + row[1]
-        week_accuracy = round((week_correct / week_total) * 100, 1) if week_total > 0 else 0
-
-
-        streak = self.user_db.get_user_info(self.user_id, "streak_days")
+        most_wrong = max(card_stats, key=lambda x: x["wrong"], default=None)
+        top5_cards = sorted(card_stats, key=lambda x: x["total"], reverse=True)[:5]
 
         conn.close()
-        return {
-            "練功坊遊玩次數": play_count,
-            "練功坊實際完成次數": complete_count,
-            "累積答題數": total,
-            "總體正確率": f"{total_accuracy}%",
-            "本週正確率": f"{week_accuracy}%",
-            "連續登入日數": streak[0]["streak_days"],
-        }
+
+        # 區塊一：總覽
+        self.overview_title = "總覽"
+        self.overview_text = [
+            f"總遊玩次數：{play_count}",
+            f"累計答題數：{total}",
+            f"答對 / 答錯：{correct_total} / {wrong_total}",
+            f"整體正確率：{total_accuracy}%",
+            f"遊玩時間：{time_minutes} 分鐘"
+        ]
+        self.overview_pos = (500, 160)
+
+        # 區塊二：卡牌統計
+        self.card_title = "卡牌統計"
+        self.card_text = [
+            f"最常答錯卡牌：{most_wrong['voc_id'] if most_wrong else '無資料'}",
+            f"最常答錯次數：{most_wrong['wrong'] if most_wrong else 0}",
+            "卡牌答題 Top 5："
+        ] + [
+            f"  - {c['voc_id']}: {c['correct']}/{c['wrong']}（共{c['total']}次）"
+            for c in top5_cards
+        ]
+        self.card_pos = (1000, 160)
+
+    def draw_block(self, title, text_lines, pos):
+        x, y = pos
+        spacing = 50  # 調高間距對應字體放大
+
+        self.font_manager.draw_text(game.canvas, title, 64, x + 20, y + 20)  # 放大區塊標題
+        for i, line in enumerate(text_lines):
+            font_size = 40 if not line.strip().startswith("-") else 36  # 判斷是否為列表項
+            self.font_manager.draw_text(game.canvas, line, font_size, x + 40, y + 100 + i * spacing)
 
 
     def handle_event(self):
@@ -84,12 +94,8 @@ class Statistics_State(State):
         self.all_sprites.update()
 
     def render(self):
-        Font_Manager.draw_text(game.canvas, "統計", 70, game.CANVAS_WIDTH / 2, 100)
+        self.font_manager.draw_text(game.canvas, "統計", 70, game.CANVAS_WIDTH / 2, 80)
         self.all_sprites.draw(game.canvas)
 
-        # 顯示統計內容
-        start_y = 200
-        spacing = 50
-        for i, (key, value) in enumerate(self.stats.items()):
-            text = f"{key}: {value}"
-            Font_Manager.draw_text(game.canvas, text, 36, 200, start_y + i * spacing)
+        self.draw_block(self.overview_title, self.overview_text, self.overview_pos)
+        self.draw_block(self.card_title, self.card_text, self.card_pos)
