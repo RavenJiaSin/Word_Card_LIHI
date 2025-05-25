@@ -3,7 +3,7 @@ import game
 import datetime
 import sqlite3
 from .state import State
-from ..object import Group, Text_Button, Confirm_Quit_Object
+from ..object import Group, Text_Button, Confirm_Quit_Object,card
 from ..manager import Font_Manager, Image_Manager
 from modules.database.userDBconnect import UserDB
 
@@ -88,9 +88,11 @@ class Statistics_State(State):
 
 
     def handle_event(self):
+        self.confirm_quit_object.handle_event()
         self.all_sprites.handle_event()
 
     def update(self):
+        self.confirm_quit_object.update()
         self.all_sprites.update()
 
     def render(self):
@@ -99,3 +101,4 @@ class Statistics_State(State):
 
         self.draw_block(self.overview_title, self.overview_text, self.overview_pos)
         self.draw_block(self.card_title, self.card_text, self.card_pos)
+        self.confirm_quit_object.render()
