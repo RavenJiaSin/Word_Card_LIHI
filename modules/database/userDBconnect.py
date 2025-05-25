@@ -1,9 +1,14 @@
 import sqlite3
 import os
+from modules.database.vocsDBconnect import VocabularyDB
+
+
 
 class UserDB:
     def __init__(self, db_path="user_data/users.db"):
         self.db_path = db_path
+        vocs_db = VocabularyDB()
+        self.valid_id = [id['ID'] for id in vocs_db.find_vocabulary(column='id')]
 
     def _connect(self):
         return sqlite3.connect(self.db_path)
@@ -85,9 +90,12 @@ class UserDB:
 
     def add_card_to_user(self, user_id: int, voc_id: str) -> None:
         """
-        將一張新卡牌加入使用者的 card_collection，如果尚未擁有該卡牌。
+        將一張新卡牌加入使用者的 card_collection，如果尚未擁有該卡牌。\n
+        初始值:"proficiency"=1, "durability"=100, "correct_count"=0, "wrong_count"=0, "time_drawn"=1\n
         """
         try:
+            if voc_id not in self.valid_id:
+                raise Exception('voc_id invalid')
             with self._connect() as conn:
                 cursor = conn.cursor()
                 # 檢查使用者是否已擁有這張卡牌
@@ -109,7 +117,7 @@ class UserDB:
                 )
                 conn.commit()
                 print(f"[INFO] Card {voc_id} added to user {user_id}.")
-        except sqlite3.Error as e:
+        except (sqlite3.Error, Exception) as e:
             print(f"[ERROR] Failed to add card to user: {e}")
 
     def get_card_info(self, user_id: int = None, voc_id: str = None, column: str = None) -> list[dict]:
@@ -211,6 +219,45 @@ class UserDB:
                 print(f"[INFO] Updated card {voc_id} for user {user_id}: {kwargs}")
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to update user: {e}")
+
+    def add_durability_for_proficiency(self, user_id: int, proficiency: int, delta: int):
+        """
+        更新 card_collection 表中指定 user_id, proficiency 的 durability\n
+        durability 最小為 0，最大為 100\n
+        """
+        try:
+            if proficiency > 6 or proficiency < 1:
+                raise Exception('invalid proficiency')
+
+            with self._connect() as conn:
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    """
+                    UPDATE card_collection
+                    SET durability = 
+                        CASE 
+                            WHEN durability + ? < 0 THEN 0
+                            WHEN durability + ? > 100 THEN 100
+                            ELSE durability + ?
+                        END
+                    WHERE user_id = ? AND proficiency = ?
+                    """,
+                    (delta, delta, delta, user_id, proficiency)
+                )
+
+                conn.commit()
+
+                if cursor.rowcount == 0:
+                    print(f"[WARN] No durability updated — no matching record?")
+                else:
+                    print(f"[INFO] Updated {user_id}'s cards durability by {delta} (bounded 0~100) where proficiency = {proficiency}")
+
+        except (sqlite3.Error, Exception) as e:
+            print(f"[ERROR] Failed to update durability: {e}")
+
+
+
 
         
 

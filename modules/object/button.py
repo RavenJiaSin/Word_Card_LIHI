@@ -46,10 +46,9 @@ class Button(Object):
             if e.type == pg.MOUSEBUTTONDOWN and e.button == 1 and self.can_press:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
-                if self.rect.collidepoint(scaled_pos):
+                if self.hit_box.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個按下事件只會讓一個 button 被按下 
                     self.__isPressed = True
-                    self.hit_box = self.rect.copy()
             if e.type == pg.MOUSEBUTTONUP and e.button == 1 and self.__isPressed:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
@@ -60,9 +59,9 @@ class Button(Object):
             if e.type == Event_Manager.EVENT_SHAKE:
                 x, y = self.rect.center
                 delta = 5
-                self.moveTo((x, y - delta), 30, False)
+                self.moveTo((x, y - delta), 50, False)
                 # self.moveTo((x + delta, y + delta), 50, False)
-                self.moveTo((x, y), 30, False)
+                self.moveTo((x, y), 50, False)
 
     def check_hover(self):
         mx, my = pg.mouse.get_pos()
@@ -120,9 +119,11 @@ class Button(Object):
         self.__ori_w, self.__ori_h = self.rect.size
         self.width, self.height = self.rect.size
         self.rect.center = center
+        self.hit_box = self.rect.copy()
         
     def set_color(self, color):
         self.image.fill(color)
         self.__ori_image = self.image.copy()
         self.rect.size = self.image.get_rect().size
         self.__ori_w, self.__ori_h = self.rect.size
+        self.hit_box = self.rect.copy()

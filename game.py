@@ -15,6 +15,8 @@ canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
 background_color = (100,155,255)
 
+USER_ID = 1
+
 def change_state(state:State):
     pg.event.post(pg.event.Event(Event_Manager.EVENT_CHANGE_STATE, {"state":state}))
 

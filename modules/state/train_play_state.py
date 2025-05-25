@@ -35,7 +35,7 @@ class Train_Play_State(State):
         # 動畫
         self.card_draw_start_time = 0
         self.card_play_start_time = 0
-        self.card_draw_interval = 350  # 毫秒，抽牌時間
+        self.card_draw_interval = 50  # 毫秒，抽牌時間
         self.card_play_interval = 500  # 毫秒，出卡時間
 
         # flags
@@ -53,7 +53,7 @@ class Train_Play_State(State):
         self.db = VocabularyDB()
         self.voc_list = self.db.find_vocabulary(level=level)
         self.mode = mode
-        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num))
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num), self.mode)
         self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
 
         # === UI ===
@@ -182,7 +182,10 @@ class Train_Play_State(State):
                 self.load_question()  # 抽滿了就下一題
                 return
             card = self.deck.draw_a_card()
-            card.moveTo(self.hand.first_empty_slot_pos(), self.card_draw_interval)
+            card.moveTo((200, 500), self.card_draw_interval * 5, False)
+            endPos = self.hand.first_empty_slot_pos()
+            card.moveTo(endPos, self.card_draw_interval * 5, False)
+            card.moveTo(endPos, 0, True) # 只為了動hit_box
             card.setClick(lambda: self.play_a_card_from_hand(card))
             self.hand.add_card(card)
             self.hand.deactivate()
@@ -264,7 +267,7 @@ class Train_Play_State(State):
         # 題目
         if self.current_question_text:
             font = pg.font.Font("res\\font\\SWEISANSCJKTC-REGULAR.TTF", 60)
-            self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 200, 180, game.CANVAS_WIDTH - 200)
+            self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 200, 200, game.CANVAS_WIDTH - 400)
         # 卡堆
         if self.deck != None:
             self.deck.render()
