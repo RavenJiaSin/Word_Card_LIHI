@@ -5,7 +5,7 @@ import sqlite3
 from .state import State
 from ..object import Group, Text_Button, Confirm_Quit_Object
 from ..manager import Font_Manager, Image_Manager
-from modules.database.testDBconnect import TestDB
+from modules.database.userDBconnect import UserDB
 
 class Statistics_State(State):
     def __init__(self):
@@ -21,53 +21,50 @@ class Statistics_State(State):
         self.all_sprites.add(menu_button)
 
         self.user_id = 1  # 假設目前登入的是 user_id = 1
-        self.user_db = TestDB()
+        self.user_db = UserDB()
         self.stats = self.get_statistics()
+        
 
     def get_statistics(self):
         conn = sqlite3.connect("user_data/users.db")
         cur = conn.cursor()
         today = datetime.date.today()
         week_start = today - datetime.timedelta(days=6)
-        
-        # 1. 練功坊統計
-        cur.execute("SELECT COUNT(*) FROM train_log WHERE user_id = ?", (self.user_id,))
-        play_count = cur.fetchone()[0]
 
-        cur.execute("SELECT COUNT(*) FROM train_log WHERE user_id = ? AND completed = 1", (self.user_id,))
-        complete_count = cur.fetchone()[0]
+        # 1. 練功坊遊玩次數（從 user_info.total_time 為依據）
+        cur.execute("SELECT total_time FROM user_info WHERE user_id = ?", (self.user_id,))
+        result = cur.fetchone()
+        play_count = 1 if result and result[0] > 0 else 0  # 若有遊玩過就算 1 次
 
-        # 2. 答題總數與正確率
+        # 2. 練功坊實際完成次數（exp 為 0 表示尚未完成任務）
+        cur.execute("SELECT exp FROM user_info WHERE user_id = ?", (self.user_id,))
+        result = cur.fetchone()
+        complete_count = 1 if result and result[0] > 0 else 0
+
+        # 3. 累積答題數（所有卡牌 correct + wrong 次數總和）
         cur.execute("SELECT SUM(correct_count), SUM(wrong_count) FROM card_collection WHERE user_id = ?", (self.user_id,))
-        correct, wrong = cur.fetchone()
-        correct = correct or 0
-        wrong = wrong or 0
-        total = correct + wrong
-        total_accuracy = round(correct / total * 100, 1) if total else 0.0
+        row = cur.fetchone()
+        correct_total = row[0] if row[0] else 0
+        wrong_total = row[1] if row[1] else 0
+        total = correct_total + wrong_total
 
-        # 3. 本週正確率
+        # 4. 總體正確率
+        total_accuracy = round((correct_total / total) * 100, 1) if total > 0 else 0
+
+        # 5. 本週正確率（根據 last_review 在本週的卡牌）
         cur.execute("""
-            SELECT COUNT(*), SUM(is_correct)
-            FROM answer_log
-            WHERE user_id = ? AND DATE(timestamp) >= DATE(?)
-        """, (self.user_id, week_start))
-        week_total, week_correct = cur.fetchone()
-        week_correct = week_correct or 0
-        week_accuracy = round(week_correct / week_total * 100, 1) if week_total else 0.0
+            SELECT correct_count, wrong_count FROM card_collection 
+            WHERE user_id = ? AND last_review >= ?
+        """, (self.user_id, week_start.isoformat()))
+        week_correct = 0
+        week_total = 0
+        for row in cur.fetchall():
+            week_correct += row[0]
+            week_total += row[0] + row[1]
+        week_accuracy = round((week_correct / week_total) * 100, 1) if week_total > 0 else 0
 
-        # 4. 登入日數與連續登入
-        cur.execute("SELECT DISTINCT date FROM login_log WHERE user_id = ?", (self.user_id,))
-        dates = [datetime.datetime.strptime(d[0], "%Y-%m-%d").date() for d in cur.fetchall()]
-        dates.sort()
-        login_days = len(dates)
 
-        # 計算連續登入
-        streak = 0
-        for i in range(len(dates) - 1, -1, -1):
-            if (today - dates[i]).days == streak:
-                streak += 1
-            else:
-                break
+        streak = self.user_db.get_user_info(self.user_id, "streak_days")
 
         conn.close()
         return {
@@ -76,9 +73,9 @@ class Statistics_State(State):
             "累積答題數": total,
             "總體正確率": f"{total_accuracy}%",
             "本週正確率": f"{week_accuracy}%",
-            "登入日數": login_days,
-            "連續登入日數": streak
+            "連續登入日數": streak[0]["streak_days"],
         }
+
 
     def handle_event(self):
         self.all_sprites.handle_event()
@@ -95,4 +92,4 @@ class Statistics_State(State):
         spacing = 50
         for i, (key, value) in enumerate(self.stats.items()):
             text = f"{key}: {value}"
-            Font_Manager.draw_text(game.canvas, text, 36, 150, start_y + i * spacing)
+            Font_Manager.draw_text(game.canvas, text, 36, 200, start_y + i * spacing)
