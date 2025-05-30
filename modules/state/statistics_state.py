@@ -86,7 +86,7 @@ class Statistics_State(State):
             f"  - {c['voc_id']}: {c['correct']}/{c['wrong']}（共{c['total']}次）"
             for c in top5_cards
         ]
-        self.card_pos = (1000, 160)
+        self.card_pos = (1350, 160)
 
         # 區塊三：每日正確率圖表
         labels, values = self.get_weekly_accuracy()
