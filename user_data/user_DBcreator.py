@@ -32,6 +32,17 @@ def create_userDB():
         FOREIGN KEY (user_id) REFERENCES user_info(user_id)
     );
     ''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS answer_log (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id     INTEGER NOT NULL,
+        voc_id      TEXT NOT NULL,
+        is_correct  INTEGER NOT NULL,
+        timestamp   TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES user_info(user_id)
+    );
+    ''')
+
     conn.commit()
 
     

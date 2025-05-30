@@ -256,6 +256,18 @@ class UserDB:
         except (sqlite3.Error, Exception) as e:
             print(f"[ERROR] Failed to update durability: {e}")
 
+    def log_answer(self, user_id: int, voc_id: str, is_correct: bool):
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    INSERT INTO answer_log (user_id, voc_id, is_correct)
+                    VALUES (?, ?, ?)
+                ''', (user_id, voc_id, int(is_correct)))
+                conn.commit()
+                print(f"[INFO] Logged answer: user={user_id}, voc={voc_id}, correct={is_correct}")
+        except sqlite3.Error as e:
+            print(f"[ERROR] Failed to log answer: {e}")
 
 
 

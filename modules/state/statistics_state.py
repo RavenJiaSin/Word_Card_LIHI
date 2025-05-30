@@ -2,10 +2,21 @@ import pygame as pg
 import game
 import datetime
 import sqlite3
+
+# 設定 matplotlib 不啟用 GUI 後端
+import matplotlib
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+import io
+from PIL import Image
+from collections import defaultdict
+
 from .state import State
-from ..object import Group, Text_Button, Confirm_Quit_Object,card
+from ..object import Group, Text_Button, Confirm_Quit_Object, card
 from ..manager import Font_Manager, Image_Manager
 from modules.database.userDBconnect import UserDB
+
 
 class Statistics_State(State):
     def __init__(self):
@@ -77,15 +88,69 @@ class Statistics_State(State):
         ]
         self.card_pos = (1000, 160)
 
+        # 區塊三：每日正確率圖表
+        labels, values = self.get_weekly_accuracy()
+        self.accuracy_chart = self.create_line_chart(labels, values)
+
+    def get_weekly_accuracy(self):
+        conn = sqlite3.connect("user_data/users.db")
+        cur = conn.cursor()
+
+        today = datetime.date.today()
+        days = [(today - datetime.timedelta(days=i)).isoformat() for i in reversed(range(7))]
+        stats = defaultdict(lambda: {"correct": 0, "total": 0})
+
+        cur.execute("SELECT is_correct, timestamp FROM answer_log WHERE user_id = ?", (self.user_id,))
+        for is_correct, timestamp in cur.fetchall():
+            date = timestamp[:10]
+            if date in days:
+                stats[date]["total"] += 1
+                if is_correct:
+                    stats[date]["correct"] += 1
+
+        conn.close()
+
+        labels, values = [], []
+        for d in days:
+            correct = stats[d]["correct"]
+            total = stats[d]["total"]
+            acc = round((correct / total) * 100, 1) if total > 0 else 0
+            labels.append(d[5:])  # MM-DD
+            values.append(acc)
+        return labels, values
+
+    def create_line_chart(self, labels, values, title="每日正確率"):
+        import matplotlib.font_manager as fm
+        font_path = "res/font/Cubic_11.ttf"  # 放一份繁體中文字型檔在此路徑
+        chinese_font = fm.FontProperties(fname=font_path)
+
+        fig, ax = plt.subplots(figsize=(6, 3.8))
+        fig.subplots_adjust(top=0.85)
+
+        ax.plot(labels, values, marker='o', linewidth=3, color='blue')
+        ax.set_ylim(0, 100)
+        ax.set_ylabel("正確率 (%)", fontproperties=chinese_font, fontsize=18)
+        ax.set_title(title, fontproperties=chinese_font, fontsize=20)
+        ax.grid(True)
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='PNG', dpi=120)
+        buf.seek(0)
+        plt.close(fig)
+
+        image = Image.open(buf).convert('RGBA')
+        mode, size, data = image.mode, image.size, image.tobytes()
+        return pg.image.fromstring(data, size, mode)
+
+
+
     def draw_block(self, title, text_lines, pos):
         x, y = pos
-        spacing = 50  # 調高間距對應字體放大
-
-        self.font_manager.draw_text(game.canvas, title, 64, x + 20, y + 20)  # 放大區塊標題
+        spacing = 50
+        self.font_manager.draw_text(game.canvas, title, 64, x + 20, y + 20)
         for i, line in enumerate(text_lines):
-            font_size = 40 if not line.strip().startswith("-") else 36  # 判斷是否為列表項
+            font_size = 40 if not line.strip().startswith("-") else 36
             self.font_manager.draw_text(game.canvas, line, font_size, x + 40, y + 100 + i * spacing)
-
 
     def handle_event(self):
         self.confirm_quit_object.handle_event()
@@ -98,7 +163,10 @@ class Statistics_State(State):
     def render(self):
         self.font_manager.draw_text(game.canvas, "統計", 70, game.CANVAS_WIDTH / 2, 80)
         self.all_sprites.draw(game.canvas)
-
         self.draw_block(self.overview_title, self.overview_text, self.overview_pos)
         self.draw_block(self.card_title, self.card_text, self.card_pos)
+        if hasattr(self, "accuracy_chart") and self.accuracy_chart:
+            resized_chart = pg.transform.smoothscale(self.accuracy_chart, (900, 500))
+            game.canvas.blit(resized_chart, (100, 520))
+
         self.confirm_quit_object.render()
