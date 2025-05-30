@@ -121,7 +121,7 @@ class Statistics_State(State):
 
     def create_line_chart(self, labels, values, title="每日正確率"):
         import matplotlib.font_manager as fm
-        font_path = "res/font/Cubic_11.ttf"  # 放一份繁體中文字型檔在此路徑
+        font_path = "res/font/Cubic_11.ttf"  
         chinese_font = fm.FontProperties(fname=font_path)
 
         fig, ax = plt.subplots(figsize=(6, 3.8))
