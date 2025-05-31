@@ -30,7 +30,7 @@ class Game:
         self.__window = pg.display.set_mode((self.__window_width,self.__window_height),self.__window_flag)
         self.__clock = pg.time.Clock()
         self.__state = Start_State()
-        self.__time_maneger = Time_Manager()
+        self.__time_manager = Time_Manager()
     def run(self):
         global deltaTick, event_list
         while self.__isRunning:
@@ -54,7 +54,7 @@ class Game:
         self.__state.handle_event()
 
     def __update(self):
-        self.__time_maneger.update()
+        self.__time_manager.update()
         self.__state.update()
 
     def __render(self):
