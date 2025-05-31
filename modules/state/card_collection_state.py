@@ -174,6 +174,7 @@ class Card_Collection_State(State):
        
         for card in self.background_cards:
             card.rect.centery = card.ori_y + self.scroll_offset
+            card.hit_box = card.rect.copy()
 
         self.ui_sprites.update()
         if self.foreground_card:
