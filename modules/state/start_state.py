@@ -31,6 +31,12 @@ class Start_State(State):
 
         self.all_sprites.add(quit_card)
 
+
+        # user_db = UserDB()
+        # k = db.find_vocabulary('id')[1:50]
+        # for word in k:
+        #     user_db.add_card_to_user(game.USER_ID, word['ID'])
+
         # enter_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+50), text='開始')
         # quit_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+200), text='退出')
         # from ..state import Menu_State # 在這邊import是為了避免circular import
