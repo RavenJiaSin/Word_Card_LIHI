@@ -8,7 +8,7 @@ class Time_Manager():
     voc_db = VocabularyDB()
     user_db = UserDB()
 
-    SECASDAY = 10  # 幾秒當一天
+    SECASDAY = 3  # 幾秒當一天
     __last_time = 0
 
     def __init__(self):

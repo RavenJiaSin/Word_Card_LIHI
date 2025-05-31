@@ -41,6 +41,8 @@ class Card_Collection_State(State):
         self.current_vocab_index = 0
         self.vocab_list = []
         for card in self.user_db.get_card_info(game.USER_ID):
+            if card['durability'] <= 0:
+                continue
             self.vocab_list += self.voc_db.find_vocabulary(id=card['voc_id'])
 
         from . import Menu_State
