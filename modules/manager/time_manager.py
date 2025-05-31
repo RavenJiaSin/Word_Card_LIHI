@@ -76,7 +76,7 @@ class Time_Manager():
             user_point += self.voc_db.find_vocabulary(id=voc['voc_id'])[0]['Level']
         # print(user_point)
 
-        # 計算使用者等級，將卡牌庫總點數分成7個區間 (1~7)，7表示8000單全都會了
+        # 計算使用者等級，將卡牌庫總點數分成6個區間 (1~6)
         point_per_level = total_point // 6
         user_level = user_point // point_per_level + 1
         print(f'user level: {user_level}/7')
