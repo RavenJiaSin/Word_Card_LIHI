@@ -10,6 +10,7 @@ from ..object import Confirm_Quit_Object
 from functools import partial
 from ..manager import Font_Manager
 from modules.database import VocabularyDB
+from modules.database import UserDB
 
 class Card_Collection_State(State):
     """遊戲中卡片收藏頁面的狀態管理類別。
@@ -35,9 +36,12 @@ class Card_Collection_State(State):
     """
 
     def __init__(self):
-        self.db = VocabularyDB()
+        self.voc_db = VocabularyDB()
+        self.user_db = UserDB()
         self.current_vocab_index = 0
-        self.vocab_list = self.db.get_all()
+        self.vocab_list = []
+        for card in self.user_db.get_card_info(game.USER_ID):
+            self.vocab_list += self.voc_db.find_vocabulary(id=card['voc_id'])
 
         from . import Menu_State
         self.background_cards = Group()

@@ -2,6 +2,7 @@ import pygame as pg
 from modules.state import State, Start_State
 from modules.manager import Font_Manager
 from modules.manager import Event_Manager
+from modules.manager import Time_Manager
 
 FPS = 60
 
@@ -29,6 +30,7 @@ class Game:
         self.__window = pg.display.set_mode((self.__window_width,self.__window_height),self.__window_flag)
         self.__clock = pg.time.Clock()
         self.__state = Start_State()
+        self.__time_maneger = Time_Manager()
     def run(self):
         global deltaTick, event_list
         while self.__isRunning:
@@ -52,6 +54,7 @@ class Game:
         self.__state.handle_event()
 
     def __update(self):
+        self.__time_maneger.update()
         self.__state.update()
 
     def __render(self):
