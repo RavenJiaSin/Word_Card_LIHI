@@ -4,6 +4,7 @@ import game
 from ..manager.font_manager import Font_Manager
 from .match_card import Match_Card
 from .card import Card
+from .card_info import Card_Info
 from ..database import VocabularyDB
 from ..database import UserDB
 from ..manager import Event_Manager

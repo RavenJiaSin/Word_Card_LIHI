@@ -139,7 +139,7 @@ class Card_Collection_State(State):
             self.foreground_card_info = None
         else:
             self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2-400, game.CANVAS_HEIGHT/2), scale=4,id=card_id)
-            self.foreground_card_info = Card_Info((game.CANVAS_WIDTH/2+360, 300), 3, card_id)
+            self.foreground_card_info = Card_Info((game.CANVAS_WIDTH/2+360, 500), 3, card_id)
 
     # override
     def handle_event(self):   
