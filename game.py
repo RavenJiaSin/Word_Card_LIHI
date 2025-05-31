@@ -3,6 +3,7 @@ from modules.state import State, Start_State
 from modules.manager import Font_Manager
 from modules.manager import Event_Manager
 from modules.manager import Time_Manager
+from modules.manager import SFX_Manager
 
 FPS = 60
 
@@ -31,6 +32,7 @@ class Game:
         self.__clock = pg.time.Clock()
         self.__state = Start_State()
         self.__time_manager = Time_Manager()
+        SFX_Manager.init()
     def run(self):
         global deltaTick, event_list
         while self.__isRunning:
@@ -68,5 +70,6 @@ class Game:
 
 
     def quit(self):
+        SFX_Manager.stop_all()
         print('Successfully quit pygame')
         pg.quit()

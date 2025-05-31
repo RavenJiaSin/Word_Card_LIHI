@@ -152,7 +152,7 @@ class Card_Collection_State(State):
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     mx, my = event.pos
                     scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
-                    if not self.foreground_card.rect.collidepoint(scaled_pos) and not self.foreground_card_info.rect.collidepoint(scaled_pos):
+                    if self.foreground_card and self.foreground_card_info and not self.foreground_card.rect.collidepoint(scaled_pos) and not self.foreground_card_info.rect.collidepoint(scaled_pos):
                         self.foreground_card = None
                         self.foreground_card_info = None
         # 沒有放大卡，則先檢查是否點到背景卡牌或 UI 按鈕
