@@ -10,13 +10,14 @@ FULLSCREEN = False
 MOUSE_SCALE = 1 if FULLSCREEN else 1.5
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
+USER_ID = 1
+DAILY_CARD_NUM = 10
 
 deltaTick = 0
 canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
 background_color = (100,155,255)
-
-USER_ID = 1
+daily_card_ids = []  # 每日卡牌們的id
 
 def change_state(state:State):
     pg.event.post(pg.event.Event(Event_Manager.EVENT_CHANGE_STATE, {"state":state}))
