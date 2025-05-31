@@ -91,8 +91,6 @@ class Time_Manager():
         draw_from_voc = [[] for i in range(6)]
         for i in range(6):
             draw_from_voc[i] = [voc for voc in all_voc if voc['ID'] in have_not_gain_voc_id and voc['Level'] == i+1]
-        for i in range(6):
-            print(draw_from_voc[i][0])
 
         # 根據使用者等級抽卡
         card_pool = []
