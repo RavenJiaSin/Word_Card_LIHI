@@ -5,6 +5,7 @@ from ..manager.font_manager import Font_Manager
 from .match_card import Match_Card
 from .card import Card
 from ..database import VocabularyDB
+from ..database import UserDB
 from ..manager import Event_Manager
 from ..object import Group
 
@@ -31,7 +32,7 @@ class Match_Game:
         __layer (int): 繪畫圖層, 當新的配對出現則加一, 使其顯示在最上層
     """
 
-    def __init__(self, cols:int=5, rows:int=4, pos:tuple=(0,0), col_spacing:int=270, row_spacing:int=200):
+    def __init__(self, cols:int=5, rows:int=4, pos:tuple=(0,0), col_spacing:int=300, row_spacing:int=200):
         total_card_width = (cols-1) * col_spacing
         total_card_height = (rows-1) * row_spacing
         top_left = pos[0]-total_card_width//2, pos[1]-total_card_height//2
@@ -53,18 +54,18 @@ class Match_Game:
         self.__blue_display_y = 300
         self.__red_display_y = 300
         self.__layer = 0
+        self.__ori_background_color = game.background_color
+        game.background_color = (50,50,100)
 
         words = self.__getWords((cols*rows / 2).__ceil__())
         random.shuffle(words)
         i = 0
         for row in grid:
             for pos in row:
-                card = Match_Card(pos=pos, scale=1.5, word=words[i])
+                card = Match_Card(pos=pos, scale=1.8, word=words[i])
                 i += 1
                 self.__all_cards.add(card, layer=0)
 
-        self.__ori_background_color = game.background_color
-        game.background_color = (50,50,100)
 
     def __del__(self):
         game.background_color = self.__ori_background_color
@@ -180,8 +181,19 @@ class Match_Game:
     
     def __getWords(self, n) -> list:
         db = VocabularyDB()
-        words = db.find_vocabulary(column='Vocabulary', length=random.randrange(5,8))
-        random_words = [(word['Vocabulary'], 'eng') for word in random.sample(words, n)]
+        user_db = UserDB()
+        user_cards = user_db.get_card_info(game.USER_ID)
+        user_vocs = [card['voc_id'] for card in user_cards]
+        user_words = [db.find_vocabulary(id=voc)[0] for voc in user_vocs]
+
+        if len(user_words) >= n//2:
+            random_words = [(word['Vocabulary'], 'eng') for word in random.sample(user_words, n//2)]
+            words = db.find_vocabulary(column='Vocabulary')
+            random_words += [(word['Vocabulary'], 'eng') for word in random.sample(words, n//2)]
+        else:
+            random_words = [(word['Vocabulary'], 'eng') for word in random.sample(user_words, len(user_words))]
+            words = db.find_vocabulary(column='Vocabulary')
+            random_words += [(word['Vocabulary'], 'eng') for word in random.sample(words, n-len(user_words))]
         random_words_trans = [db.find_vocabulary(vocabulary=word[0])[0]['Translation'] for word in random_words]
         random_words_trans = [(chinese.split(';')[0].split(',')[0], 'chi') for chinese in random_words_trans]
         self.__ans = {eng[0]: chi[0] for eng, chi in zip(random_words, random_words_trans)}
