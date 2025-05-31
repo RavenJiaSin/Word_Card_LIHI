@@ -33,3 +33,4 @@ class SFX_Manager:
     @classmethod
     def stop_all(cls):
         pygame.mixer.stop()
+        pygame.mixer.quit()
