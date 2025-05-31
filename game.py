@@ -3,10 +3,11 @@ from modules.state import State, Start_State
 from modules.manager import Font_Manager
 from modules.manager import Event_Manager
 from modules.manager import Time_Manager
+from modules.manager import SFX_Manager
 
 FPS = 60
 
-FULLSCREEN = False
+FULLSCREEN = True
 MOUSE_SCALE = 1 if FULLSCREEN else 1.5
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
@@ -31,7 +32,8 @@ class Game:
         self.__window = pg.display.set_mode((self.__window_width,self.__window_height),self.__window_flag)
         self.__clock = pg.time.Clock()
         self.__state = Start_State()
-        self.__time_maneger = Time_Manager()
+        self.__time_manager = Time_Manager()
+        SFX_Manager.init()
     def run(self):
         global deltaTick, event_list
         while self.__isRunning:
@@ -55,7 +57,7 @@ class Game:
         self.__state.handle_event()
 
     def __update(self):
-        self.__time_maneger.update()
+        self.__time_manager.update()
         self.__state.update()
 
     def __render(self):
@@ -69,5 +71,6 @@ class Game:
 
 
     def quit(self):
+        SFX_Manager.stop_all()
         print('Successfully quit pygame')
         pg.quit()

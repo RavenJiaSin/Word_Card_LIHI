@@ -28,8 +28,14 @@ class Time_Manager():
         self.__last_time = pg.time.get_ticks()
         user_cards = self.user_db.get_card_info(user_id = game.USER_ID)
 
-        for card_data in user_cards:
-            self.user_db.update_card_info(user_id = game.USER_ID, voc_id = card_data['voc_id'], durability=100, proficiency = random.randint(1,6))
+        # for card_data in user_cards:
+        #     self.user_db.update_card_info(user_id = game.USER_ID, voc_id = card_data['voc_id'], durability=100, proficiency = random.randint(1,6))
+        self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=1, delta = 100)
+        self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=2, delta = 100)
+        self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=3, delta = 100)
+        self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=4, delta = 100)
+        self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=5, delta = 100)
+        self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=6, delta = 100)
         # ^^^^^ just for demo ^^^^^
     
     def update(self):
