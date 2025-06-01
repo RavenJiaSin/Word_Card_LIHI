@@ -1,5 +1,6 @@
 from datetime import datetime
 import math
+import re
 import pygame as pg
 import random
 import game
@@ -215,10 +216,7 @@ class Train_Play_State(State):
         elif self.mode == Train_Enum.SENTENCE:
             self.question = self.db.get_example_sentences(voc_id=self.answer_data['ID'])[0]
             sentence = self.question['sentence']
-            replaced_sentence =  sentence.replace(self.answer_data['Vocabulary'], "_____")
-            first = self.answer_data['Vocabulary'][0].upper()  # 確保首字母大寫也會被挖掉
-            left = self.answer_data['Vocabulary'][1:]
-            self.current_question_text = replaced_sentence.replace(first+left, "_____")
+            self.current_question_text = re.sub(fr"\b{self.answer_data['Vocabulary']}\b", '_____', sentence, flags=re.IGNORECASE)            
 
         self.history[Train_Enum.QUESTION].append(self.current_question_text)
 
