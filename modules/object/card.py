@@ -38,7 +38,22 @@ class Card(Button):
     def __get_image(self, scale) -> pg.surface.Surface:
 
         # 先取得卡片模板    
-        card_template_img = Image_Manager.get('card_template')
+        level = self.__data.get('Level', 0)
+        if level == 1:
+            card_template_img = Image_Manager.get('level_1_card_frame')
+        elif level == 2:
+            card_template_img = Image_Manager.get('level_2_card_frame')
+        elif level == 3:
+            card_template_img = Image_Manager.get('level_3_card_frame')
+        elif level == 4:
+            card_template_img = Image_Manager.get('level_4_card_frame')
+        elif level == 5:
+            card_template_img = Image_Manager.get('level_5_card_frame')
+        elif level == 6:
+            card_template_img = Image_Manager.get('level_6_card_frame')
+        else:
+            card_template_img = Image_Manager.get('card_template')
+            
         card_template_img = pg.transform.smoothscale(card_template_img, (card_template_img.get_width()*scale, card_template_img.get_height()*scale))
 
         # 將自身圖片清空
