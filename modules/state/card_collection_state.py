@@ -45,7 +45,11 @@ class Card_Collection_State(State):
         for card in self.user_db.get_card_info(game.USER_ID):
             if card['durability'] <= 0:
                 continue
-            self.vocab_list += self.voc_db.find_vocabulary(id=card['voc_id'])
+            voc_dic = self.voc_db.find_vocabulary(id=card['voc_id'])[0]
+            voc_dic['durability'] = int(card['durability'])
+            self.vocab_list += [voc_dic]
+
+        self.vocab_list = sorted(self.vocab_list, key=lambda x: x["durability"])
 
         from . import Menu_State
         self.background_cards = Group()
@@ -112,7 +116,6 @@ class Card_Collection_State(State):
         self.generate_row(1)
 
     def apply_filter(self):
-        self.filter_ui_visible = False
         self.background_cards.empty()
         self.current_vocab_index = 0
 
@@ -165,15 +168,28 @@ class Card_Collection_State(State):
             self.text_sound_button_1 = Text_Sound_Button(pos=self.foreground_card_info.pos_for_voc_button, scale=0.5, text=self.foreground_card_info.voc)
             self.text_sound_button_2 = Text_Sound_Button(pos=self.foreground_card_info.pos_for_sentence, scale=0.5, text=self.foreground_card_info.sentence)
 
+    def update_background_cards(self):
+        self.vocab_list = []
+        for card in self.user_db.get_card_info(game.USER_ID):
+            if card['durability'] <= 0:
+                continue
+            voc_dic = self.voc_db.find_vocabulary(id=card['voc_id'])[0]
+            voc_dic['durability'] = int(card['durability'])
+            self.vocab_list += [voc_dic]
+
+        self.vocab_list = sorted(self.vocab_list, key=lambda x: x["durability"])
+        self.apply_filter()
+
+        for card in self.background_cards:
+            card.update_image()
+
     # override
     def handle_event(self):   
 
         for e in game.event_list:
             if e.type == Event_Manager.EVENT_ANEWDAY:
-                for card in self.background_cards:
-                    card.update_image()
-
-
+                self.update_background_cards()
+                
         self.confirm_quit_object.handle_event()
 
         # 有放大卡，檢查點擊位置，不在卡片上就關掉
