@@ -63,6 +63,10 @@ class Train_Play_State(State):
         # === UI ===
         self.all_sprites = Group()
         
+        # 更新遊玩次數
+        play_count = self.user_db.get_user_info(user_id=self.user_id, column="total_time")[0]["total_time"]+1
+        self.user_db.update_user_info(user_id= self.user_id, total_time = play_count)
+        
         # 建立牌堆與手牌
         self.create_deck()
         self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)

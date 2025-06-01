@@ -40,11 +40,10 @@ class Statistics_State(State):
         cur = conn.cursor()
 
         # user_info
-        cur.execute("SELECT streak_days, exp, level FROM user_info WHERE user_id = ?", (self.user_id,))
+        cur.execute("SELECT streak_days, total_time, level FROM user_info WHERE user_id = ?", (self.user_id,))
         user_info = cur.fetchone()
         streak_day = user_info[0] if user_info else 0
-        exp = user_info[1] if user_info else 0
-        play_count = 1 if streak_day > 0 else 0
+        play_count = user_info[1] if user_info else 0
         player_level = user_info[2] if user_info else 0
 
         # card_collection
@@ -182,17 +181,26 @@ class Statistics_State(State):
         return pg.image.fromstring(data, size, mode)
 
     def get_weekly_new_cards(self):
-        # TODO: 等待 DB 欄位 obtained_time 實作完成，這裡用假資料模擬
+        conn = sqlite3.connect("user_data/users.db")
+        cur = conn.cursor()
+
         today = datetime.date.today()
         days = [(today - datetime.timedelta(days=i)).isoformat() for i in reversed(range(7))]
+        daily_counts = {day: 0 for day in days}
 
-        # 模擬一週內每日新增卡牌數（你可以換成真實資料）
-        import random
-        daily_counts = {day: random.randint(0, 5) for day in days}
+        cur.execute("SELECT first_acquired_time FROM card_collection WHERE user_id = ?", (self.user_id,))
+        for (timestamp,) in cur.fetchall():
+            if timestamp:  # 確保不是 None
+                date = timestamp[:10]  # 取前10碼 'YYYY-MM-DD'
+                if date in daily_counts:
+                    daily_counts[date] += 1
 
-        labels = [d[5:] for d in days]  # 轉成 MM-DD
+        conn.close()
+
+        labels = [d[5:] for d in days]  # 顯示 MM-DD
         values = [daily_counts[d] for d in days]
         return labels, values
+
 
 
     def draw_chart_block(self, image, title, pos):
