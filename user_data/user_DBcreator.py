@@ -16,7 +16,7 @@ def create_userDB():
         streak_days INTEGER DEFAULT 0,
         exp INTEGER DEFAULT 0,
         level INTEGER DEFAULT 1,
-        joined_time TEXT DEFAULT CURRENT_TIMESTAMP
+        joined_time TEXT DEFAULT (datetime('now', 'localtime'))
     );
     ''')
     cursor.execute('''
@@ -30,6 +30,7 @@ def create_userDB():
         wrong_count INTEGER DEFAULT 0,
         times_drawn INTEGER DEFAULT 1,
         durability INTEGER DEFAULT 100,
+        first_acquired_time TEXT DEFAULT (datetime('now', 'localtime')),
         FOREIGN KEY(user_id) REFERENCES user_info(user_id)
     );
     ''')
@@ -39,7 +40,7 @@ def create_userDB():
         user_id INTEGER NOT NULL, 
         voc_id TEXT NOT NULL, 
         is_correct INTEGER NOT NULL, 
-        timestamp TEXT DEFAULT CURRENT_TIMESTAMP, 
+        timestamp TEXT DEFAULT (datetime('now', 'localtime')), 
         FOREIGN KEY (user_id) REFERENCES user_info(user_id) 
     );
     ''')

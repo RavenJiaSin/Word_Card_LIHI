@@ -19,7 +19,7 @@ class VocabularyDB:
                 return [dict(row) for row in rows]
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to fetch all records: {e}")
-            return None
+            return []
 
     def find_vocabulary(self, column=None, **kwargs) -> list[dict]:
         """
@@ -73,7 +73,7 @@ class VocabularyDB:
 
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
-            return None
+            return []
 
 
         
@@ -121,7 +121,7 @@ class VocabularyDB:
                 return [dict(row) for row in rows]
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find vocabulary with conditions: {e}")
-            return None
+            return []
         
     def get_image(self, voc_id) -> str:
         image_path = f"vocs_data/vocs_img/{voc_id}.png"
