@@ -64,9 +64,11 @@ class Card_Collection_State(State):
         self.ui_sprites.add(menu_button)
 
         self.toggle_button_list = []
+        self.partofspeech_button_list = []
+        self.level_button_list = []
 
         # 詞性篩選器按鈕
-        partofspeech_labels = ['n.', 'v.', 'adj.', 'adv.', 'prep.', 'conj.','']
+        partofspeech_labels = ['n.', 'v.', 'adj.', 'adv.', 'prep.', 'conj.']
         toggle_start_x = 70
         toggle_start_y = 250
         gap = 100
@@ -75,6 +77,12 @@ class Card_Collection_State(State):
             btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
             self.ui_sprites.add(btn)
             self.toggle_button_list.append(btn)
+            self.partofspeech_button_list.append(btn)
+
+        # 全選詞性按鈕
+        btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+6*gap), scale=0.3, label='')
+        btn.setClick(lambda b=btn: (b.toggle(), list(tmp.set_state(b.get_state()) for tmp in self.partofspeech_button_list), self.apply_filter()))
+        self.ui_sprites.add(btn)
 
         # 等級篩選器按鈕 Level 1~6
         toggle_start_x = 150
@@ -85,6 +93,12 @@ class Card_Collection_State(State):
             btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
             self.ui_sprites.add(btn)
             self.toggle_button_list.append(btn)
+            self.level_button_list.append(btn)
+
+        # 全選等級按鈕
+        btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+6*gap), scale=0.3, label='')
+        btn.setClick(lambda b=btn: (b.toggle(), list(tmp.set_state(b.get_state()) for tmp in self.level_button_list), self.apply_filter()))
+        self.ui_sprites.add(btn)
 
         # 設定卡片顯示範圍與版面
         self.background_top = 200
