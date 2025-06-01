@@ -53,6 +53,8 @@ class Time_Manager():
         now = pg.time.get_ticks()
         if now - self.__last_time > self.SECASDAY * 1000:
             self.__last_time = now
+            user_info = self.user_db.get_user_info(user_id=game.USER_ID)[0]
+            self.user_db.update_user_info(user_id=game.USER_ID, streak_days=user_info['streak_days'] + 1)
             self.start_a_new_day()
         # ^^^^^ just for demo ^^^^^
 
