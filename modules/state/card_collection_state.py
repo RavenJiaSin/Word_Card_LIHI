@@ -78,14 +78,14 @@ class Card_Collection_State(State):
         gap = 100
         for i, label in enumerate(partofspeech_labels):
             btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+i*gap), scale=0.3, label=label)
-            btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
+            btn.setClick(lambda b=btn: (b.toggle(), self.reset_background_cards()))
             self.ui_sprites.add(btn)
             self.toggle_button_list.append(btn)
             self.partofspeech_button_list.append(btn)
 
         # 全選詞性按鈕
         btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+6*gap), scale=0.3, label='')
-        btn.setClick(lambda b=btn: (b.toggle(), list(tmp.set_state(b.get_state()) for tmp in self.partofspeech_button_list), self.apply_filter()))
+        btn.setClick(lambda b=btn: (b.toggle(), list(tmp.set_state(b.get_state()) for tmp in self.partofspeech_button_list), self.reset_background_cards()))
         self.ui_sprites.add(btn)
 
         # 等級篩選器按鈕 Level 1~6
@@ -94,14 +94,14 @@ class Card_Collection_State(State):
         for i in range(6):
             level = i + 1
             btn = Toggle_Button(pos=(toggle_start_x, toggle_start_y+i*gap), scale=0.3, label=str(level))
-            btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
+            btn.setClick(lambda b=btn: (b.toggle(), self.reset_background_cards()))
             self.ui_sprites.add(btn)
             self.toggle_button_list.append(btn)
             self.level_button_list.append(btn)
 
         # 全選等級按鈕
         btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+6*gap), scale=0.3, label='')
-        btn.setClick(lambda b=btn: (b.toggle(), list(tmp.set_state(b.get_state()) for tmp in self.level_button_list), self.apply_filter()))
+        btn.setClick(lambda b=btn: (b.toggle(), list(tmp.set_state(b.get_state()) for tmp in self.level_button_list), self.reset_background_cards()))
         self.ui_sprites.add(btn)
 
         # 設定卡片顯示範圍與版面
@@ -115,7 +115,7 @@ class Card_Collection_State(State):
         self.generate_row(0)
         self.generate_row(1)
 
-    def apply_filter(self):
+    def reset_background_cards(self):
         self.background_cards.empty()
         self.current_vocab_index = 0
 
@@ -169,6 +169,7 @@ class Card_Collection_State(State):
             self.text_sound_button_2 = Text_Sound_Button(pos=self.foreground_card_info.pos_for_sentence, scale=0.5, text=self.foreground_card_info.sentence)
 
     def update_background_cards(self):
+        # 進行排序(先照等級，再照耐久)
         self.vocab_list = []
         for card in self.user_db.get_card_info(game.USER_ID):
             if card['durability'] <= 0:
@@ -178,17 +179,17 @@ class Card_Collection_State(State):
             self.vocab_list += [voc_dic]
 
         self.vocab_list = sorted(self.vocab_list, key=lambda x: x["durability"])
-        self.apply_filter()
-
+        
+        self.reset_background_cards()
         for card in self.background_cards:
             card.update_image()
 
     # override
     def handle_event(self):   
-
         for e in game.event_list:
             if e.type == Event_Manager.EVENT_ANEWDAY:
                 self.update_background_cards()
+                
                 
         self.confirm_quit_object.handle_event()
 
@@ -218,7 +219,6 @@ class Card_Collection_State(State):
     # override
     def update(self):
         self.confirm_quit_object.update()
-
         self.background_cards.update()
        
         for card in self.background_cards:
@@ -247,7 +247,7 @@ class Card_Collection_State(State):
         not_hidden_cards = len(self.user_db.get_card_durability_below(user_id = 1, durability = 0))
         second_card_text = f"隱藏卡牌數：{not_hidden_cards}"
 
-        Font_Manager.draw_text(game.canvas, "Card Collection", 70, game.CANVAS_WIDTH/2 + 50 , 100)
+        Font_Manager.draw_text(game.canvas, "卡牌庫", 70, game.CANVAS_WIDTH/2, 100)
         Font_Manager.draw_text(game.canvas, first_card_text, 30, game.CANVAS_WIDTH/2 -500 , 70)
         Font_Manager.draw_text(game.canvas, second_card_text, 30, game.CANVAS_WIDTH/2 -500 , 130)
 
