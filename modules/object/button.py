@@ -4,6 +4,7 @@ import game
 from .object import Object
 from ..manager import Image_Manager
 from ..manager import Event_Manager
+from ..manager import SFX_Manager
 
 class Button(Object):
     """按鈕物件。繼承自Object。
@@ -55,6 +56,7 @@ class Button(Object):
                 self.__isPressed = False
                 if self.hit_box.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個放開事件只會讓一個 button 被放開
+                    SFX_Manager.play('button')
                     self.__click()
             if e.type == Event_Manager.EVENT_SHAKE:
                 x, y = self.rect.center

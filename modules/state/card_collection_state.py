@@ -10,6 +10,7 @@ from ..object import Confirm_Quit_Object
 from functools import partial
 from ..manager import Font_Manager
 from modules.database import VocabularyDB
+from modules.database import UserDB
 
 class Card_Collection_State(State):
     """遊戲中卡片收藏頁面的狀態管理類別。
@@ -35,9 +36,14 @@ class Card_Collection_State(State):
     """
 
     def __init__(self):
-        self.db = VocabularyDB()
+        self.voc_db = VocabularyDB()
+        self.user_db = UserDB()
         self.current_vocab_index = 0
-        self.vocab_list = self.db.get_all()
+        self.vocab_list = []
+        for card in self.user_db.get_card_info(game.USER_ID):
+            if card['durability'] <= 0:
+                continue
+            self.vocab_list += self.voc_db.find_vocabulary(id=card['voc_id'])
 
         from . import Menu_State
         self.background_cards = Group()
@@ -148,7 +154,7 @@ class Card_Collection_State(State):
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     mx, my = event.pos
                     scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
-                    if not self.foreground_card.rect.collidepoint(scaled_pos) and not self.foreground_card_info.rect.collidepoint(scaled_pos):
+                    if self.foreground_card and self.foreground_card_info and not self.foreground_card.rect.collidepoint(scaled_pos) and not self.foreground_card_info.rect.collidepoint(scaled_pos):
                         self.foreground_card = None
                         self.foreground_card_info = None
         # 沒有放大卡，則先檢查是否點到背景卡牌或 UI 按鈕
@@ -170,6 +176,7 @@ class Card_Collection_State(State):
        
         for card in self.background_cards:
             card.rect.centery = card.ori_y + self.scroll_offset
+            card.hit_box = card.rect.copy()
 
         self.ui_sprites.update()
         if self.foreground_card:

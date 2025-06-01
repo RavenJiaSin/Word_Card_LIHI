@@ -1,13 +1,15 @@
 import re
 import pygame as pg
+import game
 from ..database import VocabularyDB
+from ..database import UserDB
 from .object import Object
 from ..manager import Image_Manager
 from ..manager import Font_Manager
 
 class Card_Info(Object):
     def __init__(self, pos = (0,0), scale = 1, id = ''):
-        img = Image_Manager.get('card_info').copy()
+        img = Image_Manager.get('card_info')
         img = pg.transform.smoothscale(img, (img.get_width()*scale, img.get_height()*scale))
         surfs = []
         db = VocabularyDB()
@@ -45,6 +47,32 @@ class Card_Info(Object):
                 surfs.append((sentence_surface, sentence_rect))
                 top += sentence_rect.height+2
             
+        db = UserDB()
+        # 熟練度
+        prof = db.get_card_info(game.USER_ID, id, column='proficiency')[0]['proficiency']
+        prof_surf = Font_Manager.get_text_surface('熟練度 ' + str(prof), 12*scale, (36,36,36))
+        prof_rect = prof_surf.get_rect(bottom=img.get_height()-1, centerx = 100)
+        surfs.append((prof_surf, prof_rect))
+
+        # 耐久值
+        dura = db.get_card_info(game.USER_ID, id, column='durability')[0]['durability']
+        dura_surf = Font_Manager.get_text_surface('耐久值 ' + str(dura) + '/100', 12*scale, (36,36,36))
+        dura_rect = dura_surf.get_rect(bottom=img.get_height()-1, centerx = img.get_width()/2-24)
+        surfs.append((dura_surf, dura_rect))
+
+        # 正確率
+        corr = db.get_card_info(game.USER_ID, id, column='correct_count')[0]['correct_count']
+        wron = db.get_card_info(game.USER_ID, id, column='wrong_count')[0]['wrong_count']
+        print(corr, wron)
+        if corr + wron == 0:
+            accu = 0
+        else:
+            accu = corr / (corr + wron)
+        accu_surf = Font_Manager.get_text_surface(f'正確率{accu:.1%}', 12*scale, (36,36,36))
+        accu_rect = accu_surf.get_rect(bottom=img.get_height()-1, centerx = 760)
+        surfs.append((accu_surf, accu_rect))
+         
+
         img.blits(surfs)
         super().__init__(pos, 1, img)
 

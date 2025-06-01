@@ -10,6 +10,8 @@ from ..manager import Font_Manager, Image_Manager
 from ..manager import Train_Enum
 from ..manager import Event_Manager
 from modules.database import VocabularyDB
+from modules.database.userDBconnect import UserDB
+
 
 class Train_Play_State(State):
     """練功坊答題狀態。繼承自`State`。
@@ -55,6 +57,9 @@ class Train_Play_State(State):
         self.mode = mode
         self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num), self.mode)
         self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
+
+        self.user_id = 1  
+        self.user_db = UserDB()
 
         # === UI ===
         self.all_sprites = Group()
@@ -135,12 +140,19 @@ class Train_Play_State(State):
             self.all_sprites.add(self.wrong_indicator, layer=-1)
             self.showing_correct = True
             self.showing_wrong = True
+        
+        self.user_db.log_answer(
+            user_id=self.user_id,
+            voc_id=self.answer_data['ID'],
+            is_correct=(selected_card_data['ID'] == self.answer_data['ID']))
 
         self.showing_result = True
         # if self.mode == self.ENG2CHI:
         #     self.current_translation_text = f"Translation: {self.question['translation']}"
         
         self.all_sprites.add(self.next_button)
+        # 記錄答題結果到 answer_log
+
 
     def next_btn_func(self):
         if self.showing_wrong:

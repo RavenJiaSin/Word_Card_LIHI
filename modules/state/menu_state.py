@@ -6,6 +6,7 @@ from ..object import Text_Button
 from ..object import Carousel
 from ..object import Group
 from ..manager import Font_Manager
+from ..manager import Event_Manager
 
 
 class Menu_State(State):
@@ -21,7 +22,8 @@ class Menu_State(State):
         all_sprites (pg.sprite.Group): 管理所有Object物件。
     
     """
-    card_pack = True
+
+    opened_today_cards = False
 
     def __init__(self):
 
@@ -46,42 +48,49 @@ class Menu_State(State):
         self.all_sprites.add(card_collection_button)
 
         statistic_button = Text_Button(pos=(button_x, game.CANVAS_HEIGHT / 6 * 4.5), text='統　計')
-        # statistic_button.setClick(lambda:game.change_state(Test_State()))
+        from . import Statistics_State
+        statistic_button.setClick(lambda:game.change_state(Statistics_State()))
         self.all_sprites.add(statistic_button)
 
         exit_button = Text_Button(pos=(game.CANVAS_WIDTH-100,game.CANVAS_HEIGHT-80), text='EXIT')
         exit_button.setClick(lambda:pg.event.post(pg.event.Event(pg.QUIT)))
         self.all_sprites.add(exit_button)
 
-        card_pack_pos = (game.CANVAS_WIDTH / 2 + 100, game.CANVAS_HEIGHT / 2) 
+        self.card_pack_pos = (game.CANVAS_WIDTH / 2 + 100, game.CANVAS_HEIGHT / 2) 
 
-        if self.card_pack:
-            self.card_packet_button = Card(pos=card_pack_pos, scale=2)
-            self.card_packet_button.setClick(self.open_card_pack)
-            self.card_packet_button.setWiggle()
+        self.card_packet_button = Card(pos=self.card_pack_pos, scale=2)
+        self.card_packet_button.setClick(self.open_card_pack)
+        self.card_packet_button.setWiggle()
+        if not self.opened_today_cards:
             self.all_sprites.add(self.card_packet_button)
 
-        self.daily_card = Carousel(center=card_pack_pos, card_scale=2, radius=400, zoom_factor=0.8, speed=0.5)
+        self.daily_card = Carousel(center=self.card_pack_pos, card_scale=2, radius=400, zoom_factor=0.8)
 
     def open_card_pack(self):
-        self.card_pack = False
+        self.opened_today_cards = True
         self.all_sprites.remove(self.card_packet_button)
         
     # override
     def handle_event(self):
         self.all_sprites.handle_event()
-        if not self.card_pack:
+        if self.opened_today_cards:
             self.daily_card.handle_event()
+        for e in game.event_list:
+            if e.type == Event_Manager.EVENT_ANEWDAY:
+                self.opened_today_cards = False
+                self.all_sprites.add(self.card_packet_button)
+                self.daily_card = Carousel(center=self.card_pack_pos, card_scale=2, radius=400, zoom_factor=0.8)
+
 
     # override
     def update(self):
         self.all_sprites.update()
-        if not self.card_pack:
+        if self.opened_today_cards:
             self.daily_card.update()
 
     # override
     def render(self):
         Font_Manager.draw_text(game.canvas, "首頁", 70, game.CANVAS_WIDTH/2, 100)
         self.all_sprites.draw(game.canvas)
-        if (not self.card_pack):
+        if self.opened_today_cards:
             self.daily_card.draw(game.canvas)

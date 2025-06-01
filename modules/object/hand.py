@@ -130,4 +130,4 @@ class Hand():
         for card in self.__cards:
             if card != None:
                 game.canvas.blit(card.image, card.rect)
-                pg.draw.rect(game.canvas, (255,0,0), card.hit_box, 2)
+            #     pg.draw.rect(game.canvas, (255,0,0), card.hit_box, 2)
