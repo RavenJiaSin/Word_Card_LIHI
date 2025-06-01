@@ -59,6 +59,13 @@ class Toggle_Button(Button):
         else:
             self.set_ori_image(self.__off_img)
 
+    def set_state(self, state):
+        self.__on = state
+        if self.__on:
+            self.set_ori_image(self.__on_img)
+        else:
+            self.set_ori_image(self.__off_img)
+
     def get_state(self) -> bool:
         return self.__on
 

@@ -32,11 +32,6 @@ class Start_State(State):
         self.all_sprites.add(quit_card)
 
 
-        # user_db = UserDB()
-        # k = db.find_vocabulary('id')[1:50]
-        # for word in k:
-        #     user_db.add_card_to_user(game.USER_ID, word['ID'])
-
         # enter_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+50), text='開始')
         # quit_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+200), text='退出')
         # from ..state import Menu_State # 在這邊import是為了避免circular import
@@ -52,6 +47,17 @@ class Start_State(State):
     # override 
     def handle_event(self):
         self.all_sprites.handle_event()
+
+        for event in game.event_list:
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SLASH:
+                            db = VocabularyDB()
+                            user_db = UserDB()
+                            k = random.sample(db.find_vocabulary('id', level=1), 50) + random.sample(db.find_vocabulary('id', level=2), 10)\
+                                + random.sample(db.find_vocabulary('id', level=3), 10) + random.sample(db.find_vocabulary('id', level=4), 10)\
+                                + random.sample(db.find_vocabulary('id', level=5), 10) + random.sample(db.find_vocabulary('id', level=6), 10)
+                            for word in k:
+                                user_db.add_card_to_user(game.USER_ID, word['ID'])
 
 
     # override
