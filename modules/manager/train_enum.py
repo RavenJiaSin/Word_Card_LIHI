@@ -8,3 +8,7 @@ class Train_Enum():
     QUESTION = 0
     ANSWER = 1
     SELECTED = 2
+
+    # level
+    AUTO = -1
+    DAILY = -2

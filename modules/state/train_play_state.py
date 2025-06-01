@@ -86,9 +86,17 @@ class Train_Play_State(State):
 
         self.next_question()
 
-    ########## 題目與作答 ##########
+    ############ 出題 #############
 
     def create_deck(self):
+        if 1 <= self.level <= 6:
+            self.create_deck_by_level()
+        elif self.level == Train_Enum.AUTO:
+            self.create_deck_by_auto()
+        elif self.level == Train_Enum.DAILY:
+            self.create_deck_by_daily()
+        
+    def create_deck_by_level(self):
         '''
         按當前level創造卡牌堆
         優先放入耐久值過低的使用者卡牌以供複習
@@ -112,12 +120,26 @@ class Train_Play_State(State):
         cards_to_select = random.sample(cards_to_select, deck_card_num)
         self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, cards_to_select, self.mode)
 
+    def create_deck_by_auto(self):
+        ...
+    def create_deck_by_daily(self):
+        '''
+        牌堆全都是每日卡牌
+        '''
+        self.question_num = len(game.daily_card_ids)
+        daily_card = []
+        for voc_id in game.daily_card_ids:
+            daily_card.append(self.db.find_vocabulary(id=voc_id)[0])
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, daily_card, self.mode)
+
+    ########## 題目與作答 ##########
 
     def next_question(self):
         '''
         發題目
         '''
         if self.question_count < self.question_num:
+            print(f'Q ${self.question_count} / ${self.question_num}')
             self.question_count += 1
             self.draw_cards_from_deck()
         else:
@@ -128,9 +150,12 @@ class Train_Play_State(State):
         '''
         從手牌中抽一個當題目，並開始作答
         '''
+        if self.hand.cards_count() <= 0:
+            self.next_question()
+            return
         self.hand.activate()
         self.current_title_text = "Question " + str(self.question_count)
-        self.answer_data = self.hand.get_card_at(random.randint(0, self.hand.cards_count() - 1)).get_data()
+        self.answer_data = self.hand.get_a_random_card().get_data()
         self.history[Train_Enum.ANSWER].append(self.answer_data)
 
         if self.mode == Train_Enum.CHI2ENG:
