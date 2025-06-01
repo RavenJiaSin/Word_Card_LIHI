@@ -95,6 +95,7 @@ class Hand():
         '''
         使手牌可互動
         '''
+        self.__hovered_card_id = -1
         for card in self.__cards:
             if card != None:
                 card.can_press = True
@@ -123,6 +124,7 @@ class Hand():
                     continue
                 # 沒其它上層卡被hover就hover這張，一次只會有一張卡被 hover
                 if self.__hovered_card_id < i and card.is_hover: 
+                    print('hover動畫')
                     self.__hovered_card_id = i
                     x, y = self.__cards_pos[i]
                     card.moveTo((x, y - 100), 100, False)
