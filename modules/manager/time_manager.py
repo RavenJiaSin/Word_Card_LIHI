@@ -85,7 +85,6 @@ class Time_Manager():
         # 計算使用者等級，將卡牌庫總點數分成6個區間 (1~6)
         point_per_level = total_point // 6
         user_level = user_point // point_per_level + 1
-        print(f'user level: {user_level}/7')
 
         # 獲取使用者未擁有的卡牌
         all_voc_id = {voc['ID'] for voc in all_voc}

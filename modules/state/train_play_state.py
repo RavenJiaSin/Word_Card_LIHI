@@ -63,6 +63,10 @@ class Train_Play_State(State):
         # === UI ===
         self.all_sprites = Group()
         
+        # 更新遊玩次數
+        play_count = self.user_db.get_user_info(user_id=self.user_id, column="total_time")[0]["total_time"]+1
+        self.user_db.update_user_info(user_id= self.user_id, total_time = play_count)
+        
         # 建立牌堆與手牌
         self.create_deck()
         self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
@@ -139,7 +143,6 @@ class Train_Play_State(State):
         # 計算使用者等級，將卡牌庫總點數分成6個區間 (1~6)
         point_per_level = total_point // 6
         user_level = user_point // point_per_level + 1
-        print(f'user level: {user_level}/7')
 
         # 獲取使用者未擁有的卡牌
         all_voc_id = {voc['ID'] for voc in all_voc}
