@@ -7,6 +7,7 @@ from ..object import Carousel
 from ..object import Group
 from ..object import Confirm_Quit_Object
 from ..manager import Font_Manager
+from ..manager import Train_Enum
 
 
 class Train_Select_Level_State(State):
@@ -29,9 +30,19 @@ class Train_Select_Level_State(State):
 
         # 選擇 Level 1~6
         for i in range(6):
-            btn = Text_Button(pos=(game.CANVAS_WIDTH/2-300+600*(i%2), 400 + i//2*200), text="LEVEL"+str(i+1))
+            btn = Text_Button(pos=(game.CANVAS_WIDTH/2-300+600*(i%2), 350 + i//2*180), text="LEVEL"+str(i+1))
             btn.setClick(lambda level=i+1: game.change_state(Train_Select_Mode_State(level)))
             self.all_sprites.add(btn)
+        # Auto 自動選擇難度
+        btn = Text_Button(pos=(game.CANVAS_WIDTH/2-300, 350 + 6//2*180), text="  Auto  ")
+        btn.setClick(lambda level=Train_Enum.AUTO: game.change_state(Train_Select_Mode_State(level)))
+        self.all_sprites.add(btn)
+
+        # 每日卡牌關
+        btn = Text_Button(pos=(game.CANVAS_WIDTH/2-300+600, 350 + 7//2*180), text=" Daily ")
+        btn.setClick(lambda level=Train_Enum.DAILY: game.change_state(Train_Select_Mode_State(level)))
+        self.all_sprites.add(btn)
+
 
     # override
     def handle_event(self):

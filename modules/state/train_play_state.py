@@ -1,3 +1,4 @@
+import math
 import pygame as pg
 import random
 import game
@@ -55,14 +56,16 @@ class Train_Play_State(State):
         self.db = VocabularyDB()
         self.voc_list = self.db.find_vocabulary(level=level)
         self.mode = mode
-        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num), self.mode)
-        self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
 
         self.user_id = 1  
         self.user_db = UserDB()
 
         # === UI ===
         self.all_sprites = Group()
+        
+        # 建立牌堆與手牌
+        self.create_deck()
+        self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
         
         # 建立返回首頁按鈕
         from . import Menu_State
@@ -84,6 +87,98 @@ class Train_Play_State(State):
 
         self.next_question()
 
+    ############ 出題 #############
+
+    def create_deck(self):
+        if 1 <= self.level <= 6:
+            self.create_deck_by_level()
+        elif self.level == Train_Enum.AUTO:
+            self.create_deck_by_auto()
+        elif self.level == Train_Enum.DAILY:
+            self.create_deck_by_daily()
+        
+    def create_deck_by_level(self):
+        '''
+        按當前level創造卡牌堆
+        優先放入耐久值過低的使用者卡牌以供複習
+        '''
+        deck_card_num = self.question_num*2 + self.hand_card_num
+        
+        cards_need_review = self.user_db.get_card_durability_below(user_id = 1, durability = 40)
+        card_to_review = []
+        for voc in cards_need_review:
+            card_info = self.db.find_vocabulary(id=voc['voc_id'])[0]
+            if card_info['Level'] == self.level:
+                card_to_review.append(card_info)
+        
+        card_to_review_num = deck_card_num*4  # 期望值，卡堆中最多有80%是待複習的卡
+        card_to_review_num = min(card_to_review_num, len(card_to_review))  # 避免隨機抽樣數大於樣本空間
+        
+        card_to_review = random.sample(card_to_review, card_to_review_num)
+        new_cards = random.sample(self.voc_list, deck_card_num)
+
+        cards_to_select = new_cards + card_to_review
+        cards_to_select = random.sample(cards_to_select, deck_card_num)
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, cards_to_select, self.mode)
+
+    def create_deck_by_auto(self): # TODO: copy pasted code
+        all_voc = self.db.get_all()
+        user_voc = self.user_db.get_card_info(user_id=game.USER_ID)
+
+        # 計算總共點數，一張 Level n 的卡 = n 點
+        total_point = 0
+        for voc in all_voc:
+            total_point += voc['Level']
+
+        # 計算使用者點數
+        user_point = 0
+        for voc in user_voc:
+            user_point += self.db.find_vocabulary(id=voc['voc_id'])[0]['Level']
+        # print(user_point)
+
+        # 計算使用者等級，將卡牌庫總點數分成6個區間 (1~6)
+        point_per_level = total_point // 6
+        user_level = user_point // point_per_level + 1
+        print(f'user level: {user_level}/7')
+
+        # 獲取使用者未擁有的卡牌
+        all_voc_id = {voc['ID'] for voc in all_voc}
+        user_voc_id = {voc['voc_id'] for voc in user_voc}
+
+        have_not_gain_voc_id = all_voc_id - user_voc_id
+        
+        # 取得未擁有的卡牌，並按level分類
+        draw_from_voc = [[] for i in range(6)]
+        for i in range(6):
+            draw_from_voc[i] = [voc for voc in all_voc if voc['ID'] in have_not_gain_voc_id and voc['Level'] == i+1]
+
+        # 根據使用者等級抽卡
+        card_pool = []
+        for i in range(1,7):
+            # 盡量給接近使用者等級的卡
+            level_difference = abs(user_level - i)
+            weight = 0
+            if level_difference == 0:
+                weight = 6
+            elif level_difference == 1:
+                weight = 1.5
+            elif level_difference == 2:
+                weight = 0.5
+            
+            card_pool += random.sample(draw_from_voc[i-1], math.ceil((self.question_num*2 + self.hand_card_num) * weight))
+        auto_card = random.sample(card_pool, self.question_num*2 + self.hand_card_num)
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, auto_card, self.mode)
+
+    def create_deck_by_daily(self):
+        '''
+        牌堆全都是每日卡牌
+        '''
+        self.question_num = len(game.daily_card_ids)
+        daily_card = []
+        for voc_id in game.daily_card_ids:
+            daily_card.append(self.db.find_vocabulary(id=voc_id)[0])
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, daily_card, self.mode)
+
     ########## 題目與作答 ##########
 
     def next_question(self):
@@ -91,6 +186,7 @@ class Train_Play_State(State):
         發題目
         '''
         if self.question_count < self.question_num:
+            print(f'Q ${self.question_count} / ${self.question_num}')
             self.question_count += 1
             self.draw_cards_from_deck()
         else:
@@ -101,9 +197,12 @@ class Train_Play_State(State):
         '''
         從手牌中抽一個當題目，並開始作答
         '''
+        if self.hand.cards_count() <= 0:
+            self.next_question()
+            return
         self.hand.activate()
         self.current_title_text = "Question " + str(self.question_count)
-        self.answer_data = self.hand.get_card_at(random.randint(0, self.hand.cards_count() - 1)).get_data()
+        self.answer_data = self.hand.get_a_random_card().get_data()
         self.history[Train_Enum.ANSWER].append(self.answer_data)
 
         if self.mode == Train_Enum.CHI2ENG:
