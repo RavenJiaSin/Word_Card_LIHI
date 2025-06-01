@@ -17,14 +17,26 @@ class UserDB:
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO user_info (user_id, user_name) VALUES (?,?);",(user_id, user_name,))
+
+                # 檢查 user_name 是否已存在
+                cursor.execute("SELECT user_id FROM user_info WHERE user_name = ?;", (user_name,))
+                if cursor.fetchone() is not None:
+                    print(f"[INFO] User '{user_name}' already exists. No new user created.")
+                    return
+
+                # 若 user_id 為 None，讓 SQLite 自動分配（不指定 user_id 欄位）
+                if user_id is None:
+                    cursor.execute("INSERT INTO user_info (user_name) VALUES (?);", (user_name,))
+                else:
+                    cursor.execute("INSERT INTO user_info (user_id, user_name) VALUES (?, ?);", (user_id, user_name))
+
                 conn.commit()
-                print(f"user {user_name} created.")
+                print(f"[SUCCESS] User '{user_name}' created.")
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to create user: {e}")
-        return None
+
     
-    def get_user_info(self, user_id: int, column: str = None):
+    def get_user_info(self, user_id: int, column: str = None) -> list[dict]:
         """
         valid_columns = {"user_id", "user_name", "total_time", "last_played", "daily_draws", "streak_days", "exp", "level", "joined_time"}
         """
@@ -57,7 +69,7 @@ class UserDB:
         
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find user info: {e}")
-            return None
+            return []
     
     def update_user_info(self, user_id: int, **kwargs):
         """
@@ -124,9 +136,9 @@ class UserDB:
         """
         查詢 card_collection 表中指定 user_id, voc_id 的資訊或特定欄位。\n
         例如 print(user_db.get_card_info(user_id = 1, voc_id = '0_able', column = 'correct_count'))\n
-        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}\n
+        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn", "first_acquired_time"}\n
         """
-        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn"}
+        valid_columns = {"card_id", "user_id", "voc_id", "proficiency", "durability", "last_review", "correct_count", "wrong_count", "time_drawn", "first_acquired_time"}
         
         try:
             if column is not None and column.lower() not in valid_columns:
@@ -160,7 +172,7 @@ class UserDB:
         
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find card info: {e}")
-            return None
+            return []
         
     def get_card_durability_below(self, user_id: int, durability: int) -> list[dict]:
         """
@@ -178,7 +190,7 @@ class UserDB:
                 return [dict(row) for row in rows]
         except (sqlite3.Error, ValueError) as e:
             print(f"[ERROR] Failed to find card which durability below {durability}: {e}")
-            return None
+            return []
 
 
     
@@ -285,9 +297,9 @@ class UserDB:
                 return [dict(row) for row in rows]
         except Exception as e:
             print(f"[ERROR] Failed to get daily cards: {e}")
-            return None
+            return []
 
-    def add_daily_cards(self, user_id: int, voc_id: str) -> None:
+    def add_daily_cards(self, user_id: int, voc_id: str):
         """
         新增一張每日卡牌
         """
@@ -299,18 +311,18 @@ class UserDB:
                     SELECT 1 FROM daily_cards WHERE user_id = ? AND voc_id = ?
                 """, (user_id, voc_id))
                 if cursor.fetchone() is not None:
-                    print(f"[WARNING] daily_card already exists for user_id={user_id}, voc_id={voc_id}")
+                    print(f"[WARN] daily_card already exists for user_id={user_id}, voc_id={voc_id}")
                     return
                 # 若不存在則插入
                 cursor.execute("""
                     INSERT INTO daily_cards (user_id, voc_id) VALUES (?, ?)
                 """, (user_id, voc_id))
                 conn.commit()
-            print(f"Add {voc_id} to daily_card of user {user_id}")
+            print(f"[INFO] Add {voc_id} to daily_card of user {user_id}")
         except Exception as e:
             print(f"[ERROR] Failed to add daily card: {e}")
 
-    def clear_daily_cards(self, user_id: int) -> None:
+    def clear_daily_cards(self, user_id: int):
         """
         清空所有每日卡牌
         """
@@ -325,7 +337,7 @@ class UserDB:
                 # 重設 autoincrement（SQLite語法）
                 cursor.execute("DELETE FROM sqlite_sequence WHERE name='daily_cards'")
                 conn.commit()
-            print(f"daily cards cleared")
+            print(f"[INFO] daily cards cleared")
         except Exception as e:
             print(f"[ERROR] Failed to clear daily cards: {e}")
 
