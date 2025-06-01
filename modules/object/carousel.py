@@ -15,7 +15,7 @@ class Carousel():
         zoom_factor (float): 控制旋轉的縱深
         speed (float): 滾輪的旋轉力道
     """
-    def __init__(self, card_scale=1, center=(400, 300), radius=400, zoom_factor=0.7, speed=0.05):
+    def __init__(self, card_scale=2, center=(400, 300), radius=200, zoom_factor=0.4, speed=0.05):
         self.center_x, self.center_y = center
         self.radius = radius
         self.zoom_factor = zoom_factor
@@ -66,7 +66,7 @@ class Carousel():
             surface.blit(card.image, card.rect)
             # 把 scale 從 [0,2] -> [0,1]
             distance = card.ori_scale / (1 + self.zoom_factor)
-            distance **= 3
+            distance **= 2
             # 根據距離決定透明度
             opacity = int((1 - distance) * 255)
             mask = pg.Surface(card.rect.size, pg.SRCALPHA)

@@ -64,7 +64,7 @@ class Menu_State(State):
         if not self.opened_today_cards:
             self.all_sprites.add(self.card_packet_button)
 
-        self.daily_card = Carousel(center=self.card_pack_pos, card_scale=2, radius=400, zoom_factor=0.8)
+        self.daily_card = Carousel(center=self.card_pack_pos)
 
     def open_card_pack(self):
         self.opened_today_cards = True
@@ -79,7 +79,7 @@ class Menu_State(State):
             if e.type == Event_Manager.EVENT_ANEWDAY:
                 self.opened_today_cards = False
                 self.all_sprites.add(self.card_packet_button)
-                self.daily_card = Carousel(center=self.card_pack_pos, card_scale=2, radius=400, zoom_factor=0.8)
+                self.daily_card = Carousel(center=self.card_pack_pos)
 
 
     # override

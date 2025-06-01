@@ -32,7 +32,7 @@ class Train_Play_State(State):
         # 數值設定
         self.card_scale = 1.5      #卡牌大小
         self.score = 0             #分數
-        self.question_num = 2      #題數
+        self.question_num = 5      #題數
         self.question_count = 0    #目前題數
         self.hand_card_num = 6     #手牌數量
         self.current_card_num = 0  #目前手牌數量
@@ -241,7 +241,7 @@ class Train_Play_State(State):
                                               voc_id = voc_id,
                                               durability = 100,
                                               last_review = datetime.now(),
-                                              proficiency = min(user_card['proficiency']+1, 6),  # 升級
+                                              proficiency = min(user_card['proficiency']+1, 6),  # TODO: 當天重複review到不升級，避免每日卡牌關可刷等
                                               correct_count = user_card['correct_count'] + 1,
                                               )
             else:
@@ -274,16 +274,16 @@ class Train_Play_State(State):
                 # 使用者已有這卡牌
                 selected_card = selected_card[0]                
                 self.user_db.update_card_info(user_id = game.USER_ID,
-                                              voc_id = selected_card['ID'],
+                                              voc_id = selected_card['voc_id'],
                                               wrong_count = selected_card['wrong_count'] + 1,
                                               )
             
             answer_card = self.user_db.get_card_info(voc_id=self.answer_data['ID'])
-            if len(selected_card) != 0:
+            if len(answer_card) != 0:
                 # 使用者已有這卡牌
-                selected_card = selected_card[0]                
+                answer_card = answer_card[0]                
                 self.user_db.update_card_info(user_id = game.USER_ID,
-                                              voc_id = answer_card['ID'],
+                                              voc_id = answer_card['voc_id'],
                                               wrong_count = answer_card['wrong_count'] + 1,
                                               )
 

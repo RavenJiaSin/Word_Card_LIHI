@@ -64,6 +64,9 @@ class Time_Manager():
         self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=5, delta = -2)
         self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=6, delta = -1)
 
+        for forgotten_card in self.user_db.get_card_durability_below(user_id=game.USER_ID, durability=0):
+            self.user_db.update_card_info(game.USER_ID, forgotten_card['voc_id'], proficiency=1)
+
     def get_new_daily_cards(self): # TODO: 這邏輯應該抽到別的地方
         '''
         抽新卡
