@@ -55,14 +55,16 @@ class Train_Play_State(State):
         self.db = VocabularyDB()
         self.voc_list = self.db.find_vocabulary(level=level)
         self.mode = mode
-        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, random.sample(self.voc_list, self.question_num * 2 + self.hand_card_num), self.mode)
-        self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
 
         self.user_id = 1  
         self.user_db = UserDB()
 
         # === UI ===
         self.all_sprites = Group()
+        
+        # 建立牌堆與手牌
+        self.create_deck()
+        self.hand = Hand((game.CANVAS_WIDTH // 2, game.CANVAS_HEIGHT - 200), self.hand_card_num * 100, self.hand_card_num)
         
         # 建立返回首頁按鈕
         from . import Menu_State
@@ -85,6 +87,31 @@ class Train_Play_State(State):
         self.next_question()
 
     ########## 題目與作答 ##########
+
+    def create_deck(self):
+        '''
+        按當前level創造卡牌堆
+        優先放入耐久值過低的使用者卡牌以供複習
+        '''
+        deck_card_num = self.question_num*2 + self.hand_card_num
+        
+        cards_need_review = self.user_db.get_card_durability_below(user_id = 1, durability = 40)
+        card_to_review = []
+        for voc in cards_need_review:
+            card_info = self.db.find_vocabulary(id=voc['voc_id'])[0]
+            if card_info['Level'] == self.level:
+                card_to_review.append(card_info)
+        
+        card_to_review_num = deck_card_num*4  # 期望值，卡堆中最多有80%是待複習的卡
+        card_to_review_num = min(card_to_review_num, len(card_to_review))  # 避免隨機抽樣數大於樣本空間
+        
+        card_to_review = random.sample(card_to_review, card_to_review_num)
+        new_cards = random.sample(self.voc_list, deck_card_num)
+
+        cards_to_select = new_cards + card_to_review
+        cards_to_select = random.sample(cards_to_select, deck_card_num)
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, cards_to_select, self.mode)
+
 
     def next_question(self):
         '''
