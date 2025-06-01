@@ -11,7 +11,7 @@ class Time_Manager():
     voc_db = VocabularyDB()
     user_db = UserDB()
 
-    SECASDAY = 10  # 幾秒當一天
+    SECASDAY = 5  # 幾秒當一天
     __last_time = 0
 
     def __init__(self):
@@ -64,7 +64,7 @@ class Time_Manager():
         self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=5, delta = -2)
         self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=6, delta = -1)
 
-    def get_new_daily_cards(self):
+    def get_new_daily_cards(self): # TODO: 這邏輯應該抽到別的地方
         '''
         抽新卡
         '''

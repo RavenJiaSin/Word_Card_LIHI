@@ -1,3 +1,4 @@
+import random
 import pygame as pg
 import game
 from ..object.group import Group
@@ -71,7 +72,15 @@ class Hand():
         if idx > self.__cards_num - 1 or idx < 0:
             return None
         return self.__cards[idx]
-    
+    def get_a_random_card(self) -> Card:
+        '''
+        回傳任一張非空的手牌
+        '''
+        if self.cards_count() <= 0:
+            return None
+        non_none_card = [card for card in self.__cards if card != None]
+        return random.sample(non_none_card, 1)[0]
+
     def cards_count(self):
         '''
         回傳目前實際有幾張手牌
