@@ -269,6 +269,68 @@ class UserDB:
         except sqlite3.Error as e:
             print(f"[ERROR] Failed to log answer: {e}")
 
+    def get_daily_cards(self, user_id: int) -> list[dict]:
+        """
+        取得所有每日卡牌\n
+        ex:[{'id': 1, 'user_id': 1, 'voc_id': '0_able'}, {'id': 2, 'user_id': 1, 'voc_id': '1_above'}]
+        """
+        try:                
+            with self._connect() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT * FROM daily_cards WHERE user_id = ?
+                """, (user_id,))
+                rows = cursor.fetchall()
+                return [dict(row) for row in rows]
+        except Exception as e:
+            print(f"[ERROR] Failed to get daily cards: {e}")
+            return None
+
+    def add_daily_cards(self, user_id: int, voc_id: str) -> None:
+        """
+        新增一張每日卡牌
+        """
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                # 先檢查是否已存在該筆資料
+                cursor.execute("""
+                    SELECT 1 FROM daily_cards WHERE user_id = ? AND voc_id = ?
+                """, (user_id, voc_id))
+                if cursor.fetchone() is not None:
+                    print(f"[WARNING] daily_card already exists for user_id={user_id}, voc_id={voc_id}")
+                    return
+                # 若不存在則插入
+                cursor.execute("""
+                    INSERT INTO daily_cards (user_id, voc_id) VALUES (?, ?)
+                """, (user_id, voc_id))
+                conn.commit()
+            print(f"Add {voc_id} to daily_card of user {user_id}")
+        except Exception as e:
+            print(f"[ERROR] Failed to add daily card: {e}")
+
+    def clear_daily_cards(self, user_id: int) -> None:
+        """
+        清空所有每日卡牌
+        """
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    DELETE FROM daily_cards WHERE user_id = ?
+                """, (user_id,))
+                conn.commit()
+                
+                # 重設 autoincrement（SQLite語法）
+                cursor.execute("DELETE FROM sqlite_sequence WHERE name='daily_cards'")
+                conn.commit()
+            print(f"daily cards cleared")
+        except Exception as e:
+            print(f"[ERROR] Failed to clear daily cards: {e}")
+
+
+
 
 
         

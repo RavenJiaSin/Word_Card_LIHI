@@ -21,7 +21,7 @@ class Time_Manager():
         last_time = self.user_db.get_user_info(game.USER_ID, 'last_played')[0]['last_played']
         if today != last_time:
             self.start_a_new_day()
-            self.user_db.update_user_info(game.USER_ID, last_time=today)
+            self.user_db.update_user_info(game.USER_ID, last_played=today)
 
         # vvvvv just for demo vvvvv
         self.start_a_new_day()
