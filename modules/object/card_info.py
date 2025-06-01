@@ -17,6 +17,7 @@ class Card_Info(Object):
         word_data = db.find_vocabulary(id=id)[0]
 
         # 單字
+        self.voc = word_data.get('Vocabulary', 'None')
         voc_surf = Font_Manager.get_text_surface(word_data.get('Vocabulary', 'None'), 24*scale, (36,36,36))
         voc_rect = voc_surf.get_rect(left=55,top=45)
         surfs.append((voc_surf, voc_rect))
@@ -25,6 +26,7 @@ class Card_Info(Object):
         pos_surf = Font_Manager.get_text_surface('(' + word_data.get('Part_of_speech', 'None') + ')' + 'level ' + str(word_data.get('Level', 'None')), 12*scale, (36,36,36))
         pos_rect = pos_surf.get_rect(left=voc_rect.right+15,bottom=voc_rect.bottom-12)
         surfs.append((pos_surf, pos_rect))
+        self.pos_for_voc_button = (pos[0] - img.get_width()/2 + pos_rect.right + 40, pos[1] - img.get_height()/2 + pos_rect.centery - 10)
 
         # 中文意思
         trans_surf = Font_Manager.get_text_surface(word_data.get('Translation', '無'), 12*scale, (36,36,36))
@@ -35,11 +37,14 @@ class Card_Info(Object):
         sentence_title_surf = Font_Manager.get_text_surface('例句：', 12*scale, (36,36,36))
         sentence_title_rect = sentence_title_surf.get_rect(top=trans_rect.bottom+24, left=voc_rect.left)
         surfs.append((sentence_title_surf, sentence_title_rect))
+        self.pos_for_sentence = (pos[0] - img.get_width()/2 + sentence_title_rect.right + 20, pos[1] - img.get_height()/2 + sentence_title_rect.centery)
 
         # 英文例句、中文例句
         sentence_key = ['sentence','translation']
         top = sentence_title_rect.bottom
         for k in sentence_key:
+            if k == 'sentence':
+                self.sentence = sentence_data.get(k, 'None')
             sentence = self.split_text_to_lines(sentence_data.get(k, 'None'), 260*scale, 12*scale)
             for i, s in enumerate(sentence):
                 sentence_surface = Font_Manager.get_text_surface(s, 12*scale, (36,36,36))
@@ -75,7 +80,6 @@ class Card_Info(Object):
 
         img.blits(surfs)
         super().__init__(pos, 1, img)
-
 
     def split_text_to_lines(self, text: str, max_width: int, font_size: int) -> list[str]:
         """
