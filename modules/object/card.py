@@ -3,6 +3,7 @@ from .button import Button
 from ..manager import Image_Manager
 from ..manager import Font_Manager
 from ..manager import Card_Manager
+from ..manager import Event_Manager
 from ..database import VocabularyDB
 from ..database import UserDB
 import game
@@ -31,9 +32,15 @@ class Card(Button):
         self.__show_eng = show_eng
         self.__show_chi = show_chi
             
+        self.__scale = scale
         img = self.__get_image(scale)
         super().__init__(pos=pos, scale=1, img=img)
         self.setClick(lambda:print('Clicked Card:', self.__id))
+
+    def update_image(self):
+        img = self.__get_image(self.__scale)
+        self.set_ori_image(img)
+
 
     def __get_image(self, scale) -> pg.surface.Surface:
 

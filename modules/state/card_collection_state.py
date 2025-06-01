@@ -9,6 +9,7 @@ from ..object import Toggle_Button
 from ..object import Confirm_Quit_Object
 from functools import partial
 from ..manager import Font_Manager
+from ..manager import Event_Manager
 from modules.database import VocabularyDB
 from modules.database import UserDB
 
@@ -145,6 +146,13 @@ class Card_Collection_State(State):
 
     # override
     def handle_event(self):   
+
+        for e in game.event_list:
+            if e.type == Event_Manager.EVENT_ANEWDAY:
+                for card in self.background_cards:
+                    card.update_image()
+
+
         self.confirm_quit_object.handle_event()
 
         # 有放大卡，檢查點擊位置，不在卡片上就關掉
