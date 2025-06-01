@@ -1,3 +1,4 @@
+import math
 import pygame as pg
 import random
 import game
@@ -120,8 +121,54 @@ class Train_Play_State(State):
         cards_to_select = random.sample(cards_to_select, deck_card_num)
         self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, cards_to_select, self.mode)
 
-    def create_deck_by_auto(self):
-        ...
+    def create_deck_by_auto(self): # TODO: copy pasted code
+        all_voc = self.db.get_all()
+        user_voc = self.user_db.get_card_info(user_id=game.USER_ID)
+
+        # 計算總共點數，一張 Level n 的卡 = n 點
+        total_point = 0
+        for voc in all_voc:
+            total_point += voc['Level']
+
+        # 計算使用者點數
+        user_point = 0
+        for voc in user_voc:
+            user_point += self.db.find_vocabulary(id=voc['voc_id'])[0]['Level']
+        # print(user_point)
+
+        # 計算使用者等級，將卡牌庫總點數分成6個區間 (1~6)
+        point_per_level = total_point // 6
+        user_level = user_point // point_per_level + 1
+        print(f'user level: {user_level}/7')
+
+        # 獲取使用者未擁有的卡牌
+        all_voc_id = {voc['ID'] for voc in all_voc}
+        user_voc_id = {voc['voc_id'] for voc in user_voc}
+
+        have_not_gain_voc_id = all_voc_id - user_voc_id
+        
+        # 取得未擁有的卡牌，並按level分類
+        draw_from_voc = [[] for i in range(6)]
+        for i in range(6):
+            draw_from_voc[i] = [voc for voc in all_voc if voc['ID'] in have_not_gain_voc_id and voc['Level'] == i+1]
+
+        # 根據使用者等級抽卡
+        card_pool = []
+        for i in range(1,7):
+            # 盡量給接近使用者等級的卡
+            level_difference = abs(user_level - i)
+            weight = 0
+            if level_difference == 0:
+                weight = 6
+            elif level_difference == 1:
+                weight = 1.5
+            elif level_difference == 2:
+                weight = 0.5
+            
+            card_pool += random.sample(draw_from_voc[i-1], math.ceil((self.question_num*2 + self.hand_card_num) * weight))
+        auto_card = random.sample(card_pool, self.question_num*2 + self.hand_card_num)
+        self.deck = Deck((game.CANVAS_WIDTH - 200, 200), self.card_scale, auto_card, self.mode)
+
     def create_deck_by_daily(self):
         '''
         牌堆全都是每日卡牌
