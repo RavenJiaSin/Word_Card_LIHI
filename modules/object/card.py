@@ -123,7 +123,7 @@ class Card(Button):
             card_info = {'proficiency': 0, 'last_review': None, 'correct_count': 1, 'wrong_count': 0, 'times_drawn': 1, 'durability': 0}
         
 
-        prof_surf = Font_Manager.get_text_surface(str(card_info['proficiency']), font_size, white_color)
+        prof_surf = Font_Manager.get_text_surface(' 熟練' + str(card_info['proficiency']), font_size, white_color)
         prof_rect = prof_surf.get_rect(center=(25*scale, 14*scale))
         surfs.append((prof_surf, prof_rect))
 
