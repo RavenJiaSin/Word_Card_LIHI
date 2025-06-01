@@ -75,12 +75,12 @@ class UserDB:
         """
         更新 user_info 表中指定 user_id 的欄位。\n
         例如：update_user_info(1, exp=150, daily_draws=4)\n
-        valid_columns = {"user_name", "last_played", "total_time", "daily_draws", "exp", "level"}\n
+        valid_columns = {"user_name", "last_played", "total_time", "daily_draws", "exp", "level", "streak_days"}\n
         """
         if not kwargs:
             print("[WARN] No fields to update.")
             return
-        valid_columns = {"user_name", "last_played", "total_time", "daily_draws", "exp", "level"}
+        valid_columns = {"user_name", "last_played", "total_time", "daily_draws", "exp", "level", "streak_days"}
         for key in kwargs:
             if key not in valid_columns:
                 print(f"[ERROR] Invalid column: {key}")
