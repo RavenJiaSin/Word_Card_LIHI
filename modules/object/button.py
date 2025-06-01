@@ -19,7 +19,7 @@ class Button(Object):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), scale:float=1, img=None):
+    def __init__(self, pos:tuple=(0,0), scale:float=1, img=None, sound='ingame_button'):
         if img == None:
             img = Image_Manager.get('button')
         super().__init__(pos=pos, scale=scale, img=img)
@@ -40,6 +40,8 @@ class Button(Object):
         self.mouse_enter = False
         self.mouse_exit = False
 
+        self.sound = sound
+
     # override
     def handle_event(self):
         event_list = game.event_list.copy()  # 避免因 remove 導致迭代出錯
@@ -56,7 +58,7 @@ class Button(Object):
                 self.__isPressed = False
                 if self.hit_box.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個放開事件只會讓一個 button 被放開
-                    SFX_Manager.play('button')
+                    SFX_Manager.play(self.sound)
                     self.__click()
             if e.type == Event_Manager.EVENT_SHAKE:
                 x, y = self.rect.center

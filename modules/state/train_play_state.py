@@ -1,3 +1,4 @@
+from datetime import datetime
 import math
 import pygame as pg
 import random
@@ -62,6 +63,10 @@ class Train_Play_State(State):
 
         # === UI ===
         self.all_sprites = Group()
+        
+        # 更新遊玩次數
+        play_count = self.user_db.get_user_info(user_id=self.user_id, column="total_time")[0]["total_time"]+1
+        self.user_db.update_user_info(user_id= self.user_id, total_time = play_count)
         
         # 建立牌堆與手牌
         self.create_deck()
@@ -139,7 +144,6 @@ class Train_Play_State(State):
         # 計算使用者等級，將卡牌庫總點數分成6個區間 (1~6)
         point_per_level = total_point // 6
         user_level = user_point // point_per_level + 1
-        print(f'user level: {user_level}/7')
 
         # 獲取使用者未擁有的卡牌
         all_voc_id = {voc['ID'] for voc in all_voc}
@@ -186,7 +190,6 @@ class Train_Play_State(State):
         發題目
         '''
         if self.question_count < self.question_num:
-            print(f'Q ${self.question_count} / ${self.question_num}')
             self.question_count += 1
             self.draw_cards_from_deck()
         else:
@@ -221,13 +224,38 @@ class Train_Play_State(State):
         self.history[Train_Enum.SELECTED].append(selected_card_data)
 
         if selected_card_data['ID'] == self.answer_data['ID']:
-            # self.voc_list.remove(selected_card.data)
+            # 答對
             self.score += 1
             self.current_result_text = "Correct!"
             self.__correct_card = self.__selected_card
             self.all_sprites.add(self.correct_indicator, layer=-1)
             self.showing_correct = True
+
+            # user 卡牌庫更新
+            voc_id = selected_card_data['ID']
+            user_card = self.user_db.get_card_info(voc_id=voc_id)
+            if len(user_card) != 0:
+                # 使用者已有這卡牌
+                user_card = user_card[0]                
+                self.user_db.update_card_info(user_id = game.USER_ID,
+                                              voc_id = voc_id,
+                                              durability = 100,
+                                              last_review = datetime.now(),
+                                              proficiency = min(user_card['proficiency']+1, 6),  # 升級
+                                              correct_count = user_card['correct_count'] + 1,
+                                              )
+            else:
+                # 獲得新卡牌
+                self.user_db.add_card_to_user(user_id=game.USER_ID, voc_id=selected_card_data['ID'])
+                self.user_db.update_card_info(user_id = game.USER_ID,
+                                              voc_id = voc_id,
+                                              durability = 100,
+                                              last_review = datetime.now(),
+                                              proficiency = 1,
+                                              correct_count = 1,
+                                              )
         else:
+            # 答錯
             self.current_result_text = f"Wrong! Correct Answer: {self.answer_data['Vocabulary']}"
             # TODO: Card移動到棄牌堆
             self.__correct_card = self.hand.get_card_by_ID(self.answer_data['ID'])
@@ -240,6 +268,26 @@ class Train_Play_State(State):
             self.showing_correct = True
             self.showing_wrong = True
         
+            # 更新使用者卡牌資訊
+            selected_card = self.user_db.get_card_info(voc_id=selected_card_data['ID'])
+            if len(selected_card) != 0:
+                # 使用者已有這卡牌
+                selected_card = selected_card[0]                
+                self.user_db.update_card_info(user_id = game.USER_ID,
+                                              voc_id = selected_card['ID'],
+                                              wrong_count = selected_card['wrong_count'] + 1,
+                                              )
+            
+            answer_card = self.user_db.get_card_info(voc_id=self.answer_data['ID'])
+            if len(selected_card) != 0:
+                # 使用者已有這卡牌
+                selected_card = selected_card[0]                
+                self.user_db.update_card_info(user_id = game.USER_ID,
+                                              voc_id = answer_card['ID'],
+                                              wrong_count = answer_card['wrong_count'] + 1,
+                                              )
+
+
         self.user_db.log_answer(
             user_id=self.user_id,
             voc_id=self.answer_data['ID'],
