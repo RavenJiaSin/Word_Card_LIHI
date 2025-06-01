@@ -195,8 +195,8 @@ class Card_Collection_State(State):
         total_cards = len(self.voc_db.get_all())
         first_card_text = f"已擁有/總卡牌數：{owned_cards}/{total_cards}"
 
-        not_hidden_cards =len(self.user_db.get_card_info(user_id = 1)) - len(self.user_db.get_card_durability_below(user_id = 1, durability = 0))
-        second_card_text = f"未隱藏卡牌數：{not_hidden_cards}"
+        not_hidden_cards = len(self.user_db.get_card_durability_below(user_id = 1, durability = 0))
+        second_card_text = f"隱藏卡牌數：{not_hidden_cards}"
 
         Font_Manager.draw_text(game.canvas, "Card Collection", 70, game.CANVAS_WIDTH/2 + 50 , 100)
         Font_Manager.draw_text(game.canvas, first_card_text, 30, game.CANVAS_WIDTH/2 -500 , 70)
