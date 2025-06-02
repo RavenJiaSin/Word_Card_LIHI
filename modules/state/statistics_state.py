@@ -79,7 +79,9 @@ class Statistics_State(State):
             })
 
         # 統計最常答錯與答題最多的 top3
-        most_wrong = max(card_stats, key=lambda x: x["wrong"], default=None)
+        # 過濾掉沒有答錯過的卡片
+        wrong_cards = [c for c in card_stats if c["wrong"] > 0]
+        most_wrong = max(wrong_cards, key=lambda x: x["wrong"], default=None)
         top3_cards = sorted(card_stats, key=lambda x: x["total"], reverse=True)[:3]
 
 
