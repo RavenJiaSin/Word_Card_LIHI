@@ -62,10 +62,11 @@ class Game:
             self.__render()
             
     def __handle_event(self):
+        self.__time_manager.handle_event()
         self.__state.handle_event()
 
     def __update(self):
-        self.__time_manager.update()
+        # self.__time_manager.update()
         self.__state.update()
 
     def __render(self):
