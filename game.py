@@ -80,5 +80,5 @@ class Game:
 
     def quit(self):
         SFX_Manager.stop_all()
-        print('Successfully quit pygame')
         pg.quit()
+        print('Successfully quit pygame')

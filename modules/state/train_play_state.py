@@ -10,7 +10,7 @@ from ..object import Object, Text_Button
 from ..object import Group
 from ..object import Confirm_Quit_Object, Card
 from ..object import Deck, Hand
-from ..manager import Font_Manager, Image_Manager
+from ..manager import Font_Manager, Image_Manager, SFX_Manager
 from ..manager import Train_Enum
 from ..manager import Event_Manager
 from modules.database import VocabularyDB
