@@ -70,6 +70,7 @@ class Time_Manager():
         過一天啦
         '''
         print('A whole new day')
+        game.opened_today_cards = False
         pg.event.post(pg.event.Event(Event_Manager.EVENT_ANEWDAY))
         self.update_user_durability()
         self.get_new_daily_cards()
