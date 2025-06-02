@@ -16,6 +16,7 @@ from .state import State
 from ..object import Group, Text_Button, Confirm_Quit_Object, card
 from ..manager import Font_Manager, Image_Manager
 from modules.database.userDBconnect import UserDB
+from modules.database.vocsDBconnect import VocabularyDB
 
 
 class Statistics_State(State):
@@ -40,11 +41,10 @@ class Statistics_State(State):
         cur = conn.cursor()
 
         # user_info
-        cur.execute("SELECT streak_days, total_time, level FROM user_info WHERE user_id = ?", (self.user_id,))
+        cur.execute("SELECT streak_days, total_time FROM user_info WHERE user_id = ?", (self.user_id,))
         user_info = cur.fetchone()
         streak_day = user_info[0] if user_info else 0
         play_count = user_info[1] if user_info else 0
-        player_level = user_info[2] if user_info else 0
 
         # card_collection
   # 從 answer_log 統計答題正確與錯誤總數
@@ -86,11 +86,30 @@ class Statistics_State(State):
 
 
         conn.close()
+        
+        self.voc_db = VocabularyDB()
+        all_voc = self.voc_db.get_all()
+        user_voc = self.user_db.get_card_info(user_id=game.USER_ID)
 
+        # 計算總共點數，一張 Level n 的卡 = n 點
+        total_point = 0
+        for voc in all_voc:
+            total_point += voc['Level']
+
+        # 計算使用者點數
+        user_point = 0
+        for voc in user_voc:
+            user_point += self.voc_db.find_vocabulary(id=voc['voc_id'])[0]['Level']
+        # print(user_point)
+
+        # 計算使用者等級，將卡牌庫總點數分成6個區間 (1~6)
+        point_per_level = total_point // 6
+        user_level = user_point // point_per_level + 1
+        
         # 區塊一：總覽
         self.overview_title = "總覽"
         self.overview_text = [
-            f"玩家等級：{player_level}",
+            f"玩家等級：{user_level}",
             f"練功坊遊玩次數：{play_count}",
             f"累計答題數：{total}",
             f"答對 / 答錯：{correct_total} / {wrong_total}",
