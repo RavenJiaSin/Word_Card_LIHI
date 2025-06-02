@@ -17,11 +17,15 @@
 - 資料庫：王嘉信
 
 
-## 1. conda環境建置
+## 1. 環境建置
 
 進入workspace目錄:`\Word_Card_LIHI`
 
-terminal執行:`$ conda create --name <your-env-name> --file requirements.txt`
+conda：terminal執行:`$ conda create --name <your-env-name> --file requirements_conda.txt`
+
+或
+
+venv：terminal執行:`$ python -m venv <your-env-name> && <your-env-name>/Scripts/activate && pip install -r requirements.txt`
 
 ---
 
@@ -31,7 +35,7 @@ terminal執行:`$ conda create --name <your-env-name> --file requirements.txt`
 
 `ctrl + shift + p` select interpreter 選擇剛剛建立的環境
 
-執行`main.py`
+執行`python main.py`
 
 
 
