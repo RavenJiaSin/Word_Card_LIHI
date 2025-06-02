@@ -4,6 +4,7 @@ import re
 import pygame as pg
 import random
 import game
+from modules.manager.sfx_manager import SFX_Manager
 from .state import State
 from ..object import Object, Text_Button
 from ..object import Group
@@ -431,7 +432,7 @@ class Train_Play_State(State):
         # 題目
         if self.current_question_text:
             font = pg.font.Font("res\\font\\SWEISANSCJKTC-REGULAR.TTF", 60)
-            self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 200, 200, game.CANVAS_WIDTH - 400)
+            self.draw_wrapped_text(game.canvas, self.current_question_text, font, (255, 255, 255), 200, 200, game.CANVAS_WIDTH - 500)
         # 卡堆
         if self.deck != None:
             self.deck.render()
