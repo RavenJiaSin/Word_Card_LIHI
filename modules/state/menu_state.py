@@ -59,7 +59,7 @@ class Menu_State(State):
 
         self.card_pack_pos = (game.CANVAS_WIDTH / 2 + 100, game.CANVAS_HEIGHT / 2) 
 
-        self.card_packet_button = Card(pos=self.card_pack_pos, scale=2)
+        self.card_packet_button = Card(pos=self.card_pack_pos, scale=2, id='2812_pack')
         self.card_packet_button.setClick(self.open_card_pack)
         self.card_packet_button.setWiggle()
         if not game.opened_today_cards:
@@ -82,7 +82,7 @@ class Menu_State(State):
                 self.daily_card = Carousel(center=self.card_pack_pos)
 
             if e.type == pg.KEYDOWN:
-                if e.key == pg.K_SLASH:
+                if e.key == pg.K_RSHIFT:
                     db = VocabularyDB()
                     user_db = UserDB()
                     # k = random.sample(db.find_vocabulary('id', level=1), 10)
