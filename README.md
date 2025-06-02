@@ -16,13 +16,24 @@
 
 - 資料庫：王嘉信
 
+
 ## 1. conda環境建置
 
 進入workspace目錄:`\Word_Card_LIHI`
 
-terminal執行:`$ conda create --name <env-name> --file requirements.txt`
+terminal執行:`$ conda create --name <your-env-name> --file requirements.txt`
 
 ---
+
+## 1.5 執行
+
+打開vscode
+
+`ctrl + shift + p` select interpreter 選擇剛剛建立的環境
+
+執行`main.py`
+
+
 
 ## 2. vocs_data
 除非有需要更動Database,不然不建議執行或改動其中程式
