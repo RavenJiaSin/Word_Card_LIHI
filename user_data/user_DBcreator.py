@@ -4,7 +4,7 @@ import sqlite3
 
 def create_userDB():
     # 建立 SQLite 資料庫
-    conn = sqlite3.connect("user_data/users.db")
+    conn = sqlite3.connect("user_data\\users.db")
     cursor = conn.cursor()
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS user_info (

@@ -11,10 +11,10 @@ class SFX_Manager:
     def init(cls):
         pygame.mixer.init()
         cls._engine = pyttsx3.init()
-        for filename in os.listdir('res/sfx'):
+        for filename in os.listdir('res\\sfx'):
             if filename.lower().endswith((".wav", ".ogg")):
                 name = os.path.splitext(filename)[0]  # 檔名去掉副檔名
-                path = os.path.join('res/sfx', filename)
+                path = os.path.join('res\\sfx', filename)
                 cls._sounds[name] = pygame.mixer.Sound(path)
 
     @classmethod

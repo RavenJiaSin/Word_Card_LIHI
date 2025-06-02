@@ -5,7 +5,7 @@ from modules.database.vocsDBconnect import VocabularyDB
 
 
 class UserDB:
-    def __init__(self, db_path="user_data/users.db"):
+    def __init__(self, db_path="user_data\\users.db"):
         self.db_path = db_path
         vocs_db = VocabularyDB()
         self.valid_id = [id['ID'] for id in vocs_db.find_vocabulary(column='id')]

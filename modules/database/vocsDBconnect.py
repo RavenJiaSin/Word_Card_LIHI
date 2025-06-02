@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 class VocabularyDB:
-    def __init__(self, db_path="vocs_data/vocs.db"):
+    def __init__(self, db_path="vocs_data\\vocs.db"):
         self.db_path = db_path
 
     def _connect(self):
@@ -124,7 +124,7 @@ class VocabularyDB:
             return []
         
     def get_image(self, voc_id) -> str:
-        image_path = f"vocs_data/vocs_img/{voc_id}.png"
+        image_path = f"vocs_data\\vocs_img\\{voc_id}.png"
         if os.path.exists(image_path):
             return image_path
         else:

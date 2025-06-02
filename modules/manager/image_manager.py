@@ -9,7 +9,7 @@ class Image_Manager:
         if key in cls.__img_map:
             return cls.__img_map[key].copy()
 
-        path = os.path.join('res/image', key + '.png')
+        path = os.path.join('res\\image', key + '.png')
         if not os.path.exists(path):
             raise FileNotFoundError(f"找不到圖片檔案: {path} (key='{key}')")
 

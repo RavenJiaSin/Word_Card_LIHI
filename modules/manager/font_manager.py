@@ -21,7 +21,7 @@ class Font_Manager:
     def get_font(cls, size:int=12) -> pg.font.Font:
         key = size
         if key not in cls.__font_map:
-            path = os.path.join('res/font', cls.__default_font + '.ttf')
+            path = os.path.join('res\\font', cls.__default_font + '.ttf')
             cls.__font_map[key] = pg.font.Font(path, int(size))
         return cls.__font_map[key]
     

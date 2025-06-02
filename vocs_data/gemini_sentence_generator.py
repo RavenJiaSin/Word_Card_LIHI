@@ -16,7 +16,7 @@ db = vocsDBconnect.VocabularyDB()
 with open('vocs_data\gemini_api_key', 'r') as api_key_file:
     api_key=api_key_file.readline()
 
-SAVE_FILE = 'vocs_data/processed_ids.json'
+SAVE_FILE = 'vocs_data\processed_ids.json'
 
 def load_processed_ids():
     if os.path.exists(SAVE_FILE):
