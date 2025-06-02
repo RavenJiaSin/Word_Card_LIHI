@@ -9,7 +9,7 @@ from ..object import Object, Text_Button
 from ..object import Group
 from ..object import Confirm_Quit_Object, Card
 from ..object import Deck, Hand
-from ..manager import Font_Manager, Image_Manager
+from ..manager import Font_Manager, Image_Manager, SFX_Manager
 from ..manager import Train_Enum
 from ..manager import Event_Manager
 from modules.database import VocabularyDB
@@ -226,6 +226,7 @@ class Train_Play_State(State):
 
         if selected_card_data['ID'] == self.answer_data['ID']:
             # 答對
+            SFX_Manager.play('ingame_correct')
             self.score += 1
             self.current_result_text = "Correct!"
             self.__correct_card = self.__selected_card
@@ -257,6 +258,7 @@ class Train_Play_State(State):
                                               )
         else:
             # 答錯
+            SFX_Manager.play('ingame_incorrect')
             self.current_result_text = f"Wrong! Correct Answer: {self.answer_data['Vocabulary']}"
             # TODO: Card移動到棄牌堆
             self.__correct_card = self.hand.get_card_by_ID(self.answer_data['ID'])
