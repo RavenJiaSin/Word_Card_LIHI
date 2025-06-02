@@ -48,19 +48,6 @@ class Start_State(State):
     def handle_event(self):
         self.all_sprites.handle_event()
 
-        for event in game.event_list:
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SLASH:
-                    db = VocabularyDB()
-                    user_db = UserDB()
-                    # k = random.sample(db.find_vocabulary('id', level=1), 10)
-                    k = random.sample(db.find_vocabulary('id', level=1), 50) + random.sample(db.find_vocabulary('id', level=2), 10)\
-                        + random.sample(db.find_vocabulary('id', level=3), 10) + random.sample(db.find_vocabulary('id', level=4), 10)\
-                        + random.sample(db.find_vocabulary('id', level=5), 10) + random.sample(db.find_vocabulary('id', level=6), 10)
-                    for word in k:
-                        user_db.add_card_to_user(game.USER_ID, word['ID'])
-                        user_db.update_card_info(game.USER_ID, word['ID'], proficiency=random.randint(1,6))
-
 
     # override
     def update(self):

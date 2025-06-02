@@ -1,5 +1,8 @@
+import random
 import pygame as pg
 import game
+from modules.database.userDBconnect import UserDB
+from modules.database.vocsDBconnect import VocabularyDB
 from . import State
 from ..object.card import Card
 from ..object import Text_Button
@@ -22,8 +25,6 @@ class Menu_State(State):
         all_sprites (pg.sprite.Group): 管理所有Object物件。
     
     """
-
-    opened_today_cards = False
 
     def __init__(self):
 
@@ -58,39 +59,50 @@ class Menu_State(State):
 
         self.card_pack_pos = (game.CANVAS_WIDTH / 2 + 100, game.CANVAS_HEIGHT / 2) 
 
-        self.card_packet_button = Card(pos=self.card_pack_pos, scale=2)
+        self.card_packet_button = Card(pos=self.card_pack_pos, scale=2, id='2812_pack')
         self.card_packet_button.setClick(self.open_card_pack)
         self.card_packet_button.setWiggle()
-        if not self.opened_today_cards:
+        if not game.opened_today_cards:
             self.all_sprites.add(self.card_packet_button)
 
         self.daily_card = Carousel(center=self.card_pack_pos)
 
     def open_card_pack(self):
-        self.opened_today_cards = True
+        game.opened_today_cards = True
         self.all_sprites.remove(self.card_packet_button)
         
     # override
     def handle_event(self):
         self.all_sprites.handle_event()
-        if self.opened_today_cards:
+        if game.opened_today_cards:
             self.daily_card.handle_event()
         for e in game.event_list:
             if e.type == Event_Manager.EVENT_ANEWDAY:
-                self.opened_today_cards = False
                 self.all_sprites.add(self.card_packet_button)
                 self.daily_card = Carousel(center=self.card_pack_pos)
+
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_RSHIFT:
+                    db = VocabularyDB()
+                    user_db = UserDB()
+                    # k = random.sample(db.find_vocabulary('id', level=1), 10)
+                    k = random.sample(db.find_vocabulary('id', level=1), 50) + random.sample(db.find_vocabulary('id', level=2), 10)\
+                        + random.sample(db.find_vocabulary('id', level=3), 10) + random.sample(db.find_vocabulary('id', level=4), 10)\
+                        + random.sample(db.find_vocabulary('id', level=5), 10) + random.sample(db.find_vocabulary('id', level=6), 10)
+                    for word in k:
+                        user_db.add_card_to_user(game.USER_ID, word['ID'])
+                        user_db.update_card_info(game.USER_ID, word['ID'], proficiency=random.randint(1,6))
 
 
     # override
     def update(self):
         self.all_sprites.update()
-        if self.opened_today_cards:
+        if game.opened_today_cards:
             self.daily_card.update()
 
     # override
     def render(self):
         Font_Manager.draw_text(game.canvas, "首頁", 70, game.CANVAS_WIDTH/2, 100)
         self.all_sprites.draw(game.canvas)
-        if self.opened_today_cards:
+        if game.opened_today_cards:
             self.daily_card.draw(game.canvas)

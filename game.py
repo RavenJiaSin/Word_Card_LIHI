@@ -21,6 +21,7 @@ canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
 background_color = (100,155,255)
 daily_card_ids = []  # 每日卡牌們的id
+opened_today_cards = False
 user_db=UserDB()
 
 def change_state(state:State):
@@ -62,10 +63,11 @@ class Game:
             self.__render()
             
     def __handle_event(self):
+        self.__time_manager.handle_event()
         self.__state.handle_event()
 
     def __update(self):
-        self.__time_manager.update()
+        # self.__time_manager.update()
         self.__state.update()
 
     def __render(self):
