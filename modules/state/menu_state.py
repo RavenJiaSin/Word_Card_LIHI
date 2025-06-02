@@ -1,5 +1,8 @@
+import random
 import pygame as pg
 import game
+from modules.database.userDBconnect import UserDB
+from modules.database.vocsDBconnect import VocabularyDB
 from . import State
 from ..object.card import Card
 from ..object import Text_Button
@@ -80,6 +83,18 @@ class Menu_State(State):
                 self.opened_today_cards = False
                 self.all_sprites.add(self.card_packet_button)
                 self.daily_card = Carousel(center=self.card_pack_pos)
+
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_SLASH:
+                    db = VocabularyDB()
+                    user_db = UserDB()
+                    # k = random.sample(db.find_vocabulary('id', level=1), 10)
+                    k = random.sample(db.find_vocabulary('id', level=1), 50) + random.sample(db.find_vocabulary('id', level=2), 10)\
+                        + random.sample(db.find_vocabulary('id', level=3), 10) + random.sample(db.find_vocabulary('id', level=4), 10)\
+                        + random.sample(db.find_vocabulary('id', level=5), 10) + random.sample(db.find_vocabulary('id', level=6), 10)
+                    for word in k:
+                        user_db.add_card_to_user(game.USER_ID, word['ID'])
+                        user_db.update_card_info(game.USER_ID, word['ID'], proficiency=random.randint(1,6))
 
 
     # override
