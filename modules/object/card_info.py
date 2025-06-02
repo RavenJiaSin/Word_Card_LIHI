@@ -1,28 +1,85 @@
 import re
+import pygame as pg
+import game
 from ..database import VocabularyDB
+from ..database import UserDB
 from .object import Object
 from ..manager import Image_Manager
 from ..manager import Font_Manager
 
 class Card_Info(Object):
     def __init__(self, pos = (0,0), scale = 1, id = ''):
-        img = Image_Manager.get('card_info').copy()
+        img = Image_Manager.get('card_info')
+        img = pg.transform.smoothscale(img, (img.get_width()*scale, img.get_height()*scale))
         surfs = []
         db = VocabularyDB()
-        data = db.get_example_sentences(voc_id=id)[0]
-        data_list = ['sentence','translation']
-        current_height = 33
-        for k in data_list:
-            sentence = self.split_text_to_lines(data.get(k, 'None'), 260, 12)
-            for s in sentence:
-                sentence_surface = Font_Manager.get_text_surface(s, 12, (36,36,36))
-                sentence_rect = sentence_surface.get_rect(left=22,top=current_height)
+        sentence_data = db.get_example_sentences(voc_id=id)[0]
+        word_data = db.find_vocabulary(id=id)[0]
+
+        # 單字
+        self.voc = word_data.get('Vocabulary', 'None')
+        voc_surf = Font_Manager.get_text_surface(word_data.get('Vocabulary', 'None'), 24*scale, (36,36,36))
+        voc_rect = voc_surf.get_rect(left=55,top=45)
+        surfs.append((voc_surf, voc_rect))
+
+        # 詞性跟等級
+        pos_surf = Font_Manager.get_text_surface('(' + word_data.get('Part_of_speech', 'None') + ')' + 'level ' + str(word_data.get('Level', 'None')), 12*scale, (36,36,36))
+        pos_rect = pos_surf.get_rect(left=voc_rect.right+15,bottom=voc_rect.bottom-12)
+        surfs.append((pos_surf, pos_rect))
+        self.pos_for_voc_button = (pos[0] - img.get_width()/2 + pos_rect.right + 40, pos[1] - img.get_height()/2 + pos_rect.centery - 10)
+
+        # 中文意思
+        trans_surf = Font_Manager.get_text_surface(word_data.get('Translation', '無'), 12*scale, (36,36,36))
+        trans_rect = trans_surf.get_rect(left=voc_rect.left,top=voc_rect.bottom)
+        surfs.append((trans_surf, trans_rect))
+
+        # 例句:
+        sentence_title_surf = Font_Manager.get_text_surface('例句：', 12*scale, (36,36,36))
+        sentence_title_rect = sentence_title_surf.get_rect(top=trans_rect.bottom+24, left=voc_rect.left)
+        surfs.append((sentence_title_surf, sentence_title_rect))
+        self.pos_for_sentence = (pos[0] - img.get_width()/2 + sentence_title_rect.right + 20, pos[1] - img.get_height()/2 + sentence_title_rect.centery)
+
+        # 英文例句、中文例句
+        sentence_key = ['sentence','translation']
+        top = sentence_title_rect.bottom
+        for k in sentence_key:
+            if k == 'sentence':
+                self.sentence = sentence_data.get(k, 'None')
+            sentence = self.split_text_to_lines(sentence_data.get(k, 'None'), 260*scale, 12*scale)
+            for i, s in enumerate(sentence):
+                sentence_surface = Font_Manager.get_text_surface(s, 12*scale, (36,36,36))
+                sentence_rect = sentence_surface.get_rect(top=top,left=voc_rect.left+5)
                 surfs.append((sentence_surface, sentence_rect))
-                current_height += sentence_surface.get_height()
-            current_height += 3
+                top += sentence_rect.height+2
             
+        db = UserDB()
+        # 熟練度
+        prof = db.get_card_info(game.USER_ID, id, column='proficiency')[0]['proficiency']
+        prof_surf = Font_Manager.get_text_surface('熟練度 ' + str(prof), 12*scale, (36,36,36))
+        prof_rect = prof_surf.get_rect(bottom=img.get_height()-1, centerx = 100)
+        surfs.append((prof_surf, prof_rect))
+
+        # 耐久值
+        dura = db.get_card_info(game.USER_ID, id, column='durability')[0]['durability']
+        dura_surf = Font_Manager.get_text_surface('耐久值 ' + str(dura) + '/100', 12*scale, (36,36,36))
+        dura_rect = dura_surf.get_rect(bottom=img.get_height()-1, centerx = img.get_width()/2-24)
+        surfs.append((dura_surf, dura_rect))
+
+        # 正確率
+        corr = db.get_card_info(game.USER_ID, id, column='correct_count')[0]['correct_count']
+        wron = db.get_card_info(game.USER_ID, id, column='wrong_count')[0]['wrong_count']
+        print(corr, wron)
+        if corr + wron == 0:
+            accu = 0
+        else:
+            accu = corr / (corr + wron)
+        accu_surf = Font_Manager.get_text_surface(f'正確率{accu:.1%}', 12*scale, (36,36,36))
+        accu_rect = accu_surf.get_rect(bottom=img.get_height()-1, centerx = 760)
+        surfs.append((accu_surf, accu_rect))
+         
+
         img.blits(surfs)
-        super().__init__(pos, scale, img)
+        super().__init__(pos, 1, img)
 
     def split_text_to_lines(self, text: str, max_width: int, font_size: int) -> list[str]:
         """

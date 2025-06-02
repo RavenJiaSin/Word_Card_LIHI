@@ -25,7 +25,7 @@ class Match_Card(Button):
 
         self.__back_img = pg.transform.rotate(pg.transform.smoothscale(self.__back_img, (self.width, self.height)), -90)
         self.__front_img = pg.transform.smoothscale(self.__front_img, (self.width, self.height))
-        text_surface = Font_Manager.get_text_surface(word[0], int(30*scale), (20,20,20))
+        text_surface = Font_Manager.get_text_surface(word[0], int(20*scale), (20,20,20))
         text_rect = text_surface.get_rect(center=(self.__front_img.get_size()[0] / 2, self.__front_img.get_size()[1] / 2))
         self.__front_img.blit(text_surface, text_rect)
 

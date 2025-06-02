@@ -1,5 +1,4 @@
 import pygame as pg
-import math
 import game
 
 class Object(pg.sprite.Sprite):
@@ -29,12 +28,14 @@ class Object(pg.sprite.Sprite):
             self.image = pg.transform.smoothscale(img, (width*scale,height*scale))
         self.rect = self.image.get_rect()
         self.rect.center = pos
+        self.hit_box = self.rect.copy()
         self.width = float(self.rect.width)
         self.height = float(self.rect.height)
         self.scale = scale
         self.__is_moving = False
         self.__is_wiggle = False
         self.__goDown = True
+        self.__movements = []
         
     def handle_event(self):
         """需要覆寫,物件可以從這邊處理相關事件(event_list)
@@ -48,27 +49,37 @@ class Object(pg.sprite.Sprite):
         self.__move()
         self.rect.center = (int(self.x), int(self.y))
 
-    def moveTo(self, target:tuple, time:int):
-        # .__move_XXX only declared and used in move function. Do not call them from outside
-        self.__move_start_pos = self.rect.center
-        self.__move_total_movement = (target[0] - self.rect.centerx, target[1] - self.rect.centery)
-        self.__move_total_frames = time * game.FPS
-        self.__move_cur_frame = 0
+    def moveTo(self, target:tuple, ms:int, hitbox_follow:bool=True):
+        '''
+        將移動加入佇列
+
+        設定目標位置，在指定時間內移動過去。可決定 hitbox 是否跟著移動
+        '''
+        movement = {}
+        movement['hitbox_follow'] = hitbox_follow
+        movement['start_pos'] = self.rect.center if len(self.__movements) == 0 else self.__movements[-1]['end_pos']
+        movement['end_pos'] = target
+        movement['total_movement'] = (target[0] - movement['start_pos'][0], target[1] - movement['start_pos'][1])
+        movement['total_frames'] = max(int(ms / 1000 * game.FPS), 1)  # 最少1幀，這樣才能移動
+        movement['cur_frame'] = 0
+        self.__movements.append(movement)
         self.__ori_wiggle = self.__is_wiggle
-        self.stopWiggle()
-        self.__is_moving = True
+        # self.stopWiggle() # nah. side effect is bad. Will not wiggle if setWiggle() is called while moving
 
     def __move(self):
-        if not self.__is_moving:
+        if len(self.__movements) == 0:
             return
-        self.__move_cur_frame += 1
-        self.x = self.__move_start_pos[0] + (self.__move_total_movement[0] * (self.__move_cur_frame / self.__move_total_frames))
-        self.y = self.__move_start_pos[1] + (self.__move_total_movement[1] * (self.__move_cur_frame / self.__move_total_frames))        
-        
-        if self.__move_cur_frame == self.__move_total_frames:
-            self.__is_moving = False
-            if self.__ori_wiggle:
+        cur_movement = self.__movements[0]
+        cur_movement['cur_frame'] += 1
+        self.x = cur_movement['start_pos'][0] + (cur_movement['total_movement'][0] * (cur_movement['cur_frame'] / cur_movement['total_frames']))
+        self.y = cur_movement['start_pos'][1] + (cur_movement['total_movement'][1] * (cur_movement['cur_frame'] / cur_movement['total_frames']))        
+        if cur_movement['hitbox_follow']:
+            self.hit_box.center = (int(self.x), int(self.y))
+        if cur_movement['cur_frame'] == cur_movement['total_frames']:
+            self.__movements.remove(cur_movement)
+            if len(self.__movements) == 0 and self.__is_wiggle:
                 self.setWiggle()
+                    
 
     def setWiggle(self):
         """開始物件抖動,呼叫stopWiggle()停止
@@ -85,7 +96,7 @@ class Object(pg.sprite.Sprite):
     def __wiggle(self):
         """抖動物件
         """
-        if not self.__is_wiggle:
+        if not self.__is_wiggle or len(self.__movements) != 0:
             return
         
         wiggleHeight = 0.02

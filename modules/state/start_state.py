@@ -3,11 +3,10 @@ import pygame as pg
 import game
 from .state import State
 from ..manager import Font_Manager
-from ..object import Text_Button
 from ..object import Card
 from ..object import Group
-from ..object import Toggle_Button
-from modules.database import VocabularyDB
+from ..database import VocabularyDB
+from ..database import UserDB
 
 class Start_State(State):
     """初始狀態。繼承自`State`。
@@ -18,19 +17,20 @@ class Start_State(State):
         
         from ..state import Menu_State
         db = VocabularyDB()
-        
+
         start_card = Card((-500, game.CANVAS_HEIGHT/2), 3, db.find_vocabulary(Vocabulary='start')[0]['ID'])
         start_card.setWiggle()
-        start_card.moveTo((game.CANVAS_WIDTH/2-300, game.CANVAS_HEIGHT/2+100), 1)
+        start_card.moveTo((game.CANVAS_WIDTH/2-300, game.CANVAS_HEIGHT/2+100), 1000)
         start_card.setClick(lambda:game.change_state(Menu_State()))
         self.all_sprites.add(start_card)
 
         quit_card = Card((game.CANVAS_WIDTH+500, game.CANVAS_HEIGHT/2), 3, db.find_vocabulary(Vocabulary='quit')[0]['ID'])
         quit_card.setWiggle()
-        quit_card.moveTo((game.CANVAS_WIDTH/2+300, game.CANVAS_HEIGHT/2+100), 1)
+        quit_card.moveTo((game.CANVAS_WIDTH/2+300, game.CANVAS_HEIGHT/2+100), 1000)
         quit_card.setClick(lambda:pg.event.post(pg.event.Event(pg.QUIT)))
 
         self.all_sprites.add(quit_card)
+
 
         # enter_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+50), text='開始')
         # quit_button = Text_Button(pos=(game.CANVAS_WIDTH/2,game.CANVAS_HEIGHT/2+200), text='退出')

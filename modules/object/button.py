@@ -3,6 +3,8 @@ import pygame as pg
 import game
 from .object import Object
 from ..manager import Image_Manager
+from ..manager import Event_Manager
+from ..manager import SFX_Manager
 
 class Button(Object):
     """按鈕物件。繼承自Object。
@@ -17,7 +19,7 @@ class Button(Object):
         __ori_y (float): 紀錄初始y位置。
         __goDown (bool): 紀錄抖動正在下降還是上升
     """
-    def __init__(self, pos:tuple=(0,0), scale:float=1, img=None):
+    def __init__(self, pos:tuple=(0,0), scale:float=1, img=None, sound='ingame_button'):
         if img == None:
             img = Image_Manager.get('button')
         super().__init__(pos=pos, scale=scale, img=img)
@@ -34,6 +36,11 @@ class Button(Object):
         self.__press_scale_speed = 0.45                 # 點擊時每幀縮放變化的速度
 
         self.can_press = True
+        self.is_hover = False
+        self.mouse_enter = False
+        self.mouse_exit = False
+
+        self.sound = sound
 
     # override
     def handle_event(self):
@@ -42,22 +49,41 @@ class Button(Object):
             if e.type == pg.MOUSEBUTTONDOWN and e.button == 1 and self.can_press:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
-                if self.rect.collidepoint(scaled_pos):
+                if self.hit_box.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個按下事件只會讓一個 button 被按下 
                     self.__isPressed = True
             if e.type == pg.MOUSEBUTTONUP and e.button == 1 and self.__isPressed:
                 mx, my = e.pos
                 scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
                 self.__isPressed = False
-                if self.rect.collidepoint(scaled_pos):
+                if self.hit_box.collidepoint(scaled_pos):
                     game.event_list.remove(e)  # 一個放開事件只會讓一個 button 被放開
+                    SFX_Manager.play(self.sound)
                     self.__click()
+            if e.type == Event_Manager.EVENT_SHAKE:
+                x, y = self.rect.center
+                delta = 5
+                self.moveTo((x, y - delta), 50, False)
+                # self.moveTo((x + delta, y + delta), 50, False)
+                self.moveTo((x, y), 50, False)
 
+    def check_hover(self):
+        mx, my = pg.mouse.get_pos()
+        scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
+        if self.hit_box.collidepoint(scaled_pos):
+            self.mouse_enter = not self.is_hover  # 還沒hover過的話，觸發進入flag
+            self.mouse_exit = False
+            self.is_hover = True
+        else:
+            self.mouse_exit = self.is_hover  # 上一幀還hover的話，觸發離開flag
+            self.mouse_enter = False         # 重要，沒加會錯，我猜是因為一幀內出去又離開會來不及把它用上面那個變False
+            self.is_hover = False
 
     # override
     def update(self):
+        self.check_hover()
         self.__pressed_effect()
-        super().update()    
+        super().update()
 
     def setClick(self,func:Callable[[], None] = lambda: None):
         """設定`_click`
@@ -89,7 +115,7 @@ class Button(Object):
     def rotate(self, angle):
         self.image = pg.transform.rotate(self.image, angle)
 
-    def set_ori_image(self, img):
+    def set_ori_image(self, img:pg.surface.Surface):
         center = self.rect.center
         self.__ori_image = img
         self.image = self.__ori_image
@@ -97,9 +123,11 @@ class Button(Object):
         self.__ori_w, self.__ori_h = self.rect.size
         self.width, self.height = self.rect.size
         self.rect.center = center
+        self.hit_box = self.rect.copy()
         
     def set_color(self, color):
         self.image.fill(color)
         self.__ori_image = self.image.copy()
         self.rect.size = self.image.get_rect().size
         self.__ori_w, self.__ori_h = self.rect.size
+        self.hit_box = self.rect.copy()

@@ -6,9 +6,13 @@ from ..object import Card
 from ..object import Group
 from ..object import Card_Info
 from ..object import Toggle_Button
+from ..object import Confirm_Quit_Object
+from ..object import Text_Sound_Button
 from functools import partial
 from ..manager import Font_Manager
+from ..manager import Event_Manager
 from modules.database import VocabularyDB
+from modules.database import UserDB
 
 class Card_Collection_State(State):
     """遊戲中卡片收藏頁面的狀態管理類別。
@@ -34,35 +38,55 @@ class Card_Collection_State(State):
     """
 
     def __init__(self):
-        self.db = VocabularyDB()
+        self.voc_db = VocabularyDB()
+        self.user_db = UserDB()
         self.current_vocab_index = 0
-        self.vocab_list = self.db.get_all()
+        self.vocab_list = []
+        for card in self.user_db.get_card_info(game.USER_ID):
+            if card['durability'] <= 0:
+                continue
+            voc_dic = self.voc_db.find_vocabulary(id=card['voc_id'])[0]
+            voc_dic['durability'] = int(card['durability'])
+            self.vocab_list += [voc_dic]
+
+        self.vocab_list = sorted(self.vocab_list, key=lambda x: x["durability"])
 
         from . import Menu_State
         self.background_cards = Group()
         self.ui_sprites = Group()
         self.foreground_card = None
         self.foreground_card_info = None
+        self.text_sound_button_1 = None
+        self.text_sound_button_2 = None
 
         self.scroll_offset = 0  # 初始卷軸偏移
         
         # 建立返回首頁按鈕
+        self.confirm_quit_object = Confirm_Quit_Object(lambda:game.change_state(Menu_State()))
         menu_button = Text_Button(pos=(100, 100), text='首頁')
-        menu_button.setClick(lambda:game.change_state(Menu_State()))
+        menu_button.setClick(lambda: self.confirm_quit_object.set_show(True))
         self.ui_sprites.add(menu_button)
 
         self.toggle_button_list = []
+        self.partofspeech_button_list = []
+        self.level_button_list = []
 
         # 詞性篩選器按鈕
-        partofspeech_labels = ['n.', 'v.', 'adj.', 'adv.', 'prep.', 'conj.','']
+        partofspeech_labels = ['n.', 'v.', 'adj.', 'adv.', 'prep.', 'conj.']
         toggle_start_x = 70
         toggle_start_y = 250
         gap = 100
         for i, label in enumerate(partofspeech_labels):
             btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+i*gap), scale=0.3, label=label)
-            btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
+            btn.setClick(lambda b=btn: (b.toggle(), self.reset_background_cards()))
             self.ui_sprites.add(btn)
             self.toggle_button_list.append(btn)
+            self.partofspeech_button_list.append(btn)
+
+        # 全選詞性按鈕
+        btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+6*gap), scale=0.3, label='')
+        btn.setClick(lambda b=btn: (b.toggle(), list(tmp.set_state(b.get_state()) for tmp in self.partofspeech_button_list), self.reset_background_cards()))
+        self.ui_sprites.add(btn)
 
         # 等級篩選器按鈕 Level 1~6
         toggle_start_x = 150
@@ -70,9 +94,15 @@ class Card_Collection_State(State):
         for i in range(6):
             level = i + 1
             btn = Toggle_Button(pos=(toggle_start_x, toggle_start_y+i*gap), scale=0.3, label=str(level))
-            btn.setClick(lambda b=btn: (b.toggle(), self.apply_filter()))
+            btn.setClick(lambda b=btn: (b.toggle(), self.reset_background_cards()))
             self.ui_sprites.add(btn)
             self.toggle_button_list.append(btn)
+            self.level_button_list.append(btn)
+
+        # 全選等級按鈕
+        btn = Toggle_Button(pos=(toggle_start_x,toggle_start_y+6*gap), scale=0.3, label='')
+        btn.setClick(lambda b=btn: (b.toggle(), list(tmp.set_state(b.get_state()) for tmp in self.level_button_list), self.reset_background_cards()))
+        self.ui_sprites.add(btn)
 
         # 設定卡片顯示範圍與版面
         self.background_top = 200
@@ -85,8 +115,7 @@ class Card_Collection_State(State):
         self.generate_row(0)
         self.generate_row(1)
 
-    def apply_filter(self):
-        self.filter_ui_visible = False
+    def reset_background_cards(self):
         self.background_cards.empty()
         self.current_vocab_index = 0
 
@@ -131,20 +160,49 @@ class Card_Collection_State(State):
         if self.foreground_card:
             self.foreground_card = None
             self.foreground_card_info = None
+            self.text_sound_button_1 = None
+            self.text_sound_button_2 = None
         else:
             self.foreground_card = Card(pos=(game.CANVAS_WIDTH/2-400, game.CANVAS_HEIGHT/2), scale=4,id=card_id)
             self.foreground_card_info = Card_Info((game.CANVAS_WIDTH/2+360, 500), 3, card_id)
+            self.text_sound_button_1 = Text_Sound_Button(pos=self.foreground_card_info.pos_for_voc_button, scale=0.5, text=self.foreground_card_info.voc)
+            self.text_sound_button_2 = Text_Sound_Button(pos=self.foreground_card_info.pos_for_sentence, scale=0.5, text=self.foreground_card_info.sentence)
+
+    def update_background_cards(self):
+        # 進行排序(先照等級，再照耐久)
+        self.vocab_list = []
+        for card in self.user_db.get_card_info(game.USER_ID):
+            if card['durability'] <= 0:
+                continue
+            voc_dic = self.voc_db.find_vocabulary(id=card['voc_id'])[0]
+            voc_dic['durability'] = int(card['durability'])
+            self.vocab_list += [voc_dic]
+
+        self.vocab_list = sorted(self.vocab_list, key=lambda x: x["durability"])
+        
+        self.reset_background_cards()
+        for card in self.background_cards:
+            card.update_image()
 
     # override
     def handle_event(self):   
+        for e in game.event_list:
+            if e.type == Event_Manager.EVENT_ANEWDAY:
+                self.update_background_cards()
+                
+                
+        self.confirm_quit_object.handle_event()
+
         # 有放大卡，檢查點擊位置，不在卡片上就關掉
         if self.foreground_card:
             self.foreground_card.handle_event()
+            self.text_sound_button_1.handle_event()
+            self.text_sound_button_2.handle_event()
             for event in game.event_list:
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     mx, my = event.pos
                     scaled_pos = (mx * game.MOUSE_SCALE, my * game.MOUSE_SCALE)
-                    if not self.foreground_card.rect.collidepoint(scaled_pos) and not self.foreground_card_info.rect.collidepoint(scaled_pos):
+                    if self.foreground_card and self.foreground_card_info and not self.foreground_card.rect.collidepoint(scaled_pos) and not self.foreground_card_info.rect.collidepoint(scaled_pos):
                         self.foreground_card = None
                         self.foreground_card_info = None
         # 沒有放大卡，則先檢查是否點到背景卡牌或 UI 按鈕
@@ -160,13 +218,17 @@ class Card_Collection_State(State):
                     
     # override
     def update(self):
+        self.confirm_quit_object.update()
         self.background_cards.update()
        
         for card in self.background_cards:
             card.rect.centery = card.ori_y + self.scroll_offset
+            card.hit_box = card.rect.copy()
 
         self.ui_sprites.update()
         if self.foreground_card:
+            self.text_sound_button_1.update()
+            self.text_sound_button_2.update()
             self.foreground_card.update()
             self.foreground_card_info.update()
 
@@ -178,11 +240,23 @@ class Card_Collection_State(State):
 
     # override
     def render(self):
-        Font_Manager.draw_text(game.canvas, "Card Collection", 70, game.CANVAS_WIDTH/2 + 50 , 100)
+        owned_cards = len(self.user_db.get_card_info(user_id = 1))
+        total_cards = len(self.voc_db.get_all())
+        first_card_text = f"已擁有/總卡牌數：{owned_cards}/{total_cards}"
+
+        not_hidden_cards = len(self.user_db.get_card_durability_below(user_id = 1, durability = 0))
+        second_card_text = f"隱藏卡牌數：{not_hidden_cards}"
+
+        Font_Manager.draw_text(game.canvas, "卡牌庫", 70, game.CANVAS_WIDTH/2, 100)
+        Font_Manager.draw_text(game.canvas, first_card_text, 30, game.CANVAS_WIDTH/2 -500 , 70)
+        Font_Manager.draw_text(game.canvas, second_card_text, 30, game.CANVAS_WIDTH/2 -500 , 130)
+
         self.ui_sprites.draw(game.canvas)
 
         self.render_background()
         self.render_foreground()
+
+        self.confirm_quit_object.render()
         
     def render_background(self):
         # 進行卡片畫面截斷
@@ -213,4 +287,4 @@ class Card_Collection_State(State):
         
         dark_overlay = pg.Surface((game.CANVAS_WIDTH, game.CANVAS_HEIGHT), flags=pg.SRCALPHA) #黑幕頁面，製造聚焦效果
         dark_overlay.fill((0, 0, 0, 180))  # RGBA，最後一個值是透明度（0~255）
-        game.canvas.blits([(dark_overlay, (0, 0)), (self.foreground_card.image, self.foreground_card.rect), (self.foreground_card_info.image, self.foreground_card_info.rect)])  # 把暗幕以及放大卡片畫上去
+        game.canvas.blits([(dark_overlay, (0, 0)), (self.foreground_card.image, self.foreground_card.rect), (self.foreground_card_info.image, self.foreground_card_info.rect), (self.text_sound_button_1.image, self.text_sound_button_1.rect), (self.text_sound_button_2.image, self.text_sound_button_2.rect)])  # 把暗幕、放大卡片、卡片資訊畫上去
