@@ -47,17 +47,17 @@ class Card(Button):
         # 先取得卡片模板    
         level = self.__data.get('Level', 0)
         if level == 1:
-            card_template_img = Image_Manager.get('level_1_card_frame_2')
+            card_template_img = Image_Manager.get('level_1_card_frame_2_')
         elif level == 2:
-            card_template_img = Image_Manager.get('level_2_card_frame_2')
+            card_template_img = Image_Manager.get('level_2_card_frame_2_')
         elif level == 3:
-            card_template_img = Image_Manager.get('level_3_card_frame_2')
+            card_template_img = Image_Manager.get('level_3_card_frame_2_')
         elif level == 4:
-            card_template_img = Image_Manager.get('level_4_card_frame_2')
+            card_template_img = Image_Manager.get('level_4_card_frame_2_')
         elif level == 5:
-            card_template_img = Image_Manager.get('level_5_card_frame_2')
+            card_template_img = Image_Manager.get('level_5_card_frame_2_')
         elif level == 6:
-            card_template_img = Image_Manager.get('level_6_card_frame_2')
+            card_template_img = Image_Manager.get('level_6_card_frame_2_')
         else:
             card_template_img = Image_Manager.get('card_template')
             
