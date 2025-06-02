@@ -1,6 +1,6 @@
 import math
 import random
-from datetime import date
+from datetime import date, datetime
 import pygame as pg
 import game
 from modules.database.userDBconnect import UserDB
@@ -11,7 +11,7 @@ class Time_Manager():
     voc_db = VocabularyDB()
     user_db = UserDB()
 
-    SECASDAY = 30  # 幾秒當一天
+    SECASDAY = 60  # 幾秒當一天
     __last_time = 0
 
     def __init__(self):
@@ -20,6 +20,16 @@ class Time_Manager():
         today = date.today().isoformat()
         last_time = self.user_db.get_user_info(game.USER_ID, 'last_played')[0]['last_played']
         if today != last_time:
+            #判斷連續天數
+            if last_time != None:
+                todate = datetime.strptime(today, "%Y-%m-%d").date()
+                lastdate = datetime.strptime(last_time, "%Y-%m-%d").date()
+                diff = abs((todate - lastdate).days)
+                if diff == 1:
+                    user_info = self.user_db.get_user_info(user_id=game.USER_ID)[0]
+                    self.user_db.update_user_info(user_id=game.USER_ID, streak_days=user_info['streak_days'] + 1)
+            else:
+                self.user_db.update_user_info(user_id=game.USER_ID, streak_days=1)
             self.start_a_new_day()
             self.user_db.update_user_info(game.USER_ID, last_played=today)
 
@@ -43,6 +53,8 @@ class Time_Manager():
         now = pg.time.get_ticks()
         if now - self.__last_time > self.SECASDAY * 1000:
             self.__last_time = now
+            user_info = self.user_db.get_user_info(user_id=game.USER_ID)[0]
+            self.user_db.update_user_info(user_id=game.USER_ID, streak_days=user_info['streak_days'] + 1)
             self.start_a_new_day()
         # ^^^^^ just for demo ^^^^^
 
