@@ -26,8 +26,6 @@ class Menu_State(State):
     
     """
 
-    opened_today_cards = False
-
     def __init__(self):
 
 
@@ -64,23 +62,22 @@ class Menu_State(State):
         self.card_packet_button = Card(pos=self.card_pack_pos, scale=2)
         self.card_packet_button.setClick(self.open_card_pack)
         self.card_packet_button.setWiggle()
-        if not self.opened_today_cards:
+        if not game.opened_today_cards:
             self.all_sprites.add(self.card_packet_button)
 
         self.daily_card = Carousel(center=self.card_pack_pos)
 
     def open_card_pack(self):
-        self.opened_today_cards = True
+        game.opened_today_cards = True
         self.all_sprites.remove(self.card_packet_button)
         
     # override
     def handle_event(self):
         self.all_sprites.handle_event()
-        if self.opened_today_cards:
+        if game.opened_today_cards:
             self.daily_card.handle_event()
         for e in game.event_list:
             if e.type == Event_Manager.EVENT_ANEWDAY:
-                self.opened_today_cards = False
                 self.all_sprites.add(self.card_packet_button)
                 self.daily_card = Carousel(center=self.card_pack_pos)
 
@@ -100,12 +97,12 @@ class Menu_State(State):
     # override
     def update(self):
         self.all_sprites.update()
-        if self.opened_today_cards:
+        if game.opened_today_cards:
             self.daily_card.update()
 
     # override
     def render(self):
         Font_Manager.draw_text(game.canvas, "首頁", 70, game.CANVAS_WIDTH/2, 100)
         self.all_sprites.draw(game.canvas)
-        if self.opened_today_cards:
+        if game.opened_today_cards:
             self.daily_card.draw(game.canvas)

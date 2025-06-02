@@ -21,6 +21,7 @@ canvas =  pg.Surface((CANVAS_WIDTH, CANVAS_HEIGHT))
 event_list = None
 background_color = (100,155,255)
 daily_card_ids = []  # 每日卡牌們的id
+opened_today_cards = False
 user_db=UserDB()
 
 def change_state(state:State):
