@@ -48,6 +48,13 @@ class Time_Manager():
         self.user_db.add_durability_for_proficiency(user_id=game.USER_ID, proficiency=6, delta = 100)
         # ^^^^^ just for demo ^^^^^
     
+    def handle_event(self):
+        for e in game.event_list:
+            if e.type == pg.KEYDOWN and e.key == pg.K_RETURN: # 回車鍵換日
+                user_info = self.user_db.get_user_info(user_id=game.USER_ID)[0]
+                self.user_db.update_user_info(user_id=game.USER_ID, streak_days=user_info['streak_days'] + 1)
+                self.start_a_new_day() 
+
     def update(self):
         # vvvvv just for demo vvvvv
         now = pg.time.get_ticks()
@@ -63,6 +70,7 @@ class Time_Manager():
         過一天啦
         '''
         print('A whole new day')
+        game.opened_today_cards = False
         pg.event.post(pg.event.Event(Event_Manager.EVENT_ANEWDAY))
         self.update_user_durability()
         self.get_new_daily_cards()

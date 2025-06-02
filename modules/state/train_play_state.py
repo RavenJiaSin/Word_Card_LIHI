@@ -229,7 +229,7 @@ class Train_Play_State(State):
             # 答對
             SFX_Manager.play('ingame_correct')
             self.score += 1
-            self.current_result_text = "Correct!"
+            self.current_result_text = "Correct,"
             self.__correct_card = self.__selected_card
             self.all_sprites.add(self.correct_indicator, layer=-1)
             self.showing_correct = True
@@ -239,6 +239,7 @@ class Train_Play_State(State):
             user_card = self.user_db.get_card_info(voc_id=voc_id)
             if len(user_card) != 0:
                 # 使用者已有這卡牌
+                self.current_result_text += '卡片升級！'
                 user_card = user_card[0]                
                 self.user_db.update_card_info(user_id = game.USER_ID,
                                               voc_id = voc_id,
@@ -249,6 +250,7 @@ class Train_Play_State(State):
                                               )
             else:
                 # 獲得新卡牌
+                self.current_result_text += ' 獲得新卡片！'
                 self.user_db.add_card_to_user(user_id=game.USER_ID, voc_id=selected_card_data['ID'])
                 self.user_db.update_card_info(user_id = game.USER_ID,
                                               voc_id = voc_id,
