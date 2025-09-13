@@ -88,3 +88,30 @@ method:
     valid_columns = {"example_id", "voc_id", "sentence", "translation"}
     ```
 ---
+
+### 4 專案範例
+
+#### 首頁
+![首頁畫面](assets/image.png) <!-- 假圖，請自行替換 -->
+![首頁畫面2](assets/image4.png)
+
+---
+
+#### 練功坊題目
+![練功坊題目畫面](assets/image5.png)
+
+---
+
+#### 卡牌庫
+![卡牌庫畫面](assets/image3.png)
+![卡牌庫詳細資訊](assets/image2.png)
+
+---
+
+#### 連連看
+![連連看畫面](assets/image6.png)
+
+---
+
+#### 統計
+![統計畫面](assets/image7.png)
